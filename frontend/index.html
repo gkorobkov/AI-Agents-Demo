@@ -5,7 +5,7 @@
 // ╔══════════════════════════════════════════════════════════╗
 // ║ ── VERSION ──  (grep: APP_VERSION for build increment)   ║
 // ╚══════════════════════════════════════════════════════════╝
-const APP_VERSION = '0.1.24';
+const APP_VERSION = '0.1.25';
 
 // ╔══════════════════════════════════════════════════════════╗
 // ║                   CONFIGURABLE DEFAULTS                  ║
@@ -880,6 +880,8 @@ const CFG_SHOW_CHECK_BTN = false;
     header { gap: 5px; padding: 0 8px; }
     .header-title { display: none; }
     #webhook-url { font-size: 10px; }
+    .compact-select-trigger { min-width: 47px; padding-left: 5px; gap: 3px; }
+    .compact-select:last-of-type .compact-select-menu { left: auto; right: 0; }
   }
 
   .resend-btn {
@@ -1133,75 +1135,38 @@ const CFG_SHOW_CHECK_BTN = false;
     border: 1px solid rgba(0,200,255,0.25);
   }
 
-  #url-type-toggle {
-    display: none;
-    flex-shrink: 0;
-    align-items: center;
-    gap: 2px;
+  .compact-select { position: relative; flex-shrink: 0; font-family: var(--font-mono); }
+  .compact-select-trigger {
+    height: 22px; min-width: 52px; padding: 0 5px 0 7px;
+    display: flex; align-items: center; justify-content: space-between; gap: 5px;
+    background: transparent; border: 1px solid rgba(136,152,184,0.25); border-radius: 3px;
+    color: var(--text-muted); font: 700 9px/1 var(--font-mono); letter-spacing: 0.4px;
+    cursor: pointer; transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
   }
-  .url-env-btn {
-    font-size: 8px;
-    font-family: var(--font-mono);
-    font-weight: 700;
-    letter-spacing: 0.4px;
-    padding: 2px 5px;
-    border-radius: 2px;
-    cursor: pointer;
-    transition: opacity 0.15s;
-    white-space: nowrap;
-    background: transparent;
-    color: var(--text-muted);
-    border: 1px solid rgba(136,152,184,0.2);
-    opacity: 0.35;
+  .compact-select-trigger svg { width: 8px; height: 8px; flex-shrink: 0; transition: transform 0.18s ease; }
+  .compact-select.open .compact-select-trigger svg { transform: rotate(180deg); }
+  .compact-select-trigger:focus-visible { outline: 2px solid var(--accent2); outline-offset: 2px; }
+  .compact-select-menu {
+    display: none; position: absolute; top: calc(100% + 5px); left: 0; min-width: 100%; padding: 3px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 5px;
+    box-shadow: 0 8px 22px var(--shadow); z-index: 340;
   }
-  .url-env-btn:hover { opacity: 0.65; }
-  #url-btn-prod.active {
-    background: rgba(0,200,255,0.12);
-    color: var(--accent2);
-    border-color: rgba(0,200,255,0.25);
-    opacity: 1;
+  .compact-select.open .compact-select-menu { display: block; }
+  .compact-select-option {
+    width: 100%; min-height: 28px; padding: 5px 7px; border: 0; border-radius: 3px;
+    background: transparent; color: var(--text-muted); font: 700 9px/1 var(--font-mono);
+    letter-spacing: 0.4px; text-align: left; cursor: pointer; transition: background 0.13s, color 0.13s;
   }
-  #url-btn-test.active {
-    background: rgba(136,152,184,0.1);
-    color: var(--text-muted);
-    border-color: rgba(136,152,184,0.3);
-    opacity: 1;
-  }
-
-  #method-toggle {
-    display: flex;
-    gap: 3px;
-    align-items: center;
-    margin-right: 4px;
-  }
-  .method-btn {
-    font-family: var(--font-mono);
-    font-size: 9px;
-    font-weight: 600;
-    letter-spacing: 0.4px;
-    padding: 2px 5px;
-    border-radius: 2px;
-    cursor: pointer;
-    transition: opacity 0.15s, background 0.15s, color 0.15s, border-color 0.15s;
-    white-space: nowrap;
-    background: transparent;
-    color: var(--text-muted);
-    border: 1px solid rgba(136,152,184,0.2);
-    opacity: 0.35;
-  }
-  .method-btn:hover { opacity: 0.65; }
-  #method-btn-get.active {
-    background: rgba(59,130,246,0.15);
-    color: #60a5fa;
-    border-color: rgba(59,130,246,0.4);
-    opacity: 1;
-  }
-  #method-btn-post.active {
-    background: rgba(79,255,176,0.12);
-    color: var(--accent);
-    border-color: rgba(79,255,176,0.3);
-    opacity: 1;
-  }
+  .compact-select-option:hover, .compact-select-option:focus-visible { background: var(--surface2); outline: none; }
+  .method-get { color: #60a5fa; }
+  .method-post { color: var(--accent); }
+  .env-prod { color: var(--accent2); }
+  .env-test { color: var(--text-muted); }
+  #method-toggle[data-value="get"] .compact-select-trigger { color: #60a5fa; border-color: rgba(59,130,246,0.45); background: rgba(59,130,246,0.12); box-shadow: 0 0 8px rgba(59,130,246,0.12); }
+  #method-toggle[data-value="post"] .compact-select-trigger { color: var(--accent); border-color: rgba(79,255,176,0.35); background: rgba(79,255,176,0.1); box-shadow: 0 0 8px rgba(79,255,176,0.1); }
+  #url-type-toggle[data-value="prod"] .compact-select-trigger { color: var(--accent2); border-color: rgba(0,200,255,0.35); background: rgba(0,200,255,0.1); box-shadow: 0 0 8px rgba(0,200,255,0.1); }
+  #url-type-toggle[data-value="test"] .compact-select-trigger { color: var(--text-muted); border-color: rgba(136,152,184,0.35); background: rgba(136,152,184,0.08); }
+  @media (hover: none), (pointer: coarse) { .compact-select-option { min-height: 36px; } }
 
   .wh-time {
     font-size: 9px;
@@ -1280,13 +1245,25 @@ const CFG_SHOW_CHECK_BTN = false;
   </button>
   <span class="header-title" id="app-title">AI Agent</span>
   <div id="webhook-wrap">
-    <div id="method-toggle">
-      <button class="method-btn" id="method-btn-get" onclick="setMethod('get')" title="Send as GET request">GET</button>
-      <button class="method-btn" id="method-btn-post" onclick="setMethod('post')" title="Send as POST request">POST</button>
+    <div class="compact-select" id="method-toggle" data-value="get">
+      <button class="compact-select-trigger" id="method-select-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="method-select-menu" title="HTTP method">
+        <span id="method-select-value">GET</span>
+        <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m1 1 4 4 4-4"/></svg>
+      </button>
+      <div class="compact-select-menu" id="method-select-menu" role="listbox" aria-label="HTTP method">
+        <button class="compact-select-option method-get" id="method-btn-get" type="button" role="option" onclick="setMethod('get')">GET</button>
+        <button class="compact-select-option method-post" id="method-btn-post" type="button" role="option" onclick="setMethod('post')">POST</button>
+      </div>
     </div>
-    <div id="url-type-toggle">
-      <button class="url-env-btn" id="url-btn-prod" onclick="setUrlType('prod')" title="Switch to PROD webhook">PROD</button>
-      <button class="url-env-btn" id="url-btn-test" onclick="setUrlType('test')" title="Switch to TEST webhook">TEST</button>
+    <div class="compact-select" id="url-type-toggle" data-value="prod">
+      <button class="compact-select-trigger" id="env-select-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="env-select-menu" title="Webhook environment">
+        <span id="env-select-value">PROD</span>
+        <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m1 1 4 4 4-4"/></svg>
+      </button>
+      <div class="compact-select-menu" id="env-select-menu" role="listbox" aria-label="Webhook environment">
+        <button class="compact-select-option env-prod" id="url-btn-prod" type="button" role="option" onclick="setUrlType('prod')">PROD</button>
+        <button class="compact-select-option env-test" id="url-btn-test" type="button" role="option" onclick="setUrlType('test')">TEST</button>
+      </div>
     </div>
     <div id="url-input-wrap">
       <div class="status-dot" id="status-dot"></div>
@@ -1852,11 +1829,83 @@ function setMethod(m) {
   httpMethod = m;
   localStorage.setItem('n8n_method', m);
   updateMethodUI();
+  closeCompactSelects();
 }
 function updateMethodUI() {
-  document.getElementById('method-btn-get').classList.toggle('active', httpMethod === 'get');
-  document.getElementById('method-btn-post').classList.toggle('active', httpMethod === 'post');
+  const wrap = document.getElementById('method-toggle');
+  wrap.dataset.value = httpMethod;
+  document.getElementById('method-select-value').textContent = httpMethod.toUpperCase();
+  document.getElementById('method-btn-get').setAttribute('aria-selected', httpMethod === 'get');
+  document.getElementById('method-btn-post').setAttribute('aria-selected', httpMethod === 'post');
 }
+
+const COMPACT_SELECT_HOVER_CLOSE_MS = 3000;
+const compactSelectCloseTimers = new WeakMap();
+const compactSelectFocusSuppress = new WeakSet();
+
+function clearCompactSelectCloseTimer(select) {
+  const timer = compactSelectCloseTimers.get(select);
+  if (timer) clearTimeout(timer);
+  compactSelectCloseTimers.delete(select);
+}
+
+function closeCompactSelect(select) {
+  clearCompactSelectCloseTimer(select);
+  select.classList.remove('open');
+  select.querySelector('.compact-select-trigger').setAttribute('aria-expanded', 'false');
+}
+
+function closeCompactSelects(except = null) {
+  document.querySelectorAll('.compact-select').forEach(select => {
+    clearCompactSelectCloseTimer(select);
+    if (select === except) return;
+    closeCompactSelect(select);
+  });
+}
+
+document.querySelectorAll('.compact-select').forEach(select => {
+  const trigger = select.querySelector('.compact-select-trigger');
+  const options = [...select.querySelectorAll('.compact-select-option')];
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+  const openSelect = () => {
+    clearCompactSelectCloseTimer(select);
+    closeCompactSelects(select);
+    select.classList.add('open');
+    trigger.setAttribute('aria-expanded', 'true');
+  };
+  const scheduleHoverClose = () => {
+    clearCompactSelectCloseTimer(select);
+    compactSelectCloseTimers.set(select, setTimeout(() => {
+      closeCompactSelect(select);
+    }, COMPACT_SELECT_HOVER_CLOSE_MS));
+  };
+  if (finePointer.matches) {
+    select.addEventListener('mouseenter', openSelect);
+    select.addEventListener('mouseleave', scheduleHoverClose);
+    trigger.addEventListener('focus', () => {
+      if (compactSelectFocusSuppress.delete(trigger)) return;
+      openSelect();
+    });
+  }
+  trigger.addEventListener('click', e => {
+    e.stopPropagation();
+    const willOpen = finePointer.matches || !select.classList.contains('open');
+    closeCompactSelects(select);
+    select.classList.toggle('open', willOpen);
+    trigger.setAttribute('aria-expanded', String(willOpen));
+    if (willOpen && !finePointer.matches) options[0]?.focus();
+  });
+  select.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      closeCompactSelect(select);
+      if (document.activeElement !== trigger) compactSelectFocusSuppress.add(trigger);
+      trigger.focus();
+    }
+  });
+});
+document.addEventListener('click', e => {
+  if (!e.target.closest('.compact-select')) closeCompactSelects();
+});
 
 const urlInput = document.getElementById('webhook-url');
 const urlInputMobile = document.getElementById('webhook-url-mobile');
@@ -1912,14 +1961,16 @@ function syncWebhookStyle() {
 function updateUrlTypeToggle() {
   const wrap = document.getElementById('url-type-toggle');
   if (!wrap) return;
-  wrap.style.display = 'flex';
   const hasWebhook = /\/webhook(-test)?\//.test(webhookUrl);
-  const type = hasWebhook ? getUrlType(webhookUrl) : '';
-  document.getElementById('url-btn-prod').classList.toggle('active', type === 'prod');
-  document.getElementById('url-btn-test').classList.toggle('active', type === 'test');
+  const type = hasWebhook ? getUrlType(webhookUrl) : (wrap.dataset.value || 'prod');
+  wrap.dataset.value = type;
+  document.getElementById('env-select-value').textContent = type.toUpperCase();
+  document.getElementById('url-btn-prod').setAttribute('aria-selected', type === 'prod');
+  document.getElementById('url-btn-test').setAttribute('aria-selected', type === 'test');
 }
 
 function setUrlType(type) {
+  closeCompactSelects();
   if (!webhookUrl) {
     showPopup('No webhook URL entered yet.', { type: 'warn', duration: 2500 });
     return;
