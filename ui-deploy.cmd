@@ -19,6 +19,6 @@ if "!DEPLOY_PATH!"=="" ( echo ERROR: DEPLOY_PATH not set in .env & exit /b 1 )
 
 echo Deploying to !DEPLOY_USER!@!DEPLOY_HOST!:!DEPLOY_PATH!
 
-scp -r ./.build/frontend/* !DEPLOY_USER!@!DEPLOY_HOST!:!DEPLOY_PATH!
+scp -r ./.build/ui/* !DEPLOY_USER!@!DEPLOY_HOST!:!DEPLOY_PATH!
 
-rem rsync -avz ./.build/frontend/ !DEPLOY_USER!@!DEPLOY_HOST!:!DEPLOY_PATH!
+rem rsync -avz ./.build/ui/ !DEPLOY_USER!@!DEPLOY_HOST!:!DEPLOY_PATH!

@@ -15,9 +15,10 @@ Paste a webhook URL — start chatting instantly.
 ## Quick start
 
 ```
-start-frontend.cmd        # open frontend locally
-build.cmd                 # increment version + copy to .build/
-deploy.cmd                # scp .build/frontend/* to server
+ui-start.cmd              # serve UI at http://localhost:8080/
+ui-start.cmd 3000         # use another port: http://localhost:3000/
+ui-build.cmd              # increment version + copy to .build/ui/
+ui-deploy.cmd             # scp .build/ui/* to server
 ```
 
 Configure deploy target in `.env`:

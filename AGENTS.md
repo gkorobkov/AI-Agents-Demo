@@ -2,13 +2,13 @@
 
 ## Project Structure & Module Organization
 
-The application is a dependency-free browser frontend in `frontend/`. `frontend/index.html` contains the main UI, inline styles, state management, webhook requests, localization, consent handling, and responsive behavior. Keep `privacy-policy.html` and `terms.html` aligned with consent-facing changes. The root JavaScript utilities (`webhook-check.js` and `run-check.mjs`) support webhook diagnostics; n8n workflow helper code and prompts live under `Part_1/` and `Part_2/`. Reference material is under `RAG/`, and deploy artifacts are generated into `.build/`.
+The application is a dependency-free browser frontend in `ui/`. `ui/index.html` contains the main UI, inline styles, state management, webhook requests, localization, consent handling, and responsive behavior. Keep `privacy-policy.html` and `terms.html` aligned with consent-facing changes. The root JavaScript utilities (`webhook-check.js` and `run-check.mjs`) support webhook diagnostics; n8n workflow helper code and prompts live under `Part_1/` and `Part_2/`. Reference material is under `RAG/`, and deploy artifacts are generated into `.build/`.
 
 ## Build, Test, and Development Commands
 
-- `start-frontend.cmd` opens the frontend locally.
-- `build.cmd` increments the application version and copies deployable frontend files into `.build/`.
-- `deploy.cmd` uploads `.build/frontend/*` using the target configured in `.env`.
+- `ui-start.cmd` serves the UI locally.
+- `ui-build.cmd` increments the application version and copies deployable UI files into `.build/ui/`.
+- `ui-deploy.cmd` uploads `.build/ui/*` using the target configured in `.env`.
 - `build-deploy.cmd` runs the existing build and deployment workflow.
 
 There is no package manifest or automated browser test suite in this repository. For frontend changes, inspect the page at desktop width, at 640px or below, and at 400px or below. Check JavaScript syntax and run `git diff --check` before handoff.
@@ -19,7 +19,7 @@ On a fresh site load, the consent overlay is expected. Accept the agreement your
 
 ## Coding Style & Naming Conventions
 
-Match the existing inline HTML/CSS/JavaScript style in `frontend/index.html`: two-space indentation, compact DOM helpers, CSS custom properties for theme colors, and `CFG_` prefixes for configuration constants. Reuse existing components and variables instead of introducing a framework or external dependency. Keep mobile rules near the existing responsive media queries.
+Match the existing inline HTML/CSS/JavaScript style in `ui/index.html`: two-space indentation, compact DOM helpers, CSS custom properties for theme colors, and `CFG_` prefixes for configuration constants. Reuse existing components and variables instead of introducing a framework or external dependency. Keep mobile rules near the existing responsive media queries.
 
 ## Commit & Pull Request Guidelines
 
