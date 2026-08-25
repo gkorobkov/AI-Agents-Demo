@@ -5,7 +5,7 @@
 // ╔══════════════════════════════════════════════════════════╗
 // ║ ── VERSION ──  (grep: APP_VERSION for build increment)   ║
 // ╚══════════════════════════════════════════════════════════╝
-const APP_VERSION = '0.1.26';
+const APP_VERSION = '0.1.27';
 
 // ╔══════════════════════════════════════════════════════════╗
 // ║                   CONFIGURABLE DEFAULTS                  ║
@@ -160,6 +160,124 @@ const CFG_SHOW_CHECK_BTN = false;
   #webhook-url:focus { border-color: var(--accent2); color: var(--text); box-shadow: 0 0 0 2px rgba(0,200,255,0.15); }
   #webhook-url.has-value { color: #00c8ff; font-weight: 500; }
   #webhook-url.has-value:focus { border-color: rgba(79,255,176,0.55); box-shadow: 0 0 0 2px rgba(79,255,176,0.1); }
+
+  #transport-toggle { flex-shrink: 0; }
+  #transport-toggle .compact-select-trigger { min-width: 86px; color: var(--accent); }
+  body[data-transport="openai"] header { border-bottom-color: rgba(0,200,255,.45); box-shadow: 0 1px 18px rgba(0,200,255,.06); }
+  body[data-transport="openai"] #transport-toggle .compact-select-trigger { color: var(--accent2); border-color: rgba(0,200,255,.45); }
+  body[data-transport="demo"] header { border-bottom-color: rgba(245,158,11,.45); box-shadow: 0 1px 18px rgba(245,158,11,.06); }
+  body[data-transport="demo"] #mode-settings-btn { color: color-mix(in srgb, #f5a623 68%, var(--text-muted)); }
+  body[data-transport="demo"] #transport-toggle .compact-select-trigger { color: #f5a623; border-color: rgba(245,158,11,.42); }
+  body[data-transport="openai"] #openai-wrap { padding: 3px 5px; border-radius: var(--radius-sm); background: linear-gradient(90deg, rgba(0,200,255,.07), transparent 72%); }
+  #openai-wrap { display: none; align-items: center; gap: 6px; flex: 1; min-width: 0; }
+  body[data-transport="openai"] #webhook-wrap { display: none; }
+  body[data-transport="openai"] #openai-wrap { display: flex; }
+  .openai-model-chip {
+    max-width: 170px; overflow: hidden; text-overflow: ellipsis;
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 4px 9px; color: var(--accent2); font: 10px var(--font-mono); white-space: nowrap;
+  }
+  .openai-base { flex: 1; min-width: 0; color: var(--text-muted); font: 10px var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .transport-settings-btn svg { width: 15px; height: 15px; }
+
+  #openai-settings-overlay { display: none; }
+  .transport-settings-panel {
+    position: relative; z-index: 9; width: 100%; max-height: 0; overflow: hidden;
+    padding: 0 max(24px, calc((100vw - 1180px) / 2)); background: var(--panel-bg);
+    border-bottom: 0 solid var(--border); box-shadow: 0 18px 35px transparent;
+    display: grid; grid-template-columns: 1.15fr 1.15fr .8fr; gap: 0 14px;
+    opacity: 0; transform: translateY(-12px); pointer-events: none;
+    transition: max-height .3s ease, padding .3s ease, opacity .2s ease, transform .3s ease, border-width .2s, box-shadow .3s;
+    flex-shrink: 0;
+  }
+  .transport-settings-panel.open { max-height: 330px; padding-top: 12px; padding-bottom: 14px; opacity: 1; transform: translateY(0); pointer-events: auto; border-bottom-width: 1px; box-shadow: 0 18px 35px rgba(0,0,0,.18); }
+  .transport-settings-panel.pinned { border-bottom-color: rgba(0,200,255,.42); box-shadow: 0 8px 24px rgba(0,200,255,.08); }
+  #webhook-settings.pinned { border-bottom-color: rgba(79,255,176,.42); box-shadow: 0 8px 24px rgba(79,255,176,.08); }
+  #demo-settings.pinned { border-bottom-color: rgba(245,158,11,.48); box-shadow: 0 8px 24px rgba(245,158,11,.08); }
+  #demo-settings .api-kicker, #demo-settings .api-pin.active { color: #f5a623; }
+  .api-settings-head { min-height: 38px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); margin-bottom: 11px; grid-column: 1 / -1; }
+  .api-head-actions { display: flex; align-items: center; gap: 7px; }
+  .api-pin { display: inline-flex; align-items: center; gap: 6px; }
+  .api-pin.active { color: var(--accent2); border-color: var(--accent2); background: rgba(0,200,255,.08); box-shadow: 0 0 12px rgba(0,200,255,.1); }
+  .api-pin-icon { display: inline-block; transition: transform .2s; }
+  .api-pin.active .api-pin-icon { transform: rotate(-35deg); }
+  .panel-collapse { width: 30px; height: 30px; display: inline-grid; place-items: center; border: 0; border-radius: 4px; background: transparent; color: var(--text-muted); cursor: pointer; }
+  .panel-collapse:hover, .panel-collapse:focus-visible { color: var(--accent); background: var(--accent-dim); outline: 1px solid currentColor; }
+  .panel-collapse svg { width: 13px; height: 13px; transition: transform .2s; transform: rotate(180deg); }
+  .autosave-status { min-height: 18px; color: var(--text-muted); font: 9px var(--font-mono); }
+  .autosave-status.saved { color: var(--accent); }
+  .autosave-status.error { color: var(--error); }
+  .profile-strip { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(130px, 1fr) minmax(110px, .7fr) auto auto; gap: 7px; align-items: center; margin-bottom: 9px; }
+  .profile-strip .api-input { padding-block: 7px; }
+  .profile-note { grid-column: 1 / -1; color: var(--text-muted); font: 8px var(--font-mono); }
+  .openai-panel-footer { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .openai-panel-footer .api-validation { flex: 1; min-width: 0; }
+  .openai-panel-footer .api-actions { flex: 0 0 auto; position: static; margin: 0; padding: 0; border: 0; background: transparent; }
+  .response-source { margin-right: auto; color: var(--text-muted); font: 8px var(--font-mono); letter-spacing: .02em; }
+  .msg-row[data-transport="openai"] .response-source { color: color-mix(in srgb, var(--accent2) 68%, var(--text-muted)); }
+  .msg-row[data-transport="demo"] .response-source { color: color-mix(in srgb, #f5a623 72%, var(--text-muted)); }
+  .api-settings-title { font: 600 14px var(--font-ui); letter-spacing: .02em; }
+  .api-kicker { color: var(--accent); font: 9px var(--font-mono); letter-spacing: .16em; text-transform: uppercase; margin-bottom: 4px; }
+  .api-field { display: block; margin-bottom: 10px; min-width: 0; }
+  #openai-settings > .api-field:nth-of-type(4) { grid-column: 1 / 3; grid-row: span 2; }
+  .mode-control-cluster { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+  #mode-settings-btn { width: 22px; height: 22px; color: color-mix(in srgb, var(--accent) 68%, var(--text-muted)); border-color: transparent; background: transparent; }
+  body[data-transport="openai"] #mode-settings-btn { color: color-mix(in srgb, var(--accent2) 68%, var(--text-muted)); }
+  #mode-settings-btn:hover, #mode-settings-btn:focus-visible { color: var(--accent); border-color: rgba(79,255,176,.28); background: var(--accent-dim); outline: none; }
+  #mode-settings-btn[aria-expanded="true"] { color: var(--accent); border-color: currentColor; background: var(--accent-dim); box-shadow: 0 0 12px rgba(79,255,176,.1); }
+  #mode-settings-btn svg { width: 13px; height: 13px; }
+  #transport-select-menu { min-width: 178px; }
+  .transport-option-row { display: grid; grid-template-columns: minmax(0, 1fr) 30px; align-items: stretch; }
+  .transport-option-row + .transport-option-row { border-top: 1px solid rgba(136,152,184,.12); }
+  .transport-option-row .compact-select-option { min-width: 0; }
+  .transport-option-gear { border: 0; border-left: 1px solid rgba(136,152,184,.12); border-radius: 3px; background: transparent; color: var(--text-muted); cursor: pointer; font-size: 12px; }
+  .transport-option-gear:hover, .transport-option-gear:focus-visible { color: var(--accent2); background: var(--surface2); outline: 1px solid var(--accent2); outline-offset: -2px; }
+  #connection-summary { flex: 1; min-width: 0; display: flex; align-items: center; gap: 7px; color: var(--text-muted); font: 10px var(--font-mono); }
+  #connection-summary-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  header > #webhook-wrap, header > #openai-wrap, header > #session-id-box { display: none !important; }
+  #webhook-settings #webhook-wrap { display: flex; width: 100%; grid-column: 1 / -1; align-self: center; }
+  #webhook-settings #session-id-box { display: block; grid-column: 1; align-self: center; }
+  #webhook-controls-slot, #webhook-session-slot { display: contents; }
+  .webhook-panel-copy { grid-column: 1 / 3; color: var(--text-muted); font: 10px/1.55 var(--font-mono); }
+  .webhook-panel-actions { grid-column: 3; display: flex; justify-content: flex-end; gap: 8px; align-items: center; }
+  .demo-local-capsule { display: inline-flex; align-items: center; gap: 6px; color: #f5a623; border: 1px solid rgba(245,158,11,.32); background: rgba(245,158,11,.07); border-radius: 4px; padding: 5px 8px; font: 9px var(--font-mono); letter-spacing: .12em; }
+  .demo-local-capsule::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #f5a623; box-shadow: 0 0 7px #f5a623; }
+  .demo-preview { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 9px 11px; background: var(--bg); border: 1px solid var(--border); border-left: 2px solid #f5a623; border-radius: var(--radius-sm); color: var(--text-muted); font: 10px/1.45 var(--font-mono); }
+  .demo-controls { grid-column: 1 / -1; display: grid; grid-template-columns: 1.2fr .8fr 1fr 1fr; gap: 12px; align-items: end; }
+  .demo-controls .api-field { margin: 0; }
+  .demo-toggle { min-height: 48px; padding: 6px 0; }
+  body[data-transport="demo"] .welcome-transport { color: #f5a623; border-color: rgba(245,158,11,.34); background: rgba(245,158,11,.07); }
+  .api-field > span { display: block; color: var(--text-muted); font: 10px var(--font-mono); margin-bottom: 6px; }
+  .api-input, .api-textarea {
+    width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm); outline: none;
+    background: var(--bg); color: var(--text); padding: 9px 11px; font: 11px var(--font-mono);
+  }
+  .api-textarea { min-height: 74px; resize: vertical; line-height: 1.5; }
+  .api-input:focus, .api-textarea:focus { border-color: var(--accent2); box-shadow: 0 0 0 2px rgba(0,200,255,.12); }
+  .api-secret-wrap { position: relative; }
+  .api-secret-wrap .api-input { padding-right: 42px; }
+  .api-eye { position: absolute; right: 5px; top: 4px; width: 32px; height: 30px; border: 0; background: transparent; color: var(--text-muted); cursor: pointer; }
+  .api-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; grid-column: 3; }
+  .api-toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 7px 0 10px; color: var(--text); font-size: 11px; grid-column: 3; }
+  .api-note { color: var(--text-muted); font-size: 9px; line-height: 1.5; margin: 1px 0 0; grid-column: 1 / 2; }
+  .api-validation { min-height: 29px; padding: 7px 10px; border-left: 2px solid var(--border); background: var(--bg); color: var(--text-muted); font: 9px var(--font-mono); margin: 0; grid-column: 2 / 3; }
+  .api-validation.ok { border-color: var(--accent); color: var(--accent); }
+  .api-validation.error { border-color: var(--error); color: var(--error); }
+  .api-actions { display: flex; gap: 8px; justify-content: flex-end; align-items: center; grid-column: 3; }
+  .api-actions .cfg-btn.primary { border-color: var(--accent); color: var(--accent); }
+  .request-preview { grid-column: 1 / -1; min-height: 33px; margin: 2px 0 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); overflow: visible; }
+  .request-preview > summary { padding: 9px 11px; color: var(--text); font: 600 10px var(--font-mono); cursor: pointer; list-style-position: inside; user-select: none; }
+  .request-preview[open] > summary { border-bottom: 1px solid var(--border); color: var(--accent2); }
+  .request-preview[open] { min-height: 350px; }
+  .request-preview-content { display: grid; gap: 9px; padding: 10px; }
+  .request-preview-line { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 8px; align-items: start; color: var(--text-muted); font: 9px/1.5 var(--font-mono); }
+  .request-preview-line strong { color: var(--accent2); font-weight: 600; overflow-wrap: anywhere; }
+  .request-preview-code { margin: 0; max-height: 180px; overflow: auto; padding: 9px 10px; border: 1px solid rgba(136,152,184,.16); border-radius: 3px; background: var(--surface); color: var(--text); font: 9px/1.55 var(--font-mono); white-space: pre; }
+  .request-preview-empty { margin: 0; color: var(--text-muted); font: 9px/1.45 var(--font-mono); }
+  .request-preview-actions { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+  .request-preview-hint { flex: 1 1 220px; color: var(--text-muted); font: 8px/1.4 var(--font-mono); }
+  .transport-settings-panel.open.preview-expanded { max-height: min(72dvh, 720px); overflow-y: auto; }
+  #mobile-connection-summary { display: none; }
 
   #session-id-box {
     background: transparent;
@@ -679,7 +797,7 @@ const CFG_SHOW_CHECK_BTN = false;
     position: absolute;
     top: 50%;
     left: 50%;
-    width: min(100%, 420px);
+    width: min(calc(100% - 40px), 540px);
     transform: translate(-50%, -50%);
     pointer-events: none;
   }
@@ -693,6 +811,16 @@ const CFG_SHOW_CHECK_BTN = false;
   .welcome-icon { font-size:38px; margin-bottom:12px; }
   .welcome h2 { font-size:16px; font-weight:600; margin-bottom:4px; }
   .welcome p { font-size:12px; color:var(--text-muted); font-family:var(--font-mono); }
+  .welcome-transport {
+    display: inline-flex; align-items: center; gap: 7px; margin: 3px 0 13px; padding: 5px 9px;
+    border: 1px solid rgba(79,255,176,.3); color: var(--accent); border-radius: var(--radius-sm);
+    background: var(--accent-dim); font: 9px var(--font-mono); letter-spacing: .1em; text-transform: uppercase;
+  }
+  .welcome-transport::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 7px currentColor; }
+  .welcome-detail { display: block; margin: 11px auto 0; max-width: 440px; color: var(--text-muted); font: 10px/1.55 var(--font-mono); opacity: .75; }
+  body[data-transport="openai"] .welcome { padding: 30px 28px 34px; border-block: 1px solid rgba(0,200,255,.16); background: linear-gradient(100deg, transparent, rgba(0,200,255,.035), transparent); }
+  body[data-transport="openai"] .welcome-dialog-icon { filter: drop-shadow(0 0 18px rgba(0,200,255,.42)); }
+  body[data-transport="openai"] .welcome-transport { color: var(--accent2); border-color: rgba(0,200,255,.34); background: rgba(0,200,255,.07); }
   #messages.has-chat #msg-spacer { display: none; }
   #messages.has-chat .welcome {
     position: static;
@@ -739,6 +867,12 @@ const CFG_SHOW_CHECK_BTN = false;
     flex-shrink: 0; position: relative; z-index: 1;
     transition: background 0.3s, border-color 0.3s;
   }
+  .composer-destination { height: 26px; flex: 0 0 auto; display: flex; align-items: center; padding: 3px 7px; border-left: 2px solid currentColor; color: var(--accent); font-family: var(--font-mono); }
+  .composer-destination-copy { min-width: 0; display: flex; }
+  .composer-destination-name { color: currentColor; font-size: 10px; font-weight: 700; line-height: 1.1; }
+  .composer-destination-detail { display: none; }
+  body[data-transport="openai"] .composer-destination { color: var(--accent2); }
+  body[data-transport="demo"] .composer-destination { color: #f5a623; }
   #msg-input {
     flex: 1;
     background: var(--surface2);
@@ -791,7 +925,7 @@ const CFG_SHOW_CHECK_BTN = false;
     box-shadow: 0 4px 16px rgba(0,0,0,0.3);
     display: flex; align-items: center; gap: 10px;
     justify-content: center; min-width: 220px; max-width: 340px;
-    pointer-events: auto;
+    pointer-events: none;
   }
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   #toast.warn {
@@ -812,6 +946,7 @@ const CFG_SHOW_CHECK_BTN = false;
     font-family: var(--font-mono);
     font-size: 11px;
     cursor: pointer;
+    pointer-events: auto;
   }
   #toast button:hover {
     background: rgba(79,255,176,0.14);
@@ -856,16 +991,51 @@ const CFG_SHOW_CHECK_BTN = false;
     #session-id-box  { display: none; }
     #btn-new-session { display: none; }
     #btn-clear       { display: none; }
+    #theme-btn, #lang-btn { display: none; }
     .header-title    { font-size: 11px; }
+    #connection-summary { display: none; }
+    #transport-toggle .compact-select-trigger { min-width: 74px; }
+    #transport-toggle.open { z-index: 1001; }
+    #transport-toggle.open ~ #mobile-connection-summary { pointer-events: none; }
+    .openai-base { display: none; }
+    .openai-model-chip { flex: 1; max-width: none; }
+    header { height: 68px; padding-bottom: 22px; }
+    #mobile-connection-summary {
+      display: block; position: absolute; left: 42px; right: 10px; bottom: 3px; height: 17px;
+      border: 0; background: transparent; color: var(--text-muted); text-align: left;
+      font: 9px var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer;
+    }
+    .transport-settings-panel { grid-template-columns: 1fr 1fr; padding-inline: 12px; gap: 0 10px; overflow-y: auto; }
+    .transport-settings-panel.open { max-height: 46dvh; padding-top: 8px; padding-bottom: 10px; }
+    .transport-settings-panel.open.preview-expanded { max-height: 65dvh; }
+    #openai-settings > .api-field:nth-of-type(4), .api-note, .api-validation, .api-actions { grid-column: 1 / -1; }
+    #openai-settings > .api-field:nth-of-type(4) { grid-row: auto; }
+    .api-grid, .api-toggle-row { grid-column: auto; }
+    .api-settings-head { position: sticky; top: 0; z-index: 2; background: var(--panel-bg); }
+    .webhook-panel-copy, .webhook-panel-actions { grid-column: 1 / -1; }
+    .demo-controls { grid-template-columns: 1fr 1fr; }
+    .profile-strip { grid-template-columns: 1fr 1fr; }
+    .profile-strip .cfg-btn { min-height: 38px; }
+    .openai-panel-footer { flex-wrap: wrap; }
+    .openai-panel-footer .api-validation { flex-basis: 100%; }
+    .webhook-panel-actions { position: sticky; bottom: -10px; z-index: 2; margin-inline: -12px; padding: 8px 12px 2px; background: var(--panel-bg); border-top: 1px solid var(--border); }
+    #webhook-settings #session-id-box { display: block; grid-column: 1 / -1; width: fit-content; }
+    #webhook-settings #webhook-wrap { display: grid; grid-template-columns: auto auto minmax(100px, 1fr) auto; align-items: center; }
+    #webhook-settings #url-input-wrap { min-width: 100px; }
 
     /* Show connection (session controls) in drawer */
-    #drawer-connection { display: block; }
+    #drawer-connection { display: none; }
 
     /* Compact message bar */
     #input-area {
       padding: 6px 10px;
       padding-bottom: max(8px, env(safe-area-inset-bottom));
+      flex-wrap: wrap; gap: 6px 10px;
     }
+    .composer-destination { width: 100%; height: 18px; flex: 1 0 100%; padding: 0 6px; }
+    .composer-destination-copy { width: 100%; }
+    .composer-destination-name { flex: 0 0 auto; }
+    .composer-destination-detail { flex: 1; }
     #msg-input {
       min-height: 38px;
       padding: 8px 12px;
@@ -879,9 +1049,31 @@ const CFG_SHOW_CHECK_BTN = false;
   @media (max-width: 400px) {
     header { gap: 5px; padding: 0 8px; }
     .header-title { display: none; }
+    #btn-debug-toggle { display: none; }
     #webhook-url { font-size: 10px; }
     .compact-select-trigger { min-width: 47px; padding-left: 5px; gap: 3px; }
     .compact-select:last-of-type .compact-select-menu { left: auto; right: 0; }
+    #transport-toggle .compact-select-trigger { min-width: 66px; padding-inline: 6px; }
+    #transport-select-value { max-width: 48px; overflow: hidden; text-overflow: ellipsis; }
+    .transport-settings-panel { padding-inline: 10px; }
+    .transport-settings-panel.open { max-height: 43dvh; }
+    .api-actions { position: sticky; bottom: -10px; margin: 6px -10px -10px; padding: 9px 10px max(10px, env(safe-area-inset-bottom)); background: var(--panel-bg); border-top: 1px solid var(--border); }
+    .api-actions .cfg-btn { min-height: 46px; flex: 1; font-size: 11px; }
+    .api-actions .cfg-btn.primary { flex: 1.35; background: var(--accent-dim); box-shadow: 0 0 18px rgba(79,255,176,.08); }
+    .webhook-panel-actions { margin-inline: -10px; padding: 8px 10px max(8px, env(safe-area-inset-bottom)); }
+    .webhook-panel-actions .cfg-btn { min-height: 40px; flex: 1; }
+    .welcome { width: calc(100% - 24px); padding-inline: 14px; }
+    .welcome-detail { font-size: 9px; }
+    #webhook-settings #webhook-wrap { grid-template-columns: auto auto minmax(72px, 1fr) auto; padding: 7px; }
+    .demo-controls { grid-template-columns: 1fr 1fr; gap: 7px; }
+    .demo-preview { align-items: flex-start; flex-direction: column; gap: 7px; }
+  }
+
+  @media (hover: none), (pointer: coarse) {
+    #transport-select-trigger, #mode-settings-btn { height: 32px; }
+    #mode-settings-btn { width: 32px; }
+    .transport-option-row { grid-template-columns: minmax(0, 1fr) 42px; }
+    .transport-option-gear { min-height: 42px; font-size: 14px; }
   }
 
   .resend-btn {
@@ -1039,6 +1231,10 @@ const CFG_SHOW_CHECK_BTN = false;
     min-width: 260px;
   }
   #webhook-hist-dropdown.open { display: block; }
+  #webhook-settings #webhook-wrap { padding: 8px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); gap: 6px; }
+  #webhook-history-slot { display: block; grid-column: 1 / -1; min-width: 0; }
+  #webhook-history-slot:empty { display: none; }
+  #webhook-settings #webhook-hist-dropdown { position: static; width: 100%; max-height: 150px; min-width: 0; margin-top: 4px; overflow-y: auto; box-shadow: 0 8px 18px rgba(0,0,0,.18); }
 
   .wh-head {
     display: flex;
@@ -1244,6 +1440,21 @@ const CFG_SHOW_CHECK_BTN = false;
     </svg>
   </button>
   <span class="header-title" id="app-title">AI Agent</span>
+  <div class="compact-select" id="transport-toggle" data-value="webhook">
+    <button class="compact-select-trigger" id="transport-select-trigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="transport-select-menu" data-i18n-title="transportTitle" title="Message transport">
+      <span id="transport-select-value">Webhook</span>
+      <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m1 1 4 4 4-4"/></svg>
+    </button>
+    <div class="compact-select-menu transport-menu" id="transport-select-menu" role="menu" aria-label="Message transport">
+      <div class="transport-option-row" role="none"><button class="compact-select-option" id="transport-btn-webhook" type="button" role="menuitemradio" aria-checked="true" onclick="setTransport('webhook')" title="n8n · Make · Activepieces · Custom">Webhook</button><button class="transport-option-gear" type="button" role="menuitem" onclick="openTransportSettings('webhook', event)" data-i18n-aria-label="modeGearWebhook" data-i18n-title="modeGearWebhook" aria-label="Open Webhook settings" title="Open Webhook settings">⚙</button></div>
+      <div class="transport-option-row" role="none"><button class="compact-select-option" id="transport-btn-openai" type="button" role="menuitemradio" aria-checked="false" onclick="setTransport('openai')">OpenAI API</button><button class="transport-option-gear" type="button" role="menuitem" onclick="openTransportSettings('openai', event)" data-i18n-aria-label="modeGearOpenAI" data-i18n-title="modeGearOpenAI" aria-label="Open OpenAI settings" title="Open OpenAI settings">⚙</button></div>
+      <div class="transport-option-row" role="none"><button class="compact-select-option" id="transport-btn-demo" type="button" role="menuitemradio" aria-checked="false" onclick="setTransport('demo')" data-i18n="demoMode">Stub</button><button class="transport-option-gear" type="button" role="menuitem" onclick="openTransportSettings('demo', event)" data-i18n-aria-label="modeGearDemo" data-i18n-title="modeGearDemo" aria-label="Open Stub settings" title="Open Stub settings">⚙</button></div>
+    </div>
+  </div>
+  <button class="icon-btn" id="mode-settings-btn" type="button" onclick="toggleActiveSettings()" aria-expanded="false" aria-controls="webhook-settings" data-i18n-title="modeSettingsTitle" data-i18n-aria-label="modeSettingsTitle" aria-label="Current mode settings" title="Current mode settings">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V21h-4v-.09A1.7 1.7 0 0 0 8.96 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3v-4h.09A1.7 1.7 0 0 0 4.6 8.96a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 8.96 4.6 1.7 1.7 0 0 0 10 3.04V3h4v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06a1.7 1.7 0 0 0-.34 1.88A1.7 1.7 0 0 0 20.96 10H21v4h-.09A1.7 1.7 0 0 0 19.4 15z"/></svg>
+  </button>
+  <div id="connection-summary"><span class="status-dot" id="connection-summary-dot"></span><span id="connection-summary-text"></span></div>
   <div id="webhook-wrap">
     <div class="compact-select" id="method-toggle" data-value="get">
       <button class="compact-select-trigger" id="method-select-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="method-select-menu" title="HTTP method">
@@ -1269,14 +1480,23 @@ const CFG_SHOW_CHECK_BTN = false;
       <div class="status-dot" id="status-dot"></div>
       <input id="webhook-url" type="text" placeholder="https://your-n8n.com/webhook/…  · Paste Webhook URL to start" />
     </div>
-    <button id="webhook-hist-btn" onclick="toggleHistoryDropdown()" title="URL history">
+    <button id="webhook-hist-btn" onclick="toggleHistoryDropdown()" data-i18n-title="recentsTitle" title="Recent connections">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="6 9 12 15 18 9"/>
       </svg>
     </button>
     <div id="webhook-hist-dropdown"></div>
   </div>
+  <div id="openai-wrap">
+    <span class="status-dot" id="openai-status-dot"></span>
+    <span class="openai-model-chip" id="openai-model-chip">qwen3.8-27b</span>
+    <span class="openai-base" id="openai-base-label">https://api.neuraldeep.ru/v1</span>
+    <button class="icon-btn transport-settings-btn" type="button" onclick="openOpenAISettings()" data-i18n-title="openaiSettingsTitle" title="OpenAI API settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V21h-4v-.09A1.7 1.7 0 0 0 8.96 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3v-4h.09A1.7 1.7 0 0 0 4.6 8.96a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 8.96 4.6 1.7 1.7 0 0 0 10 3.04V3h4v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06a1.7 1.7 0 0 0-.34 1.88A1.7 1.7 0 0 0 20.96 10H21v4h-.09A1.7 1.7 0 0 0 19.4 15z"/></svg>
+    </button>
+  </div>
   <div id="session-id-box" onclick="copySession()" style="cursor:pointer">🔑 <span id="sid-display"></span></div>
+  <button id="mobile-connection-summary" type="button" onclick="openActiveConnection()" aria-label="Connection summary"></button>
   <button class="icon-btn" id="btn-debug-toggle" title="Toggle debug info" onclick="onToggleDebug()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <line x1="9" y1="5" x2="6.5" y2="2.5"/>
@@ -1324,6 +1544,73 @@ const CFG_SHOW_CHECK_BTN = false;
 </header>
 
 <!-- Overlay -->
+<div id="openai-settings-overlay" onclick="closeOpenAISettings()"></div>
+<aside id="webhook-settings" class="transport-settings-panel" role="region" aria-hidden="true" aria-labelledby="webhook-settings-title">
+  <div class="api-settings-head">
+    <div><div class="api-kicker" data-i18n="webhookPanelKicker">Low-code connection</div><div class="api-settings-title" id="webhook-settings-title" data-i18n="webhookSettingsTitle">Webhook settings</div></div>
+    <div class="api-head-actions">
+      <button class="cfg-btn api-pin" id="webhook-pin-btn" type="button" onclick="toggleWebhookSettingsPin()" aria-pressed="false" data-i18n-title="openaiPinTitle"><span class="api-pin-icon">◆</span><span id="webhook-pin-label" data-i18n="openaiPin">Pin</span></button>
+      <button class="panel-collapse" type="button" onclick="closeWebhookSettings(true)" data-i18n-title="collapsePanel" data-i18n-aria-label="collapsePanel"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 10 5-5 5 5"/></svg></button>
+    </div>
+  </div>
+  <div id="webhook-controls-slot"></div>
+  <div id="webhook-history-slot"></div>
+  <p class="webhook-panel-copy" data-i18n="webhookCompatibility">Compatible with n8n, Make, Activepieces and custom webhooks. Default payload: message + sessionId.</p>
+  <div id="webhook-session-slot"></div>
+  <div class="webhook-panel-actions"><span class="autosave-status" id="webhook-autosave-status"></span><button class="cfg-btn" type="button" onclick="startUrlCheck(webhookUrl)" data-i18n="webhookCheck">Check URL</button></div>
+</aside>
+
+<aside id="demo-settings" class="transport-settings-panel" role="region" aria-hidden="true" aria-labelledby="demo-settings-title">
+  <div class="api-settings-head">
+    <div><div class="api-kicker" data-i18n="demoPanelKicker">Local stub test bench</div><div class="api-settings-title" id="demo-settings-title" data-i18n="demoSettingsTitle">Stub response settings</div></div>
+    <div class="api-head-actions">
+      <span class="demo-local-capsule">LOCAL</span>
+      <button class="cfg-btn api-pin" id="demo-pin-btn" type="button" onclick="toggleDemoSettingsPin()" aria-pressed="false" data-i18n-title="openaiPinTitle"><span class="api-pin-icon">◆</span><span id="demo-pin-label" data-i18n="openaiPin">Pin</span></button>
+      <button class="panel-collapse" type="button" onclick="closeDemoSettings(true)" data-i18n-title="collapsePanel" data-i18n-aria-label="collapsePanel"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 10 5-5 5 5"/></svg></button>
+    </div>
+  </div>
+  <div class="demo-controls">
+    <label class="api-field"><span data-i18n="demoPreset">Preset</span><select class="api-input" id="demo-preset" onchange="updateDemoPreview()"><option value="json" data-i18n="demoPresetJson">JSON debug</option><option value="text" data-i18n="demoPresetText">Text debug</option></select></label>
+    <label class="api-field"><span data-i18n="demoDelay">Simulated latency</span><select class="api-input" id="demo-delay"><option value="0">0 ms</option><option value="500">500 ms</option><option value="1500">1500 ms</option></select></label>
+    <div class="api-toggle-row demo-toggle"><span data-i18n="demoShowDebug">Show debug payload</span><label class="switch"><input type="checkbox" id="demo-debug" checked><span class="slider"></span></label></div>
+    <div class="api-toggle-row demo-toggle"><span data-i18n="demoShowSuggestions">Show suggestions</span><label class="switch"><input type="checkbox" id="demo-suggestions" checked><span class="slider"></span></label></div>
+  </div>
+  <div class="demo-preview"><span id="demo-preview-text"></span><span id="demo-preview-file">stub_json.json</span></div>
+  <div class="autosave-status" id="demo-autosave-status"></div>
+</aside>
+
+<aside id="openai-settings" class="transport-settings-panel" role="region" aria-hidden="true" aria-labelledby="openai-settings-title">
+  <div class="api-settings-head">
+    <div><div class="api-kicker">OpenAI compatible</div><div class="api-settings-title" id="openai-settings-title" data-i18n="openaiSettingsTitle">OpenAI API settings</div></div>
+    <div class="api-head-actions">
+      <button class="cfg-btn api-pin" id="openai-pin-btn" type="button" onclick="toggleOpenAISettingsPin()" aria-pressed="false" data-i18n-title="openaiPinTitle" title="Pin settings"><span class="api-pin-icon">◆</span><span id="openai-pin-label" data-i18n="openaiPin">Pin</span></button>
+      <button class="panel-collapse" type="button" onclick="closeOpenAISettings(true)" data-i18n-title="collapsePanel" data-i18n-aria-label="collapsePanel"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 10 5-5 5 5"/></svg></button>
+    </div>
+  </div>
+  <div class="profile-strip"><select class="api-input" id="openai-profile-select" onchange="loadOpenAIProfile(this.value)" data-i18n-aria-label="profileSelect"><option value="" data-i18n="profileCurrent">Current configuration</option></select><input class="api-input" id="openai-profile-name" maxlength="32" data-i18n-placeholder="profileName" placeholder="Profile name"><button class="cfg-btn" type="button" onclick="saveOpenAIProfile()" data-i18n="profileSave">Save as profile</button><button class="cfg-btn" id="openai-profile-delete" type="button" onclick="deleteOpenAIProfile()" data-i18n="profileDelete">Delete</button><span class="profile-note" data-i18n="profileNoKey">Profiles never include the API key.</span></div>
+  <label class="api-field"><span data-i18n="openaiBaseUrl">Base URL</span><input class="api-input" id="openai-base-url" type="url" value="https://api.neuraldeep.ru/v1" autocomplete="url"></label>
+  <label class="api-field"><span data-i18n="openaiApiKey">API key · kept only for this browser session</span><div class="api-secret-wrap"><input class="api-input" id="openai-api-key" type="password" autocomplete="off" spellcheck="false"><button class="api-eye" type="button" onclick="toggleApiKeyVisibility()" data-i18n-title="openaiShowKey" title="Show or hide key">◉</button></div></label>
+  <label class="api-field"><span data-i18n="openaiModel">Model</span><input class="api-input" id="openai-model" type="text" value="qwen3.8-27b"></label>
+  <label class="api-field"><span data-i18n="openaiSystem">System prompt</span><textarea class="api-textarea" id="openai-system-prompt"></textarea></label>
+  <div class="api-grid">
+    <label class="api-field"><span data-i18n="openaiTemperature">Temperature (0–2)</span><input class="api-input" id="openai-temperature" type="number" min="0" max="2" step="0.1" value="0.7"></label>
+    <label class="api-field"><span data-i18n="openaiMaxTokens">Max tokens</span><input class="api-input" id="openai-max-tokens" type="number" min="1" step="1" value="500"></label>
+  </div>
+  <div class="api-toggle-row"><span data-i18n="openaiContext">Include visible chat context</span><label class="switch"><input type="checkbox" id="openai-context" checked><span class="slider"></span></label></div>
+  <p class="api-note" data-i18n="openaiBrowserNote">Direct browser requests require CORS support from the API server.</p>
+  <details class="request-preview" id="openai-request-preview">
+    <summary data-i18n="requestPreview">Request preview</summary>
+    <div class="request-preview-content">
+      <div class="request-preview-line"><span data-i18n="requestMethod">Endpoint</span><strong id="openai-preview-endpoint"></strong></div>
+      <div class="request-preview-line"><span data-i18n="requestHeaders">Headers</span><code>Content-Type: application/json<br>Authorization: Bearer $OPENAI_API_KEY</code></div>
+      <div><div class="request-preview-line"><span data-i18n="requestBody">JSON body</span></div><pre class="request-preview-code" id="openai-preview-json"></pre></div>
+      <p class="request-preview-empty" id="openai-preview-empty" data-i18n="requestEmpty">The message field is empty, so no user message is added to the preview.</p>
+      <div class="request-preview-actions"><button class="cfg-btn" type="button" onclick="copyOpenAIRequestJson()" data-i18n="copyJson">Copy JSON</button><button class="cfg-btn" type="button" onclick="copyOpenAICurl()" data-i18n="copyCurl">Copy cURL</button><span class="request-preview-hint" data-i18n="devtoolsHint">The real API key is used only at send time and is never shown here.</span></div>
+    </div>
+  </details>
+  <div class="openai-panel-footer"><div class="api-validation" id="openai-validation" data-i18n="openaiNotChecked">Not checked · validation checks the fields locally</div><div class="api-actions"><span class="autosave-status" id="openai-autosave-status"></span><button class="cfg-btn" type="button" onclick="validateOpenAISettings()" data-i18n="openaiValidate">Validate fields</button></div></div>
+</aside>
+
 <div id="drawer-overlay" onclick="closeDrawer()"></div>
 
 <!-- Side drawer -->
@@ -1480,12 +1767,15 @@ const CFG_SHOW_CHECK_BTN = false;
       <path d="M43 45h10M43 50h6" stroke="#4fffb0" stroke-width="2.5" stroke-linecap="round"/>
     </svg>
     <div class="welcome-icon">🤖</div>
+    <div class="welcome-transport" id="welcome-transport">Webhook transport</div>
     <h2 data-i18n="welcomeTitle">AI Agent</h2>
     <p data-i18n="welcomeSub">Вставь Webhook URL и начинай</p>
+    <span class="welcome-detail" id="welcome-detail"></span>
   </div>
 </div>
 
 <div id="input-area">
+  <div class="composer-destination" id="composer-destination" role="status" aria-live="polite"><span class="composer-destination-copy"><strong class="composer-destination-name" id="composer-destination-name">Webhook</strong><span class="composer-destination-detail" id="composer-destination-detail"></span></span></div>
   <textarea id="msg-input" rows="1" data-i18n-placeholder="inputPlaceholder"
     placeholder="Сообщение… (Enter — отправить, Shift+Enter — перенос)"></textarea>
   <button id="send-btn" onclick="sendMessage()">
@@ -1553,9 +1843,88 @@ const i18n = {
     drawerConnection:   'Connection',
     drawerWebhook:      'Webhook URL',
     drawerTitle:        'Menu',
+    transportTitle:     'Choose message transport',
+    modeSettingsTitle:  'Current mode settings',
+    modeGearWebhook:    'Open Webhook settings',
+    modeGearOpenAI:     'Open OpenAI API settings',
+    modeGearDemo:       'Open Stub settings',
+    webhookPanelKicker: 'Low-code connection',
+    webhookSettingsTitle:'Webhook settings',
+    webhookCompatibility:'Compatible with n8n, Make, Activepieces and custom webhooks. Default payload: message + sessionId.',
+    webhookCheck:       'Check URL',
+    demoMode:           'Stub',
+    demoPanelKicker:    'Local stub test bench',
+    demoSettingsTitle:  'Stub response settings',
+    demoPreset:         'Preset',
+    demoPresetJson:     'JSON debug',
+    demoPresetText:     'Text debug',
+    demoDelay:          'Simulated latency',
+    demoShowDebug:      'Show debug payload',
+    demoShowSuggestions:'Show suggestions',
+    demoPreviewJson:    'Response shape: text + object debug + suggestions',
+    demoPreviewText:    'Response shape: text + formatted text debug + suggestions',
+    demoWelcomeTitle:   'Stub Response Lab',
+    demoWelcomeSub:     'Send any message to preview the hardcoded response — no network request',
+    demoTransport:      'Local Stub transport',
+    demoWelcomeDetail:  'Built-in Stub response · safe for UI, debug and suggestion testing',
+    openaiSettingsTitle:'OpenAI API settings',
+    openaiBaseUrl:      'Base URL',
+    openaiApiKey:       'API key · kept only for this browser session',
+    openaiShowKey:      'Show or hide key',
+    openaiModel:        'Model',
+    openaiSystem:       'System prompt',
+    openaiTemperature:  'Temperature (0–2)',
+    openaiMaxTokens:    'Max tokens',
+    openaiContext:      'Include visible chat context',
+    openaiBrowserNote:  'Direct browser requests require CORS support from the API server.',
+    requestPreview:     'Request preview',
+    requestMethod:      'Endpoint',
+    requestHeaders:     'Headers',
+    requestBody:        'JSON body',
+    requestEmpty:       'The message field is empty, so no user message is added to the preview.',
+    copyJson:           'Copy JSON',
+    copyCurl:           'Copy cURL',
+    copiedJson:         'Request JSON copied',
+    copiedCurl:         'cURL command copied',
+    devtoolsHint:       'The real API key is used only at send time and is never shown here.',
+    openaiNotChecked:   'Not checked · validation checks the fields locally',
+    openaiValidate:     'Validate fields',
+    openaiPin:          'Pin',
+    openaiUnpin:        'Unpin',
+    openaiPinTitle:     'Pin panel while testing in chat',
+    openaiUnpinTitle:   'Unpin settings panel',
+    openaiCloseTitle:   'Close settings panel',
+    collapsePanel:      'Collapse settings panel',
+    autosaveSaved:      'Saved',
+    recentsTitle:       'Recent connections',
+    recentsEmpty:       'No recent connections yet',
+    recentsClear:       'Clear all',
+    profileCurrent:     'Current configuration',
+    profileName:        'Profile name',
+    profileSelect:      'Select OpenAI profile',
+    profileSave:        'Save as profile',
+    profileDelete:      'Delete',
+    profileNoKey:       'Profiles never include the API key.',
+    profileNameMissing: 'Enter a profile name.',
+    profileLimit:       'Profile limit reached.',
+    openaiValid:        'Fields look valid. The connection will be tested on send.',
+    openaiInvalidUrl:   'Enter a valid http(s) Base URL.',
+    openaiMissingKey:   'Enter an API key.',
+    openaiMissingModel: 'Enter a model name.',
+    toastNoOpenAI:      'Open OpenAI API settings and add a valid URL, key and model',
+    openaiToolsUnsupported: 'The model requested a tool call. Tool execution will be added in a later stage.',
+    openaiWelcomeSub:  'Configure OpenAI API, then send a message',
+    webhookWelcomeTitle: 'Webhook Agent',
+    openaiWelcomeTitle:  'OpenAI API Lab',
+    webhookTransport:  'Webhook transport',
+    openaiTransport:   'Direct model transport',
+    webhookWelcomeDetail: 'Works with n8n, Make, Activepieces and custom endpoints · message + sessionId',
+    openaiWelcomeDetail:  'OpenAI-compatible /chat/completions · one chat, configurable model and context',
     welcomeTitle:       'AI Agent',
     welcomeSub:         'Paste Webhook URL to start',
     inputPlaceholder:   'Message… (Enter to send, Shift+Enter for newline)',
+    composerTarget:     'Next message will be sent via {name}: {detail}',
+    composerNotSet:     'destination not set',
     toastLight:         '☀️ Light theme',
     toastDark:          '🌙 Dark theme',
     toastNewSession:    'New session started',
@@ -1619,9 +1988,88 @@ const i18n = {
     drawerConnection:   'Подключение',
     drawerWebhook:      'Webhook URL',
     drawerTitle:        'Меню',
+    transportTitle:     'Выбрать способ отправки',
+    modeSettingsTitle:  'Настройки текущего режима',
+    modeGearWebhook:    'Открыть настройки Webhook',
+    modeGearOpenAI:     'Открыть настройки OpenAI API',
+    modeGearDemo:       'Открыть настройки Stub',
+    webhookPanelKicker: 'Low-code подключение',
+    webhookSettingsTitle:'Настройки Webhook',
+    webhookCompatibility:'Совместимо с n8n, Make, Activepieces и своими webhook. Формат по умолчанию: message + sessionId.',
+    webhookCheck:       'Проверить URL',
+    demoMode:           'Stub',
+    demoPanelKicker:    'Локальный стенд Stub',
+    demoSettingsTitle:  'Настройки Stub-ответа',
+    demoPreset:         'Пресет',
+    demoPresetJson:     'JSON debug',
+    demoPresetText:     'Текстовый debug',
+    demoDelay:          'Задержка ответа',
+    demoShowDebug:      'Показывать debug',
+    demoShowSuggestions:'Показывать подсказки',
+    demoPreviewJson:    'Форма ответа: text + объект debug + suggestions',
+    demoPreviewText:    'Форма ответа: text + форматированный текст debug + suggestions',
+    demoWelcomeTitle:   'Лаборатория Stub-ответов',
+    demoWelcomeSub:     'Отправьте сообщение для проверки заглушки — сетевых запросов не будет',
+    demoTransport:      'Локальный Stub-транспорт',
+    demoWelcomeDetail:  'Встроенный Stub-ответ · безопасная проверка UI, debug и подсказок',
+    openaiSettingsTitle:'Настройки OpenAI API',
+    openaiBaseUrl:      'Базовый URL',
+    openaiApiKey:       'API-ключ · хранится только в этой сессии браузера',
+    openaiShowKey:      'Показать или скрыть ключ',
+    openaiModel:        'Модель',
+    openaiSystem:       'Системный промпт',
+    openaiTemperature:  'Температура (0–2)',
+    openaiMaxTokens:    'Максимум токенов',
+    openaiContext:      'Добавлять видимый контекст чата',
+    openaiBrowserNote:  'Для прямых запросов из браузера API-сервер должен поддерживать CORS.',
+    requestPreview:     'Предпросмотр запроса',
+    requestMethod:      'Адрес',
+    requestHeaders:     'Заголовки',
+    requestBody:        'Тело JSON',
+    requestEmpty:       'Поле сообщения пусто, поэтому сообщение пользователя не добавлено в предпросмотр.',
+    copyJson:           'Копировать JSON',
+    copyCurl:           'Копировать cURL',
+    copiedJson:         'JSON запроса скопирован',
+    copiedCurl:         'Команда cURL скопирована',
+    devtoolsHint:       'Настоящий API-ключ используется только при отправке и здесь никогда не показывается.',
+    openaiNotChecked:   'Не проверено · проверка валидирует поля локально',
+    openaiValidate:     'Проверить поля',
+    openaiPin:          'Закрепить',
+    openaiUnpin:        'Открепить',
+    openaiPinTitle:     'Закрепить панель для тестирования в чате',
+    openaiUnpinTitle:   'Открепить панель настроек',
+    openaiCloseTitle:   'Закрыть панель настроек',
+    collapsePanel:      'Свернуть панель настроек',
+    autosaveSaved:      'Сохранено',
+    recentsTitle:       'Недавние подключения',
+    recentsEmpty:       'Недавних подключений пока нет',
+    recentsClear:       'Очистить всё',
+    profileCurrent:     'Текущая конфигурация',
+    profileName:        'Имя профиля',
+    profileSelect:      'Выбрать профиль OpenAI',
+    profileSave:        'Сохранить профиль',
+    profileDelete:      'Удалить',
+    profileNoKey:       'API-ключ никогда не сохраняется в профиле.',
+    profileNameMissing: 'Введите имя профиля.',
+    profileLimit:       'Достигнут лимит профилей.',
+    openaiValid:        'Поля заполнены. Соединение будет проверено при отправке.',
+    openaiInvalidUrl:   'Введите корректный http(s) базовый URL.',
+    openaiMissingKey:   'Введите API-ключ.',
+    openaiMissingModel: 'Введите название модели.',
+    toastNoOpenAI:      'Откройте настройки OpenAI API и заполните URL, ключ и модель',
+    openaiToolsUnsupported: 'Модель запросила вызов инструмента. Выполнение tools появится на следующем этапе.',
+    openaiWelcomeSub:  'Настройте OpenAI API и отправьте сообщение',
+    webhookWelcomeTitle: 'Webhook-агент',
+    openaiWelcomeTitle:  'Лаборатория OpenAI API',
+    webhookTransport:  'Webhook-транспорт',
+    openaiTransport:   'Прямой вызов модели',
+    webhookWelcomeDetail: 'Работает с n8n, Make, Activepieces и своими endpoint · message + sessionId',
+    openaiWelcomeDetail:  'OpenAI-совместимый /chat/completions · единый чат, модель и контекст под вашим контролем',
     welcomeTitle:       'AI Agent',
     welcomeSub:         'Вставь Webhook URL и начинай',
     inputPlaceholder:   'Сообщение… (Enter — отправить, Shift+Enter — перенос)',
+    composerTarget:     'Следующее сообщение будет отправлено через {name}: {detail}',
+    composerNotSet:     'адрес не задан',
     toastLight:         '☀️ Светлая тема',
     toastDark:          '🌙 Тёмная тема',
     toastNewSession:    'Новая сессия',
@@ -1677,6 +2125,9 @@ function applyLang(l, silent) {
   document.querySelectorAll('[data-i18n-title]').forEach(el => {
     el.title = t(el.dataset.i18nTitle);
   });
+  document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
+    el.setAttribute('aria-label', t(el.dataset.i18nAriaLabel));
+  });
   // Sync header label
   document.getElementById('lang-label').textContent = l === 'en' ? 'RU' : 'EN';
   // Sync segmented lang control in drawer
@@ -1684,6 +2135,8 @@ function applyLang(l, silent) {
   document.getElementById('seg-en').classList.toggle('active', l === 'en');
   if (!silent) toast(l === 'en' ? '🌐 English' : '🌐 Русский');
   if (typeof renderConsentBanner === 'function') renderConsentBanner();
+  if (!silent) updateTransportUI();
+  if (typeof updateOpenAIRequestPreview === 'function') queueMicrotask(updateOpenAIRequestPreview);
 }
 
 function toggleLang() { applyLang(lang === 'ru' ? 'en' : 'ru'); }
@@ -1802,14 +2255,483 @@ function closeDrawer() {
   document.getElementById('drawer-overlay').classList.remove('visible');
   document.getElementById('burger-btn').classList.remove('active');
 }
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && drawerOpen) closeDrawer(); });
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (document.getElementById('openai-settings').classList.contains('open')) closeOpenAISettings(true);
+  else if (document.getElementById('webhook-settings').classList.contains('open')) closeWebhookSettings(true);
+  else if (document.getElementById('demo-settings').classList.contains('open')) closeDemoSettings(true);
+  else if (drawerOpen) closeDrawer();
+});
 
 // ── SESSION ──
 let sessionId = localStorage.getItem('n8n_session') || generateSessionId();
 let webhookUrl = localStorage.getItem('n8n_webhook') || '';
 let httpMethod = localStorage.getItem('n8n_method') || 'post';
+let transportMode = localStorage.getItem('ai_transport') || 'webhook';
+let openAIConfig = (() => {
+  try { return { baseUrl: 'https://api.neuraldeep.ru/v1', model: 'qwen3.8-27b', systemPrompt: '', temperature: 0.7, maxTokens: 500, includeContext: true, ...JSON.parse(localStorage.getItem('ai_openai_config') || '{}') }; }
+  catch (_) { return { baseUrl: 'https://api.neuraldeep.ru/v1', model: 'qwen3.8-27b', systemPrompt: '', temperature: 0.7, maxTokens: 500, includeContext: true }; }
+})();
+let openAIApiKey = sessionStorage.getItem('ai_openai_key') || '';
+let openAIContextStart = 0;
+let openAIConversationId = sessionStorage.getItem('ai_openai_conversation') || ('openai_' + Date.now().toString(36));
+sessionStorage.setItem('ai_openai_conversation', openAIConversationId);
+let openAIProfiles = (() => { try { const value = JSON.parse(localStorage.getItem('ai_openai_profiles') || '[]'); return Array.isArray(value) ? value.slice(0, 15) : []; } catch (_) { return []; } })();
+let openAISettingsPinned = false;
+let webhookSettingsPinned = false;
+let demoSettingsPinned = false;
+let demoRunToken = 0;
+let demoIsRunning = false;
+let demoConfig = (() => {
+  try { return { preset: 'json', delay: 500, showDebug: true, showSuggestions: true, ...JSON.parse(localStorage.getItem('ai_demo_config') || '{}') }; }
+  catch (_) { return { preset: 'json', delay: 500, showDebug: true, showSuggestions: true }; }
+})();
+const DEMO_PRESETS = {
+  json: {
+    text: '<b>Москва</b>\n\n<b>Погода</b>\n7°C, облачно, ветер: 14 км/ч, данные измерены сегодня в 19:00.\n\n<b>Интересное</b>\nМосква — столица России, крупнейший город страны с населением более 12 млн человек. Основана в 1147 году.',
+    debug: {
+      response_type: 'json', latency_ms: 1842, success: true,
+      agent_logic: 'Пользователь спросил про город. Определил координаты через геокодер, запросил погоду, сформировал ответ.',
+      intermediate_steps_summary: '1. tool=Geocode_HTTP_Request | args={"city":"Москва"}\n2. tool=Weather_HTTP_Request | args={"lat":"55.75222","lon":"37.61556"}',
+      chat_history: { last_user_question: 'Расскажи про Москву', last_agent_reply: '[stub]' }
+    },
+    suggestions: ['повторить']
+  },
+  text: {
+    text: '<b>Москва</b>\n\n<b>Погода</b>\n3.3°C, облачно, ветер: 9.7 км/ч, данные измерены 20.04.2026 в 22:45 по местному времени.\n\nМосква — столица России и один из крупнейших городов мира. Здесь находится Кремль, символ страны, а также множество исторических и культурных памятников.',
+    debug: '<i>Debug:</i>\n\n<b><i>Agent Logic</i></b>\n<code>LLM_RUN_РЕЖИМ: ABOUT_CITY\nLLM_RUN_INTENT: CITY_FULL\nLLM_RUN_WHY_INTENT: Пользователь запросил рассказ о Москве\nLLM_RUN_U: Получены координаты и погодные данные\nLLM_RUN_CHAIN-OF-THOUGHT: Geocode → Weather → ответ</code>\n\n<i>Tools used</i>\n<code>1. tool=Geocode_HTTP_Request | city=Москва\n2. tool=Weather_HTTP_Request | lat=55.75222 | lon=37.61556</code>',
+    suggestions: ['повторить']
+  }
+};
 let isThinking = false;
 const INITIAL_SUGGESTIONS = CFG_INITIAL_SUGGESTIONS;
+
+document.getElementById('webhook-controls-slot').appendChild(document.getElementById('webhook-wrap'));
+document.getElementById('webhook-history-slot').appendChild(document.getElementById('webhook-hist-dropdown'));
+document.getElementById('webhook-session-slot').appendChild(document.getElementById('session-id-box'));
+
+function setTransport(mode, openSettings = false) {
+  if (mode === transportMode) {
+    closeCompactSelects();
+    if (openSettings) toggleActiveSettings();
+    return;
+  }
+  cancelDemoRequest();
+  const panels = [document.getElementById('openai-settings'), document.getElementById('webhook-settings'), document.getElementById('demo-settings')];
+  panels.forEach(panel => { panel.style.transition = 'none'; });
+  closeOpenAISettings(true);
+  closeWebhookSettings(true);
+  closeDemoSettings(true);
+  panels.forEach(panel => { void panel.offsetHeight; panel.style.transition = ''; });
+  transportMode = ['webhook', 'openai', 'demo'].includes(mode) ? mode : 'webhook';
+  localStorage.setItem('ai_transport', transportMode);
+  updateTransportUI();
+  closeCompactSelects();
+  if (openSettings) {
+    if (transportMode === 'openai') openOpenAISettings();
+    else if (transportMode === 'demo') openDemoSettings();
+    else openWebhookSettings();
+  }
+}
+function openTransportSettings(mode, event) {
+  event?.preventDefault();
+  event?.stopPropagation();
+  setTransport(mode, false);
+  if (mode === 'openai') openOpenAISettings();
+  else if (mode === 'demo') openDemoSettings();
+  else openWebhookSettings();
+  closeCompactSelects();
+}
+function updateComposerDestination() {
+  const capsule = document.getElementById('composer-destination');
+  if (!capsule) return;
+  let name = 'Webhook';
+  let detail = `${httpMethod.toUpperCase()} · ${webhookUrl ? shortHost(webhookUrl) : t('composerNotSet')}`;
+  if (transportMode === 'openai') {
+    name = 'OpenAI';
+    const field = document.getElementById('openai-model');
+    const panelOpen = document.getElementById('openai-settings').classList.contains('open');
+    detail = (panelOpen ? field.value.trim() : openAIConfig.model) || t('composerNotSet');
+  } else if (transportMode === 'demo') {
+    name = 'Stub';
+    const field = document.getElementById('demo-preset');
+    const panelOpen = document.getElementById('demo-settings').classList.contains('open');
+    const preset = panelOpen ? field.value : demoConfig.preset;
+    detail = preset === 'text' ? 'Text' : 'JSON';
+  }
+  document.getElementById('composer-destination-name').textContent = name;
+  document.getElementById('composer-destination-detail').textContent = detail;
+  const accessible = t('composerTarget').replace('{name}', name).replace('{detail}', detail);
+  capsule.setAttribute('aria-label', accessible);
+  capsule.title = accessible;
+}
+function updateTransportUI() {
+  document.body.dataset.transport = transportMode;
+  document.getElementById('transport-toggle').dataset.value = transportMode;
+  document.getElementById('transport-select-value').textContent = transportMode === 'openai' ? 'OpenAI' : transportMode === 'demo' ? t('demoMode') : 'Webhook';
+  document.getElementById('transport-btn-webhook').setAttribute('aria-checked', transportMode === 'webhook');
+  document.getElementById('transport-btn-openai').setAttribute('aria-checked', transportMode === 'openai');
+  document.getElementById('transport-btn-demo').setAttribute('aria-checked', transportMode === 'demo');
+  document.getElementById('openai-model-chip').textContent = openAIConfig.model;
+  document.getElementById('openai-base-label').textContent = openAIConfig.baseUrl;
+  document.getElementById('openai-status-dot').className = 'status-dot' + (openAIApiKey ? ' online' : '');
+  const summaryDot = document.getElementById('connection-summary-dot');
+  const summaryText = document.getElementById('connection-summary-text');
+  if (transportMode === 'demo') {
+    summaryDot.className = 'status-dot warn';
+    summaryText.textContent = `LOCAL · ${demoConfig.preset === 'json' ? t('demoPresetJson') : t('demoPresetText')}`;
+  } else if (transportMode === 'openai') {
+    summaryDot.className = 'status-dot' + (openAIApiKey ? ' online' : '');
+    summaryText.textContent = `${openAIConfig.model} · ${shortHost(openAIConfig.baseUrl)}/chat/completions`;
+  } else {
+    summaryDot.className = document.getElementById('status-dot').className;
+    summaryText.textContent = `${httpMethod.toUpperCase()} · ${shortHost(webhookUrl)}`;
+  }
+  const gear = document.getElementById('mode-settings-btn');
+  gear.setAttribute('aria-controls', transportMode + '-settings');
+  gear.setAttribute('aria-expanded', String(document.getElementById(transportMode + '-settings').classList.contains('open')));
+  const welcomeSub = document.querySelector('#welcome-msg p');
+  if (welcomeSub) welcomeSub.textContent = transportMode === 'demo' ? t('demoWelcomeSub') : transportMode === 'openai' ? t('openaiWelcomeSub') : t('welcomeSub');
+  const welcomeTitle = document.querySelector('#welcome-msg h2');
+  if (welcomeTitle) welcomeTitle.textContent = transportMode === 'demo' ? t('demoWelcomeTitle') : transportMode === 'openai' ? t('openaiWelcomeTitle') : t('webhookWelcomeTitle');
+  const welcomeTransport = document.getElementById('welcome-transport');
+  if (welcomeTransport) welcomeTransport.textContent = transportMode === 'demo' ? t('demoTransport') : transportMode === 'openai' ? t('openaiTransport') : t('webhookTransport');
+  const welcomeDetail = document.getElementById('welcome-detail');
+  if (welcomeDetail) welcomeDetail.textContent = transportMode === 'demo' ? t('demoWelcomeDetail') : transportMode === 'openai' ? t('openaiWelcomeDetail') : t('webhookWelcomeDetail');
+  updateMobileConnectionSummary();
+  updateOpenAISettingsPinUI();
+  updateWebhookSettingsPinUI();
+  updateDemoSettingsPinUI();
+  updateComposerDestination();
+  renderOpenAIProfiles();
+}
+function toggleActiveSettings() {
+  if (transportMode === 'openai') {
+    const open = document.getElementById('openai-settings').classList.contains('open');
+    open ? closeOpenAISettings(true) : openOpenAISettings();
+  } else if (transportMode === 'demo') {
+    const open = document.getElementById('demo-settings').classList.contains('open');
+    open ? closeDemoSettings(true) : openDemoSettings();
+  } else {
+    const open = document.getElementById('webhook-settings').classList.contains('open');
+    open ? closeWebhookSettings(true) : openWebhookSettings();
+  }
+}
+function shortHost(value) {
+  if (!value) return 'not configured';
+  try { return new URL(value).host + new URL(value).pathname.replace(/\/$/, ''); }
+  catch (_) { return value; }
+}
+function updateMobileConnectionSummary() {
+  const summary = document.getElementById('mobile-connection-summary');
+  if (!summary) return;
+  summary.textContent = transportMode === 'demo' ? `LOCAL · ${demoConfig.preset === 'json' ? t('demoPresetJson') : t('demoPresetText')}` : transportMode === 'openai'
+    ? `${openAIConfig.model} · ${shortHost(openAIConfig.baseUrl)}/chat/completions`
+    : `${httpMethod.toUpperCase()} · ${shortHost(webhookUrl)}`;
+}
+function openActiveConnection() {
+  if (transportMode === 'openai') return openOpenAISettings();
+  if (transportMode === 'demo') return openDemoSettings();
+  openWebhookSettings();
+}
+function openWebhookSettings() {
+  closeOpenAISettings(true);
+  closeDemoSettings(true);
+  const panel = document.getElementById('webhook-settings');
+  panel.classList.add('open');
+  panel.setAttribute('aria-hidden', 'false');
+  document.getElementById('mode-settings-btn').setAttribute('aria-expanded', 'true');
+  setTimeout(() => document.getElementById('webhook-url').focus(), 80);
+}
+function closeWebhookSettings(force = false) {
+  if (webhookSettingsPinned && !force) return;
+  if (force) webhookSettingsPinned = false;
+  const panel = document.getElementById('webhook-settings');
+  panel.classList.remove('open', 'pinned');
+  panel.setAttribute('aria-hidden', 'true');
+  updateWebhookSettingsPinUI();
+  if (transportMode === 'webhook') document.getElementById('mode-settings-btn').setAttribute('aria-expanded', 'false');
+}
+function toggleWebhookSettingsPin() {
+  webhookSettingsPinned = !webhookSettingsPinned;
+  document.getElementById('webhook-settings').classList.toggle('pinned', webhookSettingsPinned);
+  updateWebhookSettingsPinUI();
+}
+function updateWebhookSettingsPinUI() {
+  const button = document.getElementById('webhook-pin-btn');
+  const label = document.getElementById('webhook-pin-label');
+  if (!button || !label) return;
+  button.classList.toggle('active', webhookSettingsPinned);
+  button.setAttribute('aria-pressed', String(webhookSettingsPinned));
+  button.title = t(webhookSettingsPinned ? 'openaiUnpinTitle' : 'openaiPinTitle');
+  label.textContent = t(webhookSettingsPinned ? 'openaiUnpin' : 'openaiPin');
+}
+function saveWebhookSettings() {
+  if (!webhookUrl) { toast(t('toastNoWebhook')); return; }
+  saveUrlToHistory(webhookUrl);
+  setAutosaveStatus('webhook-autosave-status', t('autosaveSaved'));
+  updateTransportUI();
+  closeWebhookSettings();
+}
+function openDemoSettings() {
+  closeOpenAISettings(true);
+  closeWebhookSettings(true);
+  document.getElementById('demo-preset').value = demoConfig.preset;
+  document.getElementById('demo-delay').value = String(demoConfig.delay);
+  document.getElementById('demo-debug').checked = demoConfig.showDebug;
+  document.getElementById('demo-suggestions').checked = demoConfig.showSuggestions;
+  updateDemoPreview();
+  const panel = document.getElementById('demo-settings');
+  panel.classList.add('open');
+  panel.setAttribute('aria-hidden', 'false');
+  updateComposerDestination();
+  document.getElementById('mode-settings-btn').setAttribute('aria-expanded', 'true');
+  setTimeout(() => document.getElementById('demo-preset').focus(), 80);
+}
+function closeDemoSettings(force = false) {
+  if (demoSettingsPinned && !force) return;
+  if (force) demoSettingsPinned = false;
+  const panel = document.getElementById('demo-settings');
+  panel.classList.remove('open', 'pinned');
+  panel.setAttribute('aria-hidden', 'true');
+  updateDemoSettingsPinUI();
+  updateComposerDestination();
+  if (transportMode === 'demo') document.getElementById('mode-settings-btn').setAttribute('aria-expanded', 'false');
+}
+function toggleDemoSettingsPin() {
+  demoSettingsPinned = !demoSettingsPinned;
+  document.getElementById('demo-settings').classList.toggle('pinned', demoSettingsPinned);
+  updateDemoSettingsPinUI();
+}
+function updateDemoSettingsPinUI() {
+  const button = document.getElementById('demo-pin-btn');
+  const label = document.getElementById('demo-pin-label');
+  if (!button || !label) return;
+  button.classList.toggle('active', demoSettingsPinned);
+  button.setAttribute('aria-pressed', String(demoSettingsPinned));
+  button.title = t(demoSettingsPinned ? 'openaiUnpinTitle' : 'openaiPinTitle');
+  label.textContent = t(demoSettingsPinned ? 'openaiUnpin' : 'openaiPin');
+}
+function updateDemoPreview() {
+  const preset = document.getElementById('demo-preset').value;
+  document.getElementById('demo-preview-text').textContent = t(preset === 'json' ? 'demoPreviewJson' : 'demoPreviewText');
+  document.getElementById('demo-preview-file').textContent = preset === 'json' ? 'stub_json.json' : 'stub_text.json';
+  updateComposerDestination();
+}
+function saveDemoSettings() {
+  demoConfig = {
+    preset: document.getElementById('demo-preset').value,
+    delay: Number(document.getElementById('demo-delay').value),
+    showDebug: document.getElementById('demo-debug').checked,
+    showSuggestions: document.getElementById('demo-suggestions').checked
+  };
+  localStorage.setItem('ai_demo_config', JSON.stringify(demoConfig));
+  updateTransportUI();
+  setAutosaveStatus('demo-autosave-status', t('autosaveSaved'));
+}
+function openOpenAISettings() {
+  closeWebhookSettings(true);
+  closeDemoSettings(true);
+  document.getElementById('openai-base-url').value = openAIConfig.baseUrl;
+  document.getElementById('openai-api-key').value = openAIApiKey;
+  document.getElementById('openai-model').value = openAIConfig.model;
+  document.getElementById('openai-system-prompt').value = openAIConfig.systemPrompt;
+  document.getElementById('openai-temperature').value = openAIConfig.temperature;
+  document.getElementById('openai-max-tokens').value = openAIConfig.maxTokens;
+  document.getElementById('openai-context').checked = openAIConfig.includeContext;
+  renderOpenAIProfiles();
+  const panel = document.getElementById('openai-settings');
+  panel.classList.add('open');
+  panel.setAttribute('aria-hidden', 'false');
+  document.getElementById('mode-settings-btn').setAttribute('aria-expanded', 'true');
+  updateOpenAIRequestPreview();
+  updateComposerDestination();
+  setTimeout(() => document.getElementById('openai-base-url').focus(), 80);
+}
+function closeOpenAISettings(force = false) {
+  if (openAISettingsPinned && !force) return;
+  if (force) openAISettingsPinned = false;
+  const panel = document.getElementById('openai-settings');
+  panel.classList.remove('open', 'pinned');
+  panel.setAttribute('aria-hidden', 'true');
+  updateOpenAISettingsPinUI();
+  updateComposerDestination();
+  if (transportMode === 'openai') document.getElementById('mode-settings-btn').setAttribute('aria-expanded', 'false');
+}
+function toggleOpenAISettingsPin() {
+  openAISettingsPinned = !openAISettingsPinned;
+  document.getElementById('openai-settings').classList.toggle('pinned', openAISettingsPinned);
+  updateOpenAISettingsPinUI();
+}
+function updateOpenAISettingsPinUI() {
+  const button = document.getElementById('openai-pin-btn');
+  const label = document.getElementById('openai-pin-label');
+  if (!button || !label) return;
+  button.classList.toggle('active', openAISettingsPinned);
+  button.setAttribute('aria-pressed', String(openAISettingsPinned));
+  button.title = t(openAISettingsPinned ? 'openaiUnpinTitle' : 'openaiPinTitle');
+  label.textContent = t(openAISettingsPinned ? 'openaiUnpin' : 'openaiPin');
+}
+function toggleApiKeyVisibility() {
+  const field = document.getElementById('openai-api-key');
+  field.type = field.type === 'password' ? 'text' : 'password';
+}
+function readOpenAIForm() {
+  return {
+    baseUrl: document.getElementById('openai-base-url').value.trim().replace(/\/+$/, ''),
+    apiKey: document.getElementById('openai-api-key').value.trim(),
+    model: document.getElementById('openai-model').value.trim(),
+    systemPrompt: document.getElementById('openai-system-prompt').value.trim(),
+    temperature: Math.min(2, Math.max(0, Number(document.getElementById('openai-temperature').value) || 0)),
+    maxTokens: Math.max(1, Number(document.getElementById('openai-max-tokens').value) || 500),
+    includeContext: document.getElementById('openai-context').checked
+  };
+}
+function setAutosaveStatus(id, message, type = 'saved') {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = message;
+  el.className = `autosave-status ${type}`;
+}
+function commitOpenAISettings() {
+  const cfg = readOpenAIForm();
+  let error = '';
+  try { const url = new URL(cfg.baseUrl); if (!/^https?:$/.test(url.protocol)) throw new Error(); }
+  catch (_) { error = t('openaiInvalidUrl'); }
+  if (!error && !cfg.model) error = t('openaiMissingModel');
+  openAIApiKey = cfg.apiKey;
+  sessionStorage.setItem('ai_openai_key', openAIApiKey);
+  document.getElementById('openai-temperature').value = cfg.temperature;
+  document.getElementById('openai-max-tokens').value = cfg.maxTokens;
+  delete cfg.apiKey;
+  if (error) {
+    setAutosaveStatus('openai-autosave-status', error, 'error');
+    return false;
+  }
+  openAIConfig = cfg;
+  localStorage.setItem('ai_openai_config', JSON.stringify(openAIConfig));
+  setAutosaveStatus('openai-autosave-status', t('autosaveSaved'));
+  updateTransportUI();
+  updateOpenAIRequestPreview();
+  return true;
+}
+function renderOpenAIProfiles() {
+  const select = document.getElementById('openai-profile-select');
+  if (!select) return;
+  const selected = select.value;
+  select.innerHTML = `<option value="">${t('profileCurrent')}</option>`;
+  openAIProfiles.forEach(profile => {
+    const option = document.createElement('option');
+    option.value = profile.id;
+    option.textContent = profile.name;
+    select.appendChild(option);
+  });
+  if ([...select.options].some(option => option.value === selected)) select.value = selected;
+  document.getElementById('openai-profile-delete').disabled = !select.value;
+}
+function saveOpenAIProfile() {
+  if (!commitOpenAISettings()) return;
+  const input = document.getElementById('openai-profile-name');
+  const name = input.value.trim().replace(/[<>]/g, '').slice(0, 32);
+  if (!name) return setAutosaveStatus('openai-autosave-status', t('profileNameMissing'), 'error');
+  const existing = openAIProfiles.find(profile => profile.name.toLocaleLowerCase() === name.toLocaleLowerCase());
+  if (!existing && openAIProfiles.length >= 15) return setAutosaveStatus('openai-autosave-status', t('profileLimit'), 'error');
+  const profile = { id: existing?.id || ('profile_' + Date.now().toString(36)), name, ...openAIConfig };
+  openAIProfiles = [profile, ...openAIProfiles.filter(item => item.id !== profile.id)].slice(0, 15);
+  localStorage.setItem('ai_openai_profiles', JSON.stringify(openAIProfiles));
+  renderOpenAIProfiles();
+  document.getElementById('openai-profile-select').value = profile.id;
+  document.getElementById('openai-profile-delete').disabled = false;
+  input.value = '';
+  setAutosaveStatus('openai-autosave-status', t('autosaveSaved'));
+}
+function loadOpenAIProfile(id) {
+  const profile = openAIProfiles.find(item => item.id === id);
+  document.getElementById('openai-profile-delete').disabled = !profile;
+  if (!profile) return;
+  openAIConfig = { baseUrl: profile.baseUrl, model: profile.model, systemPrompt: profile.systemPrompt, temperature: profile.temperature, maxTokens: profile.maxTokens, includeContext: profile.includeContext };
+  localStorage.setItem('ai_openai_config', JSON.stringify(openAIConfig));
+  openAIConversationId = profile.id;
+  sessionStorage.setItem('ai_openai_conversation', openAIConversationId);
+  document.getElementById('openai-base-url').value = openAIConfig.baseUrl;
+  document.getElementById('openai-model').value = openAIConfig.model;
+  document.getElementById('openai-system-prompt').value = openAIConfig.systemPrompt;
+  document.getElementById('openai-temperature').value = openAIConfig.temperature;
+  document.getElementById('openai-max-tokens').value = openAIConfig.maxTokens;
+  document.getElementById('openai-context').checked = openAIConfig.includeContext;
+  updateTransportUI(); updateOpenAIRequestPreview();
+  setAutosaveStatus('openai-autosave-status', t('autosaveSaved'));
+}
+function deleteOpenAIProfile() {
+  const select = document.getElementById('openai-profile-select');
+  if (!select.value) return;
+  openAIProfiles = openAIProfiles.filter(profile => profile.id !== select.value);
+  localStorage.setItem('ai_openai_profiles', JSON.stringify(openAIProfiles));
+  select.value = '';
+  renderOpenAIProfiles();
+  setAutosaveStatus('openai-autosave-status', t('autosaveSaved'));
+}
+function getOpenAIEndpoint(baseUrl) {
+  return baseUrl.replace(/\/+$/, '') + '/chat/completions';
+}
+function buildOpenAIRequest(config, context, currentText) {
+  const messages = [];
+  if (config.systemPrompt) messages.push({ role: 'system', content: config.systemPrompt });
+  messages.push(...context);
+  if (currentText) messages.push({ role: 'user', content: currentText });
+  return { model: config.model, messages, temperature: config.temperature, max_tokens: config.maxTokens };
+}
+function getOpenAIRequestPreviewData() {
+  const config = readOpenAIForm();
+  const currentText = document.getElementById('msg-input').value.trim();
+  const context = getOpenAIContext(currentText, config.includeContext);
+  return { endpoint: getOpenAIEndpoint(config.baseUrl), body: buildOpenAIRequest(config, context, currentText), currentText };
+}
+function updateOpenAIRequestPreview() {
+  const json = document.getElementById('openai-preview-json');
+  if (!json) return;
+  const preview = getOpenAIRequestPreviewData();
+  document.getElementById('openai-preview-endpoint').textContent = `POST ${preview.endpoint}`;
+  json.textContent = JSON.stringify(preview.body, null, 2);
+  document.getElementById('openai-preview-empty').hidden = Boolean(preview.currentText);
+}
+function copyOpenAIRequestJson() {
+  const preview = getOpenAIRequestPreviewData();
+  copyText(JSON.stringify(preview.body, null, 2)).then(() => toast(t('copiedJson')));
+}
+function shellQuote(value) {
+  return "'" + value.replace(/'/g, "'\"'\"'") + "'";
+}
+function copyOpenAICurl() {
+  const preview = getOpenAIRequestPreviewData();
+  const command = `curl ${shellQuote(preview.endpoint)} -H 'Content-Type: application/json' -H 'Authorization: Bearer $OPENAI_API_KEY' --data ${shellQuote(JSON.stringify(preview.body))}`;
+  copyText(command).then(() => toast(t('copiedCurl')));
+}
+function validateOpenAISettings() {
+  const cfg = readOpenAIForm();
+  const out = document.getElementById('openai-validation');
+  let message = t('openaiValid');
+  try { const url = new URL(cfg.baseUrl); if (!/^https?:$/.test(url.protocol)) throw new Error(); }
+  catch (_) { message = t('openaiInvalidUrl'); }
+  if (message === t('openaiValid') && !cfg.apiKey) message = t('openaiMissingKey');
+  if (message === t('openaiValid') && !cfg.model) message = t('openaiMissingModel');
+  out.textContent = message;
+  out.className = 'api-validation ' + (message === t('openaiValid') ? 'ok' : 'error');
+  return message === t('openaiValid');
+}
+function saveOpenAISettings() {
+  commitOpenAISettings();
+}
+
+document.addEventListener('pointerdown', e => {
+  if (e.target.closest('#mode-settings-btn, .transport-settings-btn')) return;
+  const openAI = document.getElementById('openai-settings');
+  const webhook = document.getElementById('webhook-settings');
+  const demo = document.getElementById('demo-settings');
+  if (openAI.classList.contains('open') && !openAISettingsPinned && !openAI.contains(e.target)) closeOpenAISettings();
+  if (webhook.classList.contains('open') && !webhookSettingsPinned && !webhook.contains(e.target)) closeWebhookSettings();
+  if (demo.classList.contains('open') && !demoSettingsPinned && !demo.contains(e.target)) closeDemoSettings();
+});
 
 // Override webhookUrl from ?webhookurl= query param, then strip it from the address bar
 (function() {
@@ -1832,7 +2754,11 @@ function generateSessionId() {
   return id;
 }
 function resetSession() {
+  cancelDemoRequest();
   sessionId = generateSessionId();
+  openAIContextStart = document.querySelectorAll('#messages .msg-row').length;
+  openAIConversationId = 'openai_' + Date.now().toString(36);
+  sessionStorage.setItem('ai_openai_conversation', openAIConversationId);
   updateSessionDisplay();
   toast(t('toastNewSession'));
 }
@@ -1844,6 +2770,9 @@ function setMethod(m) {
   httpMethod = m;
   localStorage.setItem('n8n_method', m);
   updateMethodUI();
+  updateTransportUI();
+  if (webhookUrl) saveUrlToHistory(webhookUrl);
+  setAutosaveStatus('webhook-autosave-status', t('autosaveSaved'));
   closeCompactSelects();
 }
 function updateMethodUI() {
@@ -1895,16 +2824,11 @@ document.querySelectorAll('.compact-select').forEach(select => {
     }, COMPACT_SELECT_HOVER_CLOSE_MS));
   };
   if (finePointer.matches) {
-    select.addEventListener('mouseenter', openSelect);
     select.addEventListener('mouseleave', scheduleHoverClose);
-    trigger.addEventListener('focus', () => {
-      if (compactSelectFocusSuppress.delete(trigger)) return;
-      openSelect();
-    });
   }
   trigger.addEventListener('click', e => {
     e.stopPropagation();
-    const willOpen = finePointer.matches || !select.classList.contains('open');
+    const willOpen = !select.classList.contains('open');
     closeCompactSelects(select);
     select.classList.toggle('open', willOpen);
     trigger.setAttribute('aria-expanded', String(willOpen));
@@ -1949,6 +2873,7 @@ urlInput.addEventListener('keydown', e => {
 });
 urlInput.addEventListener('blur', () => {
   if (webhookUrl) { saveUrlToHistory(webhookUrl); scheduleUrlCheck(webhookUrl, 0); }
+  setAutosaveStatus('webhook-autosave-status', t('autosaveSaved'));
 });
 
 urlInputMobile.addEventListener('input', () => {
@@ -1965,12 +2890,15 @@ urlInputMobile.addEventListener('keydown', e => {
 });
 urlInputMobile.addEventListener('blur', () => {
   if (webhookUrl) { saveUrlToHistory(webhookUrl); scheduleUrlCheck(webhookUrl, 0); }
+  setAutosaveStatus('webhook-autosave-status', t('autosaveSaved'));
 });
 
 function syncWebhookStyle() {
   urlInput.classList.toggle('has-value', !!webhookUrl);
   urlInputMobile.classList.toggle('has-value', !!webhookUrl);
   updateUrlTypeToggle();
+  updateMobileConnectionSummary();
+  if (transportMode === 'webhook') updateTransportUI();
 }
 
 function updateUrlTypeToggle() {
@@ -2018,8 +2946,11 @@ let urlDotState = ''; // 'online' | 'warn' | 'error' | ''
 function updateStatus() {
   if (isThinking) return;
   const dot = document.getElementById('status-dot');
-  if (!webhookUrl) { dot.className = 'status-dot'; urlDotState = ''; return; }
+  if (!webhookUrl) { dot.className = 'status-dot'; urlDotState = ''; if (transportMode === 'webhook') updateTransportUI(); return; }
   dot.className = 'status-dot ' + (urlDotState || 'error');
+  if (transportMode === 'webhook') {
+    document.getElementById('connection-summary-dot').className = dot.className;
+  }
 }
 
 async function probeUrlStatus(url) {
@@ -2065,19 +2996,20 @@ showSuggestions(INITIAL_SUGGESTIONS);
 const WEBHOOK_HISTORY_MAX = CFG_WEBHOOK_HISTORY_MAX;
 
 let webhookHistory = (() => {
-  try { return JSON.parse(localStorage.getItem('n8n_wh_history') || '[]'); }
+  try { return JSON.parse(localStorage.getItem('n8n_wh_history') || '[]').filter(entry => entry?.url).map(entry => ({ url: entry.url, method: ['get','post'].includes(entry.method) ? entry.method : 'post', env: entry.env || getUrlType(entry.url), ts: Number(entry.ts) || Date.now() })); }
   catch { return []; }
 })();
+localStorage.setItem('n8n_wh_history', JSON.stringify(webhookHistory));
 
 function saveUrlToHistory(url) {
   if (!url || !url.startsWith('http')) return;
   webhookHistory = webhookHistory.filter(e => e.url !== url);
-  webhookHistory.unshift({ url, ts: Date.now() });
+  webhookHistory.unshift({ url, method: httpMethod, env: getUrlType(url), ts: Date.now() });
   if (webhookHistory.length > WEBHOOK_HISTORY_MAX) webhookHistory.length = WEBHOOK_HISTORY_MAX;
   localStorage.setItem('n8n_wh_history', JSON.stringify(webhookHistory));
 }
 
-function getUrlType(url) { return /test/i.test(url) ? 'test' : 'prod'; }
+function getUrlType(url) { return /\/webhook-test\//i.test(url) ? 'test' : 'prod'; }
 
 function fmtHistTs(ts) {
   const d = new Date(ts);
@@ -2107,17 +3039,21 @@ function clearWebhookHistory() {
   renderHistoryDropdown();
 }
 
-function selectHistoryUrl(url) {
-  webhookUrl = url;
-  urlInput.value = url;
-  urlInputMobile.value = url;
-  localStorage.setItem('n8n_webhook', url);
-  saveUrlToHistory(url);
+function selectHistoryUrl(value) {
+  const entry = typeof value === 'string' ? (webhookHistory.find(item => item.url === value) || { url: value, method: 'post', env: getUrlType(value) }) : value;
+  webhookUrl = entry.url;
+  httpMethod = ['get','post'].includes(entry.method) ? entry.method : 'post';
+  urlInput.value = entry.url;
+  urlInputMobile.value = entry.url;
+  localStorage.setItem('n8n_webhook', entry.url);
+  localStorage.setItem('n8n_method', httpMethod);
+  updateMethodUI();
+  saveUrlToHistory(entry.url);
   syncWebhookStyle();
   urlDotState = '';
   updateStatus();
   closeHistoryDropdown();
-  startUrlCheck(url);
+  startUrlCheck(entry.url);
 }
 
 function renderHistoryDropdown() {
@@ -2128,12 +3064,12 @@ function renderHistoryDropdown() {
   head.className = 'wh-head';
   const title = document.createElement('span');
   title.className = 'wh-head-title';
-  title.textContent = 'URL History';
+  title.textContent = t('recentsTitle');
   head.appendChild(title);
   if (webhookHistory.length > 0) {
     const clr = document.createElement('button');
     clr.className = 'wh-clear-btn';
-    clr.textContent = 'Clear all';
+    clr.textContent = t('recentsClear');
     clr.onclick = (e) => { e.stopPropagation(); clearWebhookHistory(); };
     head.appendChild(clr);
   }
@@ -2142,7 +3078,7 @@ function renderHistoryDropdown() {
   if (webhookHistory.length === 0) {
     const empty = document.createElement('div');
     empty.className = 'wh-empty';
-    empty.textContent = 'No webhook URLs in history yet';
+    empty.textContent = t('recentsEmpty');
     root.appendChild(empty);
     return;
   }
@@ -2150,7 +3086,7 @@ function renderHistoryDropdown() {
   const list = document.createElement('div');
   list.className = 'wh-list';
   webhookHistory.forEach(entry => {
-    const type = getUrlType(entry.url);
+    const type = entry.env || getUrlType(entry.url);
     const item = document.createElement('div');
     item.className = 'wh-item';
 
@@ -2165,6 +3101,9 @@ function renderHistoryDropdown() {
     const badge = document.createElement('span');
     badge.className = `wh-badge wh-${type}`;
     badge.textContent = type.toUpperCase();
+    const methodBadge = document.createElement('span');
+    methodBadge.className = 'wh-badge';
+    methodBadge.textContent = (entry.method || 'post').toUpperCase();
 
     const time = document.createElement('span');
     time.className = 'wh-time';
@@ -2233,14 +3172,14 @@ function renderHistoryDropdown() {
     if (CFG_SHOW_CHECK_BTN) actions.append(row1);
     actions.append(row2);
 
-    meta.append(badge, time, dot);
+    meta.append(badge, methodBadge, time, dot);
 
     const left = document.createElement('div');
     left.className = 'wh-item-left';
     left.append(urlEl, meta);
 
     item.append(left, actions);
-    item.addEventListener('click', () => selectHistoryUrl(entry.url));
+    item.addEventListener('click', () => selectHistoryUrl(entry));
     list.appendChild(item);
   });
   root.appendChild(list);
@@ -2335,16 +3274,27 @@ function makeMsgMeta(role, text, row, bubble) {
     meta.appendChild(mkBtn(SVG_DELETE, t('btnDelete'), 'del-btn',() => deleteMessage(row)));
   }
 
+  if (role === 'agent' && row.dataset.provenance) {
+    const source = document.createElement('span');
+    source.className = 'response-source';
+    source.textContent = row.dataset.provenance;
+    meta.appendChild(source);
+  }
+
   const time = document.createElement('span');
   time.textContent = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
   meta.appendChild(time);
   return meta;
 }
 
-function appendMessage(role, text) {
+function appendMessage(role, text, provenance = '') {
   messagesEl.classList.add('has-chat');
   const row = document.createElement('div');
   row.className = `msg-row ${role}`;
+  const sourceTransport = provenance.startsWith('OpenAI') ? 'openai' : provenance.startsWith('Webhook') ? 'webhook' : provenance.startsWith('Stub') ? 'demo' : transportMode;
+  row.dataset.transport = sourceTransport;
+  if (sourceTransport === 'openai') row.dataset.openaiConversation = openAIConversationId;
+  if (provenance) row.dataset.provenance = provenance;
   const avatar = document.createElement('div');
   avatar.className = `avatar ${role}`;
   avatar.textContent = role === 'user' ? '👤' : '🤖';
@@ -2507,13 +3457,119 @@ function showTyping() {
 }
 function hideTyping() { document.getElementById('typing-indicator')?.remove(); }
 
+function cancelDemoRequest() {
+  if (!demoIsRunning) return;
+  demoRunToken++;
+  demoIsRunning = false;
+  hideTyping();
+  isThinking = false;
+  document.getElementById('send-btn').disabled = false;
+}
+
+async function sendDemoMessage(text) {
+  const token = ++demoRunToken;
+  const runConfig = { ...demoConfig };
+  demoIsRunning = true;
+  const input = document.getElementById('msg-input');
+  input.value = ''; resizeTextarea(input);
+  appendMessage('user', text);
+  isThinking = true;
+  document.getElementById('send-btn').disabled = true;
+  document.getElementById('connection-summary-dot').className = 'status-dot thinking';
+  showTyping();
+  await new Promise(resolve => setTimeout(resolve, runConfig.delay));
+  if (token !== demoRunToken || transportMode !== 'demo') return;
+  hideTyping();
+  const data = DEMO_PRESETS[runConfig.preset] || DEMO_PRESETS.json;
+  const row = appendMessage('agent', data.text, `Stub · ${runConfig.preset === 'json' ? 'JSON' : 'Text'} · ${runConfig.delay} ms`);
+  if (runConfig.showSuggestions) showSuggestions(data.suggestions);
+  if (runConfig.showDebug) appendDebug(row, data.debug);
+  demoIsRunning = false;
+  isThinking = false;
+  document.getElementById('send-btn').disabled = false;
+  document.getElementById('connection-summary-dot').className = 'status-dot warn';
+}
+
+function getOpenAIContext(currentText, includeContext = openAIConfig.includeContext) {
+  if (!includeContext) return [];
+  const context = [...document.querySelectorAll('#messages .msg-row')].slice(openAIContextStart).filter(row => row.dataset.transport === 'openai' && row.dataset.openaiConversation === openAIConversationId).map(row => {
+    const bubble = row.querySelector('.bubble');
+    if (!bubble || bubble.classList.contains('error')) return null;
+    return { role: row.classList.contains('user') ? 'user' : 'assistant', content: bubble.innerText.trim() };
+  }).filter(Boolean);
+  const last = context[context.length - 1];
+  if (last?.role === 'user' && last.content === currentText) context.pop();
+  return context;
+}
+
+async function sendOpenAIMessage(text) {
+  if (!openAIConfig.baseUrl || !openAIConfig.model || !openAIApiKey) {
+    toast(t('toastNoOpenAI'));
+    openOpenAISettings();
+    return;
+  }
+  const requestConfig = { ...openAIConfig };
+  const payload = buildOpenAIRequest(requestConfig, getOpenAIContext(text), text);
+  const input = document.getElementById('msg-input');
+  input.value = ''; resizeTextarea(input);
+  appendMessage('user', text);
+  isThinking = true;
+  document.getElementById('send-btn').disabled = true;
+  document.getElementById('openai-status-dot').className = 'status-dot thinking';
+  document.getElementById('connection-summary-dot').className = 'status-dot thinking';
+  showTyping();
+  const abortCtrl = new AbortController();
+  const timeoutId = setTimeout(() => abortCtrl.abort(), CFG_REQUEST_TIMEOUT_MS);
+  const started = performance.now();
+  try {
+    const res = await fetch(getOpenAIEndpoint(requestConfig.baseUrl), {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + openAIApiKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload), signal: abortCtrl.signal
+    });
+    clearTimeout(timeoutId);
+    const responseText = await res.text();
+    let data;
+    try { data = responseText ? JSON.parse(responseText) : {}; }
+    catch (_) { throw new Error(t('errParseMsg')); }
+    if (!res.ok) throw new Error(data?.error?.message || `HTTP ${res.status}: ${res.statusText}`);
+    hideTyping();
+    const choice = data?.choices?.[0];
+    const toolCalls = choice?.message?.tool_calls;
+    const reply = choice?.message?.content || (toolCalls?.length ? t('openaiToolsUnsupported') : '');
+    if (!reply) { appendError(t('errEmptyMsg'), 'errEmpty'); return; }
+    const elapsed = Math.round(performance.now() - started);
+    const row = appendMessage('agent', reply, `OpenAI · ${requestConfig.model} · ${elapsed} ms`);
+    appendDebug(row, {
+      transport: 'openai', endpoint: getOpenAIEndpoint(requestConfig.baseUrl), request: payload,
+      response: { id: data.id, model: data.model, finish_reason: choice?.finish_reason, usage: data.usage, tool_calls: toolCalls || undefined },
+      elapsed_ms: elapsed
+    });
+    document.getElementById('openai-status-dot').className = 'status-dot online';
+    document.getElementById('connection-summary-dot').className = 'status-dot online';
+  } catch (err) {
+    clearTimeout(timeoutId); hideTyping();
+    const isTimeout = err.name === 'AbortError';
+    appendError(isTimeout ? t('errTimeoutMsg') : err.message, isTimeout ? 'errTimeout' : 'errNetwork');
+    document.getElementById('openai-status-dot').className = 'status-dot error';
+    document.getElementById('connection-summary-dot').className = 'status-dot error';
+  } finally {
+    isThinking = false;
+    document.getElementById('send-btn').disabled = false;
+  }
+}
+
 // ── SEND ──
+function webhookProvenance() { return `Webhook · ${httpMethod.toUpperCase()} · ${shortHost(webhookUrl)}`; }
 async function sendMessage() {
   if (isThinking) return;
   const input = document.getElementById('msg-input');
   const text = input.value.trim();
   if (!text) return;
+  if (transportMode === 'demo') return sendDemoMessage(text);
+  if (transportMode === 'openai') return sendOpenAIMessage(text);
   if (!webhookUrl) { toast(t('toastNoWebhook')); urlInput.focus(); return; }
+  const requestProvenance = webhookProvenance();
   saveUrlToHistory(webhookUrl);
 
   input.value = ''; resizeTextarea(input);
@@ -2522,6 +3578,7 @@ async function sendMessage() {
   isThinking = true;
   document.getElementById('send-btn').disabled = true;
   document.getElementById('status-dot').className = 'status-dot thinking';
+  document.getElementById('connection-summary-dot').className = 'status-dot thinking';
   showTyping();
 
   const inlineJson = webhookUrl.trimStart().startsWith('{') ? webhookUrl.trim() : null;
@@ -2538,7 +3595,7 @@ async function sendMessage() {
       if (Array.isArray(data)) data = data[0];
       const reply = data?.message || data?.text || data?.output;
       if (reply) {
-        const row = appendMessage('agent', reply);
+        const row = appendMessage('agent', reply, requestProvenance);
         showSuggestions(data.suggestions);
         if (data.debug != null) appendDebug(row, data.debug);
       } else {
@@ -2600,13 +3657,13 @@ async function sendMessage() {
     } else {
       const reply = data?.message || data?.text || data?.output;
       if (reply) {
-        const row = appendMessage('agent', reply);
+        const row = appendMessage('agent', reply, requestProvenance);
         showSuggestions(data.suggestions);
         if (data.debug != null) appendDebug(row, data.debug);
       } else if (data && typeof data === 'object' && Object.keys(data).length > 0) {
         const jsonStr = JSON.stringify(data, null, 2)
           .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        appendMessage('agent', `<pre>${jsonStr}</pre>`);
+        appendMessage('agent', `<pre>${jsonStr}</pre>`, requestProvenance);
       } else {
         appendError(t('errEmptyMsg'), 'errEmpty');
       }
@@ -2636,6 +3693,10 @@ async function sendMessage() {
 }
 
 function clearChat(anchor) {
+  cancelDemoRequest();
+  openAIContextStart = 0;
+  openAIConversationId = 'openai_' + Date.now().toString(36);
+  sessionStorage.setItem('ai_openai_conversation', openAIConversationId);
   messagesEl.classList.remove('has-chat');
   messagesEl.innerHTML = '';
   const spacer = document.createElement('div');
@@ -2655,8 +3716,10 @@ function clearChat(anchor) {
       <path d="M43 45h10M43 50h6" stroke="#4fffb0" stroke-width="2.5" stroke-linecap="round"/>
     </svg>
     <div class="welcome-icon">🤖</div>
-    <h2 data-i18n="chatClearedTitle">${t('chatClearedTitle')}</h2>
-    <p data-i18n="chatClearedSub">${t('chatClearedSub')}</p>`;
+    <div class="welcome-transport" id="welcome-transport">${t(transportMode === 'demo' ? 'demoTransport' : transportMode === 'openai' ? 'openaiTransport' : 'webhookTransport')}</div>
+    <h2>${t(transportMode === 'demo' ? 'demoWelcomeTitle' : transportMode === 'openai' ? 'openaiWelcomeTitle' : 'webhookWelcomeTitle')}</h2>
+    <p>${t(transportMode === 'demo' ? 'demoWelcomeSub' : transportMode === 'openai' ? 'openaiWelcomeSub' : 'welcomeSub')}</p>
+    <span class="welcome-detail" id="welcome-detail">${t(transportMode === 'demo' ? 'demoWelcomeDetail' : transportMode === 'openai' ? 'openaiWelcomeDetail' : 'webhookWelcomeDetail')}</span>`;
   messagesEl.appendChild(w);
   showSuggestions(INITIAL_SUGGESTIONS);
   toast(t('toastCleared'));
@@ -2690,7 +3753,25 @@ function sendSuggestion(text) {
 
 const inputEl = document.getElementById('msg-input');
 inputEl.addEventListener('keydown', e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();} });
-inputEl.addEventListener('input', () => resizeTextarea(inputEl));
+inputEl.addEventListener('input', () => { resizeTextarea(inputEl); updateOpenAIRequestPreview(); });
+['openai-base-url','openai-model','openai-system-prompt','openai-temperature','openai-max-tokens','openai-context'].forEach(id => {
+  const field = document.getElementById(id);
+  field.addEventListener('input', () => { updateOpenAIRequestPreview(); updateComposerDestination(); });
+  field.addEventListener('change', () => { updateOpenAIRequestPreview(); updateComposerDestination(); });
+});
+['openai-base-url','openai-api-key','openai-model','openai-system-prompt','openai-temperature','openai-max-tokens'].forEach(id => {
+  const field = document.getElementById(id);
+  field.addEventListener('blur', commitOpenAISettings);
+  if (field.tagName !== 'TEXTAREA') field.addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); field.blur(); } });
+});
+document.getElementById('openai-context').addEventListener('change', commitOpenAISettings);
+['demo-preset','demo-delay','demo-debug','demo-suggestions'].forEach(id => document.getElementById(id).addEventListener('change', saveDemoSettings));
+const openAIPreviewDetails = document.getElementById('openai-request-preview');
+openAIPreviewDetails.addEventListener('toggle', () => {
+  document.getElementById('openai-settings').classList.toggle('preview-expanded', openAIPreviewDetails.open);
+  updateOpenAIRequestPreview();
+});
+new MutationObserver(updateOpenAIRequestPreview).observe(messagesEl, { childList: true, subtree: true, characterData: true });
 function resizeTextarea(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,140)+'px'; }
 
 let pendingDeletion = null;
@@ -2800,7 +3881,9 @@ function copySession() {
 }
 
 // ── CONSENT ──
-const CONSENT_CONTROLS = ['#webhook-url','#webhook-hist-btn','#msg-input','#send-btn',
+updateTransportUI();
+
+const CONSENT_CONTROLS = ['#webhook-url','#webhook-hist-btn','#transport-select-trigger','#mode-settings-btn','#msg-input','#send-btn',
   '#btn-new-session','#btn-clear','#theme-btn','#lang-btn','#session-id-box','#burger-btn'];
 
 function setControlsLocked(locked) {
