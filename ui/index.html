@@ -5,7 +5,7 @@
 // ╔══════════════════════════════════════════════════════════╗
 // ║ ── VERSION ──  (grep: APP_VERSION for build increment)   ║
 // ╚══════════════════════════════════════════════════════════╝
-const APP_VERSION = '0.1.27';
+const APP_VERSION = '0.1.28';
 
 // ╔══════════════════════════════════════════════════════════╗
 // ║                   CONFIGURABLE DEFAULTS                  ║
@@ -772,6 +772,24 @@ const CFG_SHOW_CHECK_BTN = false;
     font-size: 11px;
   }
   html[data-theme="light"] .debug-block pre { background: rgba(0,0,0,0.04); }
+  .debug-block { width: min(760px, 100%); }
+  .debug-package { padding: 0 8px 9px; border-top: 1px solid var(--border); }
+  .debug-section { margin-top: 7px; border: 1px solid rgba(136,152,184,.2); border-radius: 8px; overflow: hidden; background: var(--bg); }
+  .debug-section > summary { min-width: 0; padding: 7px 9px; border: 0; border-radius: 0; background: rgba(136,152,184,.05); color: var(--text-muted); }
+  .debug-section[open] > summary { color: var(--accent2); border-bottom: 1px solid var(--border); }
+  .debug-section-title { overflow: hidden; text-overflow: ellipsis; }
+  .debug-section-badge { margin-left: 3px; padding: 2px 5px; border: 1px solid rgba(0,200,255,.2); border-radius: 9px; color: var(--accent2); font-size: 8px; letter-spacing: .03em; }
+  .debug-section .dbg-copy { margin-left: auto; width: 24px; height: 24px; display: grid; place-items: center; border: 0; background: transparent; color: var(--text-muted); cursor: pointer; }
+  .debug-section .dbg-copy:hover, .debug-section .dbg-copy:focus-visible { color: var(--accent2); outline: 1px solid var(--accent2); }
+  .debug-section pre { max-height: 320px; overflow: auto; border: 0; border-radius: 0; white-space: pre-wrap; overflow-wrap: anywhere; word-break: normal; }
+  .debug-section[data-section="summary"] pre { max-height: 210px; color: var(--text); }
+  .debug-section-note { padding: 6px 10px 0; color: var(--text-muted); font: 8px/1.4 var(--font-mono); }
+  @media (max-width: 640px) {
+    .debug-block { width: 100%; }
+    .debug-block > summary { white-space: normal; }
+    .debug-section-badge { display: none; }
+    .debug-section pre { max-height: 260px; font-size: 10px; }
+  }
 
   /* copy button always visible on agent messages */
   .msg-row.agent .resend-btn { opacity: 1; }
@@ -1598,7 +1616,7 @@ const CFG_SHOW_CHECK_BTN = false;
     </div>
   </div>
   <div class="demo-controls">
-    <label class="api-field"><span data-i18n="demoPreset">Preset</span><select class="api-input" id="demo-preset" onchange="updateDemoPreview()"><option value="json" data-i18n="demoPresetJson">JSON debug</option><option value="text" data-i18n="demoPresetText">Text debug</option></select></label>
+    <label class="api-field"><span data-i18n="demoPreset">Stub file</span><select class="api-input" id="demo-preset" onchange="onStubFileChange()"><option value="stub_json.json">stub_json.json</option></select></label>
     <label class="api-field"><span data-i18n="demoDelay">Simulated latency</span><select class="api-input" id="demo-delay"><option value="0">0 ms</option><option value="500">500 ms</option><option value="1500">1500 ms</option></select></label>
     <div class="api-toggle-row demo-toggle"><span data-i18n="demoShowDebug">Show debug payload</span><label class="switch"><input type="checkbox" id="demo-debug" checked><span class="slider"></span></label></div>
     <div class="api-toggle-row demo-toggle"><span data-i18n="demoShowSuggestions">Show suggestions</span><label class="switch"><input type="checkbox" id="demo-suggestions" checked><span class="slider"></span></label></div>
@@ -1864,6 +1882,19 @@ const i18n = {
     toastDebugOn:       'Debug info visible',
     toastDebugOff:      'Debug info hidden',
     debugLabel:         'Debug',
+    debugSummary:       'Summary',
+    debugRequest:       'Request',
+    debugResponse:      'Full response',
+    debugBackend:       'Backend debug',
+    debugTiming:        'Timing & usage',
+    debugUiGenerated:   'UI-generated',
+    debugUiSent:        'Sent by UI',
+    debugServerProvided:'Server-provided',
+    debugLocalProvided: 'Local preset',
+    debugCopySection:   'Copy section',
+    debugCopyPackage:   'Copy complete debug package',
+    debugCopied:        'Debug copied',
+    debugNoNetwork:     'No network request',
     drawerAbout:        'About',
     drawerAboutDesc:    'Web interface for AI agents built on n8n workflows. Connect any webhook — chat instantly.',
     drawerLegal:        'Legal',
@@ -1889,14 +1920,14 @@ const i18n = {
     demoMode:           'Stub',
     demoPanelKicker:    'Local stub test bench',
     demoSettingsTitle:  'Stub response settings',
-    demoPreset:         'Preset',
-    demoPresetJson:     'JSON debug',
-    demoPresetText:     'Text debug',
+    demoPreset:         'Stub file',
+    demoPresetJson:     'stub_json.json',
     demoDelay:          'Simulated latency',
     demoShowDebug:      'Show debug payload',
     demoShowSuggestions:'Show suggestions',
-    demoPreviewJson:    'Response shape: text + object debug + suggestions',
-    demoPreviewText:    'Response shape: text + formatted text debug + suggestions',
+    demoPreviewJson:    'Loaded from a deployable JSON file · no model/backend request',
+    demoLoading:        'Loading Stub file…',
+    demoLoadError:      'Could not load Stub file',
     demoWelcomeTitle:   'Stub Response Lab',
     demoWelcomeSub:     'Send any message to preview the hardcoded response — no network request',
     demoTransport:      'Local Stub transport',
@@ -2021,6 +2052,19 @@ const i18n = {
     toastDebugOn:       'Debug-инфо видна в чате',
     toastDebugOff:      'Debug-инфо скрыта',
     debugLabel:         'Debug',
+    debugSummary:       'Сводка',
+    debugRequest:       'Запрос',
+    debugResponse:      'Полный ответ',
+    debugBackend:       'Debug бэкенда',
+    debugTiming:        'Время и токены',
+    debugUiGenerated:   'Сформировано UI',
+    debugUiSent:        'Отправлено UI',
+    debugServerProvided:'Получено от сервера',
+    debugLocalProvided: 'Локальный пресет',
+    debugCopySection:   'Копировать раздел',
+    debugCopyPackage:   'Копировать весь debug-пакет',
+    debugCopied:        'Debug скопирован',
+    debugNoNetwork:     'Без сетевого запроса',
     drawerAbout:        'О приложении',
     drawerAboutDesc:    'Веб-интерфейс для AI-агентов на базе n8n. Подключи любой webhook — начни чат мгновенно.',
     drawerLegal:        'Правовая информация',
@@ -2046,14 +2090,14 @@ const i18n = {
     demoMode:           'Stub',
     demoPanelKicker:    'Локальный стенд Stub',
     demoSettingsTitle:  'Настройки Stub-ответа',
-    demoPreset:         'Пресет',
-    demoPresetJson:     'JSON debug',
-    demoPresetText:     'Текстовый debug',
+    demoPreset:         'Файл Stub',
+    demoPresetJson:     'stub_json.json',
     demoDelay:          'Задержка ответа',
     demoShowDebug:      'Показывать debug',
     demoShowSuggestions:'Показывать подсказки',
-    demoPreviewJson:    'Форма ответа: text + объект debug + suggestions',
-    demoPreviewText:    'Форма ответа: text + форматированный текст debug + suggestions',
+    demoPreviewJson:    'Загружается из deployable JSON-файла · без запроса к модели/бэкенду',
+    demoLoading:        'Загрузка файла Stub…',
+    demoLoadError:      'Не удалось загрузить файл Stub',
     demoWelcomeTitle:   'Лаборатория Stub-ответов',
     demoWelcomeSub:     'Отправьте сообщение для проверки заглушки — сетевых запросов не будет',
     demoTransport:      'Локальный Stub-транспорт',
@@ -2348,26 +2392,18 @@ let demoSettingsPinned = false;
 let demoRunToken = 0;
 let demoIsRunning = false;
 let demoConfig = (() => {
-  try { return { preset: 'json', delay: 500, showDebug: true, showSuggestions: true, ...JSON.parse(localStorage.getItem('ai_demo_config') || '{}') }; }
-  catch (_) { return { preset: 'json', delay: 500, showDebug: true, showSuggestions: true }; }
+  try {
+    const saved = { filename: 'stub_json.json', delay: 500, showDebug: true, showSuggestions: true, ...JSON.parse(localStorage.getItem('ai_demo_config') || '{}') };
+    if (!saved.filename || saved.preset) saved.filename = 'stub_json.json';
+    delete saved.preset;
+    return saved;
+  } catch (_) { return { filename: 'stub_json.json', delay: 500, showDebug: true, showSuggestions: true }; }
 })();
-const DEMO_PRESETS = {
-  json: {
-    text: '<b>Москва</b>\n\n<b>Погода</b>\n7°C, облачно, ветер: 14 км/ч, данные измерены сегодня в 19:00.\n\n<b>Интересное</b>\nМосква — столица России, крупнейший город страны с населением более 12 млн человек. Основана в 1147 году.',
-    debug: {
-      response_type: 'json', latency_ms: 1842, success: true,
-      agent_logic: 'Пользователь спросил про город. Определил координаты через геокодер, запросил погоду, сформировал ответ.',
-      intermediate_steps_summary: '1. tool=Geocode_HTTP_Request | args={"city":"Москва"}\n2. tool=Weather_HTTP_Request | args={"lat":"55.75222","lon":"37.61556"}',
-      chat_history: { last_user_question: 'Расскажи про Москву', last_agent_reply: '[stub]' }
-    },
-    suggestions: ['повторить']
-  },
-  text: {
-    text: '<b>Москва</b>\n\n<b>Погода</b>\n3.3°C, облачно, ветер: 9.7 км/ч, данные измерены 20.04.2026 в 22:45 по местному времени.\n\nМосква — столица России и один из крупнейших городов мира. Здесь находится Кремль, символ страны, а также множество исторических и культурных памятников.',
-    debug: '<i>Debug:</i>\n\n<b><i>Agent Logic</i></b>\n<code>LLM_RUN_РЕЖИМ: ABOUT_CITY\nLLM_RUN_INTENT: CITY_FULL\nLLM_RUN_WHY_INTENT: Пользователь запросил рассказ о Москве\nLLM_RUN_U: Получены координаты и погодные данные\nLLM_RUN_CHAIN-OF-THOUGHT: Geocode → Weather → ответ</code>\n\n<i>Tools used</i>\n<code>1. tool=Geocode_HTTP_Request | city=Москва\n2. tool=Weather_HTTP_Request | lat=55.75222 | lon=37.61556</code>',
-    suggestions: ['повторить']
-  }
-};
+const STUB_FILES = ['stub_json.json'];
+let demoDocument = null;
+let demoLoadPromise = null;
+let demoLoadError = '';
+let demoLoadedFilename = '';
 let isThinking = false;
 const INITIAL_SUGGESTIONS = CFG_INITIAL_SUGGESTIONS;
 
@@ -2377,6 +2413,7 @@ document.getElementById('webhook-session-slot').appendChild(document.getElementB
 
 function setTransport(mode, openSettings = false) {
   if (mode === transportMode) {
+    if (mode === 'demo') loadStubFile(demoConfig.filename);
     closeCompactSelects();
     if (openSettings) toggleActiveSettings();
     return;
@@ -2391,6 +2428,7 @@ function setTransport(mode, openSettings = false) {
   transportMode = ['webhook', 'openai', 'demo'].includes(mode) ? mode : 'webhook';
   localStorage.setItem('ai_transport', transportMode);
   updateTransportUI();
+  if (transportMode === 'demo') loadStubFile(demoConfig.filename);
   closeCompactSelects();
   if (openSettings) {
     if (transportMode === 'openai') openOpenAISettings();
@@ -2421,8 +2459,7 @@ function updateComposerDestination() {
     name = 'Stub';
     const field = document.getElementById('demo-preset');
     const panelOpen = document.getElementById('demo-settings').classList.contains('open');
-    const preset = panelOpen ? field.value : demoConfig.preset;
-    detail = preset === 'text' ? 'Text' : 'JSON';
+    detail = panelOpen ? field.value : demoConfig.filename;
   }
   document.getElementById('composer-destination-name').textContent = name;
   document.getElementById('composer-destination-detail').textContent = detail;
@@ -2444,7 +2481,7 @@ function updateTransportUI() {
   const summaryText = document.getElementById('connection-summary-text');
   if (transportMode === 'demo') {
     summaryDot.className = 'status-dot warn';
-    summaryText.textContent = `LOCAL · ${demoConfig.preset === 'json' ? t('demoPresetJson') : t('demoPresetText')}`;
+    summaryText.textContent = `LOCAL · ${demoConfig.filename}`;
   } else if (transportMode === 'openai') {
     summaryDot.className = 'status-dot' + (openAIApiKey ? ' online' : '');
     summaryText.textContent = `${openAIConfig.model} · ${shortHost(openAIConfig.baseUrl)}/chat/completions`;
@@ -2490,7 +2527,7 @@ function shortHost(value) {
 function updateMobileConnectionSummary() {
   const summary = document.getElementById('mobile-connection-summary');
   if (!summary) return;
-  summary.textContent = transportMode === 'demo' ? `LOCAL · ${demoConfig.preset === 'json' ? t('demoPresetJson') : t('demoPresetText')}` : transportMode === 'openai'
+  summary.textContent = transportMode === 'demo' ? `LOCAL · ${demoConfig.filename}` : transportMode === 'openai'
     ? `${openAIConfig.model} · ${shortHost(openAIConfig.baseUrl)}/chat/completions`
     : `${httpMethod.toUpperCase()} · ${shortHost(webhookUrl)}`;
 }
@@ -2538,14 +2575,46 @@ function saveWebhookSettings() {
   updateTransportUI();
   closeWebhookSettings();
 }
+async function loadStubFile(filename = demoConfig.filename) {
+  if (!STUB_FILES.includes(filename)) {
+    demoDocument = null;
+    demoLoadedFilename = '';
+    demoLoadError = `Unsupported file: ${filename}`;
+    updateDemoPreview();
+    return null;
+  }
+  if (demoDocument && demoLoadedFilename === filename) return demoDocument;
+  if (demoLoadPromise && demoLoadedFilename === filename) return demoLoadPromise;
+  demoDocument = null;
+  demoLoadError = '';
+  demoLoadedFilename = filename;
+  updateDemoPreview();
+  const request = fetch(`./${filename}`, { cache: 'no-store' }).then(async response => {
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    if (!data || typeof data !== 'object' || Array.isArray(data) || typeof data.text !== 'string') throw new Error('Invalid Stub JSON contract');
+    demoDocument = data;
+    return data;
+  }).catch(error => {
+    demoDocument = null;
+    demoLoadError = error.message;
+    return null;
+  }).finally(() => {
+    if (demoLoadPromise === request) demoLoadPromise = null;
+    updateDemoPreview();
+  });
+  demoLoadPromise = request;
+  return request;
+}
 function openDemoSettings() {
   closeOpenAISettings(true);
   closeWebhookSettings(true);
-  document.getElementById('demo-preset').value = demoConfig.preset;
+  document.getElementById('demo-preset').value = demoConfig.filename;
   document.getElementById('demo-delay').value = String(demoConfig.delay);
   document.getElementById('demo-debug').checked = demoConfig.showDebug;
   document.getElementById('demo-suggestions').checked = demoConfig.showSuggestions;
   updateDemoPreview();
+  loadStubFile(demoConfig.filename);
   const panel = document.getElementById('demo-settings');
   panel.classList.add('open');
   panel.setAttribute('aria-hidden', 'false');
@@ -2578,14 +2647,20 @@ function updateDemoSettingsPinUI() {
   label.textContent = t(demoSettingsPinned ? 'openaiUnpin' : 'openaiPin');
 }
 function updateDemoPreview() {
-  const preset = document.getElementById('demo-preset').value;
-  document.getElementById('demo-preview-text').textContent = t(preset === 'json' ? 'demoPreviewJson' : 'demoPreviewText');
-  document.getElementById('demo-preview-file').textContent = preset === 'json' ? 'stub_json.json' : 'stub_text.json';
+  const filename = document.getElementById('demo-preset').value;
+  const state = demoLoadError ? `${t('demoLoadError')}: ${demoLoadError}` : demoDocument ? t('demoPreviewJson') : t('demoLoading');
+  document.getElementById('demo-preview-text').textContent = state;
+  document.getElementById('demo-preview-file').textContent = filename;
   updateComposerDestination();
+}
+function onStubFileChange() {
+  demoConfig.filename = document.getElementById('demo-preset').value;
+  saveDemoSettings();
+  loadStubFile(demoConfig.filename);
 }
 function saveDemoSettings() {
   demoConfig = {
-    preset: document.getElementById('demo-preset').value,
+    filename: document.getElementById('demo-preset').value,
     delay: Number(document.getElementById('demo-delay').value),
     showDebug: document.getElementById('demo-debug').checked,
     showSuggestions: document.getElementById('demo-suggestions').checked
@@ -3460,7 +3535,7 @@ function appendMessage(role, text, provenance = '') {
   return row;
 }
 
-function appendDebug(row, debugData) {
+function appendDebugLegacy(row, debugData) {
   const wrap = row.querySelector('.bubble-wrap');
   if (!wrap) return;
   const content = typeof debugData === 'string'
@@ -3507,6 +3582,145 @@ function appendDebug(row, debugData) {
   }
   details.appendChild(summary);
   details.appendChild(body);
+  const dbgWrap = document.createElement('div');
+  dbgWrap.className = 'debug-block-wrap';
+  dbgWrap.dataset.mode = debugMode;
+  if (debugMode === 'hidden') dbgWrap.style.display = 'none';
+  dbgWrap.appendChild(details);
+  wrap.insertBefore(dbgWrap, wrap.querySelector('.bubble-meta'));
+}
+
+const SVG_DEBUG_COPY = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+
+function sanitizeDebugValue(value) {
+  if (typeof value === 'string' && openAIApiKey && value.includes(openAIApiKey)) return value.split(openAIApiKey).join('$OPENAI_API_KEY');
+  if (Array.isArray(value)) return value.map(sanitizeDebugValue);
+  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, sanitizeDebugValue(item)]));
+  return value;
+}
+function normalizeUsage(rawUsage) {
+  if (!rawUsage) return { input_tokens: null, output_tokens: null, total_tokens: null, cached_tokens: null, raw: null };
+  return {
+    input_tokens: rawUsage.input_tokens ?? rawUsage.prompt_tokens ?? null,
+    output_tokens: rawUsage.output_tokens ?? rawUsage.completion_tokens ?? null,
+    total_tokens: rawUsage.total_tokens ?? null,
+    cached_tokens: rawUsage.cached_tokens ?? rawUsage.prompt_tokens_details?.cached_tokens ?? rawUsage.input_tokens_details?.cached_tokens ?? null,
+    raw: rawUsage
+  };
+}
+function createDebugContract({ summary, request, response, usage, timing, trace = null, error = null, rawResponse }) {
+  return {
+    schema: 'ai-agent-debug/v1',
+    summary: {
+      status: summary?.status ?? 'ok', transport: summary?.transport ?? null, model: summary?.model ?? null,
+      response_id: summary?.response_id ?? null, finish_reason: summary?.finish_reason ?? null
+    },
+    request: request || null,
+    response: response || null,
+    usage: normalizeUsage(usage),
+    timing: timing || { elapsed_ms: null },
+    trace,
+    error,
+    raw_response: rawResponse ?? null
+  };
+}
+function adaptStubDebug(raw, { filename, delay, elapsed, message, showDebug }) {
+  return createDebugContract({
+    summary: { status: 'ok', transport: 'stub' },
+    request: { method: 'LOCAL', endpoint: `./${filename}`, headers: {}, body: { message, filename, simulated_delay_ms: delay } },
+    response: { status: 'loaded', filename, output_field: 'text', suggestions_count: Array.isArray(raw.suggestions) ? raw.suggestions.length : 0 },
+    timing: { elapsed_ms: elapsed, simulated_delay_ms: delay },
+    trace: showDebug ? raw.debug ?? null : null,
+    rawResponse: raw
+  });
+}
+function adaptOpenAIDebug(data, { endpoint, payload, status, statusText, elapsed }) {
+  const choice = data?.choices?.[0];
+  return createDebugContract({
+    summary: { status: status >= 200 && status < 300 ? 'ok' : 'error', transport: 'openai', model: data?.model ?? payload.model, response_id: data?.id, finish_reason: choice?.finish_reason },
+    request: { method: 'POST', endpoint, headers: { Authorization: 'Bearer $OPENAI_API_KEY', 'Content-Type': 'application/json' }, body: payload },
+    response: { http_status: status, status_text: statusText, output_role: choice?.message?.role, tool_calls_count: choice?.message?.tool_calls?.length || 0 },
+    usage: data?.usage,
+    timing: { elapsed_ms: elapsed },
+    trace: data?.debug ?? (choice?.message?.tool_calls?.length ? { tool_calls: choice.message.tool_calls } : null),
+    rawResponse: data
+  });
+}
+function adaptWebhookDebug(raw, { request, status, statusText, elapsed, inline = false, showDebug = true }) {
+  const selected = Array.isArray(raw) ? raw[0] : raw;
+  const outputField = selected?.message != null ? 'message' : selected?.text != null ? 'text' : selected?.output != null ? 'output' : null;
+  return createDebugContract({
+    summary: { status: selected?.error ? 'error' : 'ok', transport: inline ? 'webhook-inline' : 'webhook' },
+    request,
+    response: { http_status: status ?? null, status_text: statusText ?? null, output_field: outputField, suggestions_count: Array.isArray(selected?.suggestions) ? selected.suggestions.length : 0 },
+    timing: { elapsed_ms: elapsed },
+    trace: showDebug ? selected?.debug ?? null : null,
+    error: selected?.error ?? null,
+    rawResponse: raw
+  });
+}
+function debugContractSections(contract, responseBadge = 'debugServerProvided') {
+  const sections = [];
+  sections.push({ id: 'summary', titleKey: 'debugSummary', badgeKey: 'debugUiGenerated', data: { schema: contract.schema, ...contract.summary, error: contract.error }, open: true });
+  if (contract.request != null) sections.push({ id: 'request', titleKey: 'debugRequest', badgeKey: 'debugUiSent', data: contract.request });
+  sections.push({ id: 'response', titleKey: 'debugResponse', badgeKey: responseBadge, data: contract.raw_response });
+  if (contract.trace != null) sections.push({ id: 'backend', titleKey: 'debugBackend', badgeKey: responseBadge, data: contract.trace });
+  sections.push({ id: 'timing', titleKey: 'debugTiming', badgeKey: 'debugUiGenerated', data: { response: contract.response, usage: contract.usage, timing: contract.timing } });
+  return sections;
+}
+function debugText(value) { return typeof value === 'string' ? value : JSON.stringify(value, null, 2); }
+
+function appendDebug(row, debugData) {
+  const contract = debugData?.schema === 'ai-agent-debug/v1' ? debugData : createDebugContract({
+    summary: { transport: row.dataset.transport || 'legacy' }, trace: debugData, rawResponse: debugData
+  });
+  const responseBadge = contract.summary.transport === 'stub' || contract.summary.transport === 'webhook-inline' ? 'debugLocalProvided' : 'debugServerProvided';
+  const debugPackage = { sections: debugContractSections(contract, responseBadge) };
+  const wrap = row.querySelector('.bubble-wrap');
+  if (!wrap) return;
+  const safeContract = sanitizeDebugValue(contract);
+  const safePackage = { sections: debugPackage.sections.map(section => ({ id: section.id, title: t(section.titleKey), source: t(section.badgeKey), data: sanitizeDebugValue(section.data) })) };
+  const details = document.createElement('details');
+  details.className = 'debug-block';
+  details.open = debugMode === 'expanded';
+  const summary = document.createElement('summary');
+  summary.innerHTML = `<span class="dbg-chevron">&gt;</span>${SVG_DEBUG_BUG_SM}<span class="debug-outer-title"></span><button class="dbg-copy" type="button">${SVG_DEBUG_COPY}</button>`;
+  summary.querySelector('.debug-outer-title').textContent = t('debugLabel');
+  const outerCopy = summary.querySelector('.dbg-copy');
+  outerCopy.title = t('debugCopyPackage');
+  outerCopy.setAttribute('aria-label', t('debugCopyPackage'));
+  outerCopy.addEventListener('click', event => {
+    event.preventDefault(); event.stopPropagation();
+    copyText(JSON.stringify(safeContract, null, 2)).then(() => toast(t('debugCopied')));
+  });
+  details.appendChild(summary);
+  const packageEl = document.createElement('div');
+  packageEl.className = 'debug-package';
+  safePackage.sections.forEach((safeSection, index) => {
+    const source = debugPackage.sections[index];
+    const section = document.createElement('details');
+    section.className = 'debug-section';
+    section.dataset.section = safeSection.id;
+    section.open = Boolean(source.open);
+    const heading = document.createElement('summary');
+    heading.innerHTML = `<span class="dbg-chevron">&gt;</span><span class="debug-section-title"></span><span class="debug-section-badge"></span><button class="dbg-copy" type="button">${SVG_DEBUG_COPY}</button>`;
+    heading.querySelector('.debug-section-title').textContent = safeSection.title;
+    heading.querySelector('.debug-section-badge').textContent = safeSection.source;
+    const sectionCopy = heading.querySelector('.dbg-copy');
+    sectionCopy.title = t('debugCopySection');
+    sectionCopy.setAttribute('aria-label', `${t('debugCopySection')}: ${safeSection.title}`);
+    const content = debugText(safeSection.data);
+    sectionCopy.addEventListener('click', event => {
+      event.preventDefault(); event.stopPropagation();
+      copyText(content).then(() => toast(t('debugCopied')));
+    });
+    const pre = document.createElement('pre');
+    pre.textContent = content;
+    section.appendChild(heading);
+    section.appendChild(pre);
+    packageEl.appendChild(section);
+  });
+  details.appendChild(packageEl);
   const dbgWrap = document.createElement('div');
   dbgWrap.className = 'debug-block-wrap';
   dbgWrap.dataset.mode = debugMode;
@@ -3604,6 +3818,7 @@ function cancelDemoRequest() {
 async function sendDemoMessage(text) {
   const token = ++demoRunToken;
   const runConfig = { ...demoConfig };
+  const started = performance.now();
   demoIsRunning = true;
   const input = document.getElementById('msg-input');
   input.value = ''; resizeTextarea(input);
@@ -3612,13 +3827,24 @@ async function sendDemoMessage(text) {
   document.getElementById('send-btn').disabled = true;
   document.getElementById('connection-summary-dot').className = 'status-dot thinking';
   showTyping();
+  const data = await loadStubFile(runConfig.filename);
+  if (token !== demoRunToken || transportMode !== 'demo') return;
+  if (!data) {
+    hideTyping();
+    appendError(`${t('demoLoadError')}: ${demoLoadError}`, 'errParse');
+    demoIsRunning = false;
+    isThinking = false;
+    document.getElementById('send-btn').disabled = false;
+    document.getElementById('connection-summary-dot').className = 'status-dot error';
+    return;
+  }
   await new Promise(resolve => setTimeout(resolve, runConfig.delay));
   if (token !== demoRunToken || transportMode !== 'demo') return;
   hideTyping();
-  const data = DEMO_PRESETS[runConfig.preset] || DEMO_PRESETS.json;
-  const row = appendMessage('agent', data.text, `Stub · ${runConfig.preset === 'json' ? 'JSON' : 'Text'} · ${runConfig.delay} ms`);
+  const elapsed = Math.round(performance.now() - started);
+  const row = appendMessage('agent', data.text, `Stub · ${runConfig.filename} · ${runConfig.delay} ms`);
   if (runConfig.showSuggestions) showSuggestions(data.suggestions);
-  if (runConfig.showDebug) appendDebug(row, data.debug);
+  appendDebug(row, adaptStubDebug(data, { filename: runConfig.filename, delay: runConfig.delay, elapsed, message: text, showDebug: runConfig.showDebug }));
   demoIsRunning = false;
   isThinking = false;
   document.getElementById('send-btn').disabled = false;
@@ -3676,11 +3902,10 @@ async function sendOpenAIMessage(text) {
     if (!reply) { appendError(t('errEmptyMsg'), 'errEmpty'); return; }
     const elapsed = Math.round(performance.now() - started);
     const row = appendMessage('agent', reply, `OpenAI · ${requestConfig.model} · ${elapsed} ms`);
-    appendDebug(row, {
-      transport: 'openai', endpoint: getOpenAIEndpoint(requestConfig.baseUrl), request: payload,
-      response: { id: data.id, model: data.model, finish_reason: choice?.finish_reason, usage: data.usage, tool_calls: toolCalls || undefined },
-      elapsed_ms: elapsed
-    });
+    appendDebug(row, adaptOpenAIDebug(data, {
+      endpoint: getOpenAIEndpoint(requestConfig.baseUrl), payload,
+      status: res.status, statusText: res.statusText, elapsed
+    }));
     document.getElementById('openai-status-dot').className = 'status-dot online';
     document.getElementById('connection-summary-dot').className = 'status-dot online';
   } catch (err) {
@@ -3721,19 +3946,25 @@ async function sendMessage() {
 
   if (inlineJson) {
     try {
+      const started = performance.now();
       await new Promise(r => setTimeout(r, 300));
       hideTyping();
-      let data;
-      try { data = JSON.parse(inlineJson); } catch(e) {
+      let rawData;
+      try { rawData = JSON.parse(inlineJson); } catch(e) {
         appendError('Inline JSON parse error: ' + e.message, 'errParse');
         return;
       }
+      let data = rawData;
       if (Array.isArray(data)) data = data[0];
       const reply = data?.message || data?.text || data?.output;
       if (reply) {
         const row = appendMessage('agent', reply, requestProvenance);
         showSuggestions(data.suggestions);
-        if (data.debug != null) appendDebug(row, data.debug);
+        const elapsed = Math.round(performance.now() - started);
+        appendDebug(row, adaptWebhookDebug(rawData, {
+          request: { method: 'LOCAL', endpoint: 'inline-json', headers: {}, body: rawData },
+          elapsed, inline: true
+        }));
       } else {
         appendError(t('errEmptyMsg'), 'errEmpty');
       }
@@ -3750,17 +3981,21 @@ async function sendMessage() {
   const abortCtrl = new AbortController();
   const timeoutId = setTimeout(() => abortCtrl.abort(), CFG_REQUEST_TIMEOUT_MS);
   const requestId = `req_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  const started = performance.now();
 
   try {
     let res;
+    let requestMeta;
     if (httpMethod === 'get') {
       const params = new URLSearchParams({ sessionId, message: text,  });
       const getUrl = webhookUrl + (webhookUrl.includes('?') ? '&' : '?') + params.toString();
+      requestMeta = { method: 'GET', url: getUrl, query: { sessionId, message: text }, session_id: sessionId, request_id: requestId };
       res = await fetch(getUrl, {
         method: 'GET',
         signal: abortCtrl.signal
       });
     } else {
+      requestMeta = { method: 'POST', url: webhookUrl, headers: { 'Content-Type': 'application/json' }, body: { message: text, sessionId }, session_id: sessionId, request_id: requestId };
       res = await fetch(webhookUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -3777,15 +4012,16 @@ async function sendMessage() {
     }
     urlDotState = 'online';
 
-    let data;
+    let rawData;
     try {
       const ct = res.headers.get('content-type') || '';
-      data = ct.includes('application/json') ? await res.json() : JSON.parse(await res.text());
+      rawData = ct.includes('application/json') ? await res.json() : JSON.parse(await res.text());
     } catch {
       appendError(t('errParseMsg'), 'errParse');
       return;
     }
 
+    let data = rawData;
     if (Array.isArray(data)) data = data[0];
 
     if (data.error) {
@@ -3795,11 +4031,18 @@ async function sendMessage() {
       if (reply) {
         const row = appendMessage('agent', reply, requestProvenance);
         showSuggestions(data.suggestions);
-        if (data.debug != null) appendDebug(row, data.debug);
+        const elapsed = Math.round(performance.now() - started);
+        appendDebug(row, adaptWebhookDebug(rawData, {
+          request: requestMeta, status: res.status, statusText: res.statusText, elapsed
+        }));
       } else if (data && typeof data === 'object' && Object.keys(data).length > 0) {
         const jsonStr = JSON.stringify(data, null, 2)
           .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        appendMessage('agent', `<pre>${jsonStr}</pre>`, requestProvenance);
+        const row = appendMessage('agent', `<pre>${jsonStr}</pre>`, requestProvenance);
+        const elapsed = Math.round(performance.now() - started);
+        appendDebug(row, adaptWebhookDebug(rawData, {
+          request: requestMeta, status: res.status, statusText: res.statusText, elapsed
+        }));
       } else {
         appendError(t('errEmptyMsg'), 'errEmpty');
       }
@@ -4018,6 +4261,7 @@ function copySession() {
 
 // ── CONSENT ──
 updateTransportUI();
+if (transportMode === 'demo') loadStubFile(demoConfig.filename);
 
 const CONSENT_CONTROLS = ['#webhook-url','#webhook-hist-btn','#transport-select-trigger','#mode-settings-btn','#msg-input','#send-btn',
   '#btn-new-session','#btn-clear','#theme-btn','#lang-btn','#session-id-box','#burger-btn'];
