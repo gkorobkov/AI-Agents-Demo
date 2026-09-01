@@ -1,383 +1,204 @@
-# AI Agent Chat
+# AI Agents Course Lab
 
-Web interface for AI agents powered by [n8n](https://n8n.io) workflows.  
-Paste a webhook URL — start chatting instantly.
+Практический учебный проект для изучения AI-агентов: от первого запроса к LLM до агента с памятью, инструментами, RAG, наблюдаемостью и собственным пользовательским интерфейсом.
 
-## ToC
+Главный элемент проекта — браузерная лаборатория в [`ui/`](ui/). В ней студент не просто общается с моделью, а видит весь цикл работы AI-приложения:
 
-- [Quick start](#quick-start)
-- [Features](#features)
-- [UI/UX](#uiux)
-  - [Transport modes](#transport-modes)
-  - [How requests are built](#how-requests-are-built)
-  - [How responses are parsed](#how-responses-are-parsed)
-  - [Sectioned debug inspector](#sectioned-debug-inspector)
-  - [Message formatting](#message-formatting)
-  - [Storage and security](#storage-and-security)
-- [License](#license)
-- [LLM GPT Models](#llm-gpt-models)
-  - [✅ Free providers (available in the list)](#free-providers-available-in-the-list)
-  - [❌ Other providers in the list — paid only](#other-providers-in-the-list-paid-only)
-
-## Quick start
-
-```
-ui-start.cmd              # serve UI at http://localhost:8080/
-ui-start.cmd 3000         # use another port: http://localhost:3000/
-ui-build.cmd              # increment version + copy to .build/ui/
-ui-deploy.cmd             # scp .build/ui/* to server
+```text
+параметр API → запрос → inference → ответ → наблюдаемый эффект → метрика
 ```
 
-Configure deploy target in `.env`:
+UI позволяет подключать n8n workflows через webhook, вызывать OpenAI-compatible API напрямую и работать со Stub-ответами без готового backend. Один интерфейс используется на протяжении всего курса: для API-экспериментов, отладки промптов, проверки памяти и tools, изучения RAG и анализа поведения готового агента.
+
+## Чему учит проект
+
+После прохождения модулей студент сможет:
+
+- объяснить устройство LLM-запроса и ответа, а не только отправить prompt;
+- управлять моделью через роли, контекст и параметры генерации;
+- проектировать structured output и безопасно разбирать ответ агента;
+- реализовать историю диалога и проверить её влияние на контекст;
+- подключить внешние инструменты и задать правила их использования;
+- построить RAG-контур с отдельными ingest и query workflow;
+- диагностировать запросы по response, token usage, timing и debug-данным;
+- тестировать узлы workflow и подготовить UI к публикации.
+
+## Учебные модули
+
+### 1. UI как лаборатория AI-агента
+
+Студент начинает с [`ui/index.html`](ui/index.html) и исследует запрос через три транспорта:
+
+| Режим | Для чего используется |
+|---|---|
+| **Webhook** | Подключение n8n, Make, Activepieces или собственного backend через GET/POST |
+| **OpenAI API** | Прямой вызов `/v1/chat/completions` и эксперименты с параметрами модели |
+| **Stub** | Проверка интерфейса, формата ответа, debug и задержек без модели и backend |
+
+Интерфейс показывает текст ответа, источник, endpoint, безопасное представление request, полный response, время выполнения и token usage. Это превращает чат в диагностический стенд, на котором можно сопоставить изменение входного параметра с изменением результата.
+
+В UI также реализованы:
+
+- история и профили подключений;
+- переключение PROD/TEST webhook и GET/POST;
+- системный prompt, temperature и лимит output tokens;
+- опциональная история OpenAI-диалога;
+- копирование JSON и безопасного cURL без раскрытия API-ключа;
+- единый debug-контракт `ai-agent-debug/v1`;
+- suggestion-кнопки и форматирование ответа;
+- RU/EN, светлая и тёмная темы, адаптивная desktop/mobile вёрстка;
+- хранение API-ключа только в `sessionStorage`.
+
+Пользовательская документация находится в [`ui/documentation.html`](ui/documentation.html), а локальный сценарий без backend — в [`ui/stub_json.json`](ui/stub_json.json).
+
+### 2. OpenAI-compatible API и управляемые эксперименты
+
+Лабораторная работа [`OpenAI API Lab.md`](OpenAI%20API%20Lab.md) подробно разбирает `POST /v1/chat/completions`. Для обучения этот endpoint удобен тем, что связь между request, поведением модели и response видна непосредственно.
+
+Главная цель лабораторной:
+
+> Понять, какой входной параметр чем управляет, где эффект проявляется в response и каким экспериментом это можно доказать.
+
+Базовая программа состоит из 12 последовательных экспериментов:
+
+| № | Эксперимент | Меняем | Наблюдаем |
+|---:|---|---|---|
+| 1 | Первый запрос | `messages` | `content`, `usage` |
+| 2 | Выбор модели | `model` | модель, содержание, tokens |
+| 3 | Контекст | `messages[]` | содержание, `prompt_tokens` |
+| 4 | Случайность | `temperature` | вариативность ответа |
+| 5 | Nucleus sampling | `top_p` | вариативность ответа |
+| 6 | Ограничение длины | `max_completion_tokens` | `finish_reason`, tokens |
+| 7 | Несколько вариантов | `n` | `choices[]` |
+| 8 | Penalties | `frequency_penalty`, `presence_penalty` | повторяемость текста |
+| 9 | Вероятности токенов | `logprobs`, `top_logprobs` | token probabilities |
+| 10 | Structured Output | `response_format` | соответствие JSON Schema |
+| 11 | Reasoning | `reasoning_effort`, `verbosity` | reasoning tokens, длина |
+| 12 | Function Calling | `tools`, `tool_choice` | `tool_calls` |
+
+Расширенная часть охватывает streaming, prompt caching, prediction, audio, moderation и web search. Следующий логический шаг — сравнение того же набора задач с `POST /v1/responses`.
+
+> За один эксперимент изменяется только один независимый параметр.
+
+Так студент может доказать причинно-следственную связь, а не просто получить другой ответ модели.
+
+### 3. Structured output, парсинг и память
+
+Материалы [`Part_1/`](Part_1/) вводят базовую архитектуру диалогового агента:
+
+- системный prompt и строгий JSON-контракт ответа;
+- разделение пользовательского ответа и диагностической информации;
+- разбор output агента;
+- получение `sessionId`;
+- хранение и восстановление chat history.
+
+Основные файлы: [`System_prompt_1.md`](Part_1/System_prompt_1.md), [`AI_Agent_Output_Parser.js`](Part_1/AI_Agent_Output_Parser.js), [`Get_sessionId.js`](Part_1/Get_sessionId.js) и [`JSON_Chat_Memory.js`](Part_1/JSON_Chat_Memory.js).
+
+### 4. Tools, маршрутизация и контекст диалога
+
+В [`Part_2/`](Part_2/) простой чат развивается в агента, который:
+
+- определяет intent и выбирает нужную ветку обработки;
+- учитывает предыдущие сообщения и уточняющие ответы;
+- вызывает инструменты для погоды, событий, маршрутов и билетов;
+- не подменяет отсутствующие данные выдуманными фактами;
+- постепенно расширяется от одного инструмента до нескольких источников и RAG.
+
+Версии системных промптов оставлены отдельно, чтобы сравнивать развитие инструкций и влияние правил на поведение агента. Готовые n8n-примеры находятся в [`Workflows/`](Workflows/): от погодного агента до City and Tickets Informer с наблюдаемостью.
+
+### 5. RAG и база знаний
+
+RAG-модуль показывает полный путь документа:
+
+```text
+документы → подготовка контекста → embeddings/vector store → retrieval → tool агента → ответ
 ```
+
+В репозитории есть:
+
+- [`RAG - Ingest Qdrant.json`](Workflows/RAG%20-%20Ingest%20Qdrant.json) для загрузки данных;
+- [`RAG - Query Qdrant.json`](Workflows/RAG%20-%20Query%20Qdrant.json) для поиска;
+- [`RAG KB Tool.json`](Workflows/RAG%20KB%20Tool.json) для подключения поиска к агенту;
+- форматирование найденного контекста и unit-тесты;
+- учебные документы в [`RAG/`](RAG/).
+
+Модуль учит отделять знания модели от фактов базы знаний и задавать явные правила, когда агент обязан использовать retrieval.
+
+### 6. Наблюдаемость, тестирование и эксплуатация
+
+Финальная часть связывает workflow с инженерной практикой:
+
+- полный request/response доступен для диагностики;
+- backend debug отделён от пользовательского ответа;
+- измеряются timing и token usage;
+- JavaScript-узлы проверяются тестами в [`Workflows/`](Workflows/);
+- webhook диагностируется через [`webhook-check.js`](webhook-check.js) и [`run-check.mjs`](run-check.mjs);
+- UI собирается в `.build/ui/` и разворачивается существующими скриптами.
+
+## Как работать с лабораторией
+
+1. Запустите UI командой `ui-start.cmd`.
+2. Откройте `http://localhost:8080/` и примите пользовательское соглашение.
+3. Выберите Stub для знакомства без внешних сервисов, OpenAI API для экспериментов с LLM или Webhook для подключения n8n.
+4. Включите Debug и зафиксируйте контрольный request/response.
+5. Измените один параметр, повторите запрос и сравните результат.
+6. Запишите наблюдение и вывод.
+
+Для каждого эксперимента рекомендуется сдавать краткий отчёт:
+
+```text
+Эксперимент и изменяемый параметр
+Контрольное и экспериментальное значения
+Ожидаемый эффект
+Request JSON
+Response JSON
+Изменившиеся поля response
+Фактический результат и вывод
+```
+
+## Быстрый запуск и сборка
+
+```bat
+ui-start.cmd              rem UI на http://localhost:8080/
+ui-start.cmd 3000         rem другой локальный порт
+ui-build.cmd              rem увеличить версию и собрать .build/ui/
+ui-deploy.cmd             rem загрузить собранный UI на сервер
+ui-build-deploy.cmd       rem собрать и развернуть UI
+```
+
+Параметры deployment задаются в `.env`:
+
+```dotenv
 DEPLOY_USER=user
 DEPLOY_HOST=example.com
 DEPLOY_PATH=/var/www/ai-agent-demo/
 ```
 
-## Features
+## Структура репозитория
 
-- One chat UI with three transports: Webhook, OpenAI-compatible API, and local Stub responses
-- Webhook support for GET/POST, PROD/TEST URLs, session IDs, and recent connections
-- Direct OpenAI-compatible `/v1/chat/completions` requests with model parameters and named local profiles
-- Read-only OpenAI request preview with safe JSON and cURL copying
-- Deployable Stub JSON file for testing messages, debug blocks, suggestions, and simulated latency without a backend
-- Source labels on responses for comparing Webhook, OpenAI, and Stub results in one chat
-- Collapsible and pinnable settings panels with automatic field persistence
-- Structured debug output, request timing, token usage, and error rendering
-- Editable, repeatable, copyable, and removable chat messages
-- Dark/light themes, responsive desktop/mobile layout, and RU/EN localization
-- Controlled HTML-like response formatting with sanitized external links
-- API keys kept in `sessionStorage`; profiles never contain API keys
-
-## UI/UX
-
-The page provides one visible chat and one message composer. The transport selector in the header determines where the next message is sent. The compact label beside the composer repeats the active transport so the destination is visible immediately before sending.
-
-Each transport has its own settings panel. Panels open below the header as overlays, can be pinned while testing the chat, and do not resize the message area. Settings are applied automatically on change or when leaving a field; validation errors are shown inline.
-
-Assistant messages include a source label such as:
-
-```text
-Webhook · POST · example.com/webhook/chat
-OpenAI · qwen3.8-27b · 842 ms
-Stub · stub_json.json · 500 ms
-```
-
-### Transport modes
-
-| Mode | Purpose | Network request |
-|---|---|---|
-| **Webhook** | Connect n8n, Make, Activepieces, or a custom low-code/backend endpoint | GET or POST to the configured URL |
-| **OpenAI API** | Call an OpenAI-compatible chat completion endpoint directly from the browser | POST to `{baseUrl}/chat/completions` |
-| **Stub** | Preview response rendering when no model or backend is available | Static `GET ./stub_json.json` when selected; no model/backend request |
-
-#### Webhook
-
-Webhook settings include the HTTP method, PROD/TEST URL variant, URL history, and session ID. Recent connections store the URL together with the method and environment, so selecting an old entry restores the complete connection.
-
-The default request contract is intentionally small:
-
-```json
-{
-  "message": "Hello",
-  "sessionId": "generated-session-id"
-}
-```
-
-#### OpenAI API
-
-OpenAI settings include Base URL, API key, model, system prompt, temperature, maximum output tokens, and named profiles. Profiles are stored locally but never include the API key.
-
-The panel separates actual OpenAI API fields from browser UI behavior. The history option is UI logic rather than a separate OpenAI API parameter. Previous messages exist only in the current page DOM and are converted into entries in `messages[]` before sending.
-
-Only turns created in OpenAI mode for the current OpenAI profile/conversation are included. Webhook and Stub turns are excluded. Reloading the page, clearing the chat, or creating a new session resets this context.
-
-#### Stub
-
-Stub mode exposes the deployable file `ui/stub_json.json`. Selecting Stub loads `./stub_json.json` with `fetch`; sending then uses that loaded document locally and never calls a model or backend endpoint. There is no text-debug preset. A loading or file error is shown inline, and a failed load is never replaced by an embedded fallback answer. Stub can simulate 0, 500, or 1500 ms latency and independently enable suggestion chips or the focused Backend debug section.
-
-### How requests are built
-
-#### Webhook GET
-
-For GET, the UI appends URL-encoded query parameters:
-
-```http
-GET https://example.com/webhook/chat?sessionId=...&message=Hello
-```
-
-#### Webhook POST
-
-For POST, the UI sends JSON:
-
-```http
-POST https://example.com/webhook/chat
-Content-Type: application/json
-```
-
-```json
-{
-  "message": "Hello",
-  "sessionId": "generated-session-id"
-}
-```
-
-#### OpenAI-compatible request
-
-The UI sends:
-
-```http
-POST https://api.example.com/v1/chat/completions
-Authorization: Bearer $OPENAI_API_KEY
-Content-Type: application/json
-```
-
-Example body without previous messages:
-
-```json
-{
-  "model": "qwen3.8-27b",
-  "messages": [
-    { "role": "system", "content": "Answer briefly." },
-    { "role": "user", "content": "What is RAG?" }
-  ],
-  "temperature": 0.7,
-  "max_tokens": 500
-}
-```
-
-When browser-managed history is enabled, the order is:
-
-```text
-messages[]
-  1. system prompt, if configured
-  2. previous OpenAI user/assistant turns from the current profile
-  3. current user message
-```
-
-For example:
-
-```json
-{
-  "messages": [
-    { "role": "system", "content": "Answer briefly." },
-    { "role": "user", "content": "What is RAG?" },
-    { "role": "assistant", "content": "RAG combines retrieval with generation." },
-    { "role": "user", "content": "Give me an example." }
-  ]
-}
-```
-
-The expanded **Request preview** shows the exact endpoint, sanitized headers, and body produced for the next request. The preview and the real `fetch` call use the same request builder. Copied cURL commands use `$OPENAI_API_KEY` and never expose the real key.
-
-### How responses are parsed
-
-#### Webhook response
-
-The Webhook transport expects JSON. If the top-level response is an array, the first item is used. The assistant text is selected in this order:
-
-```text
-message → text → output
-```
-
-Recommended response:
-
-```json
-{
-  "text": "<b>Result</b>\nThe operation completed.",
-  "debug": {
-    "latency_ms": 420,
-    "tools": ["search"]
-  },
-  "suggestions": ["Show details", "Try again"]
-}
-```
-
-Supported optional fields:
-
-- `debug`: a string or an object; shown both inside the complete response and in the focused **Backend debug** section.
-- `suggestions`: an array of strings; rendered as buttons that submit their text back through the currently selected transport.
-- `error`: displayed as an agent error instead of a normal response.
-
-If the response is a non-empty JSON object without `message`, `text`, `output`, or `error`, the complete object is displayed as formatted JSON. Invalid JSON, an empty response, HTTP errors, network failures, and timeouts are rendered as chat errors.
-
-#### OpenAI response
-
-The OpenAI transport reads:
-
-```text
-choices[0].message.content
-```
-
-The visible reply still comes from `choices[0].message.content`. The Debug inspector keeps the complete parsed response, including the complete `choices[]`, message fields, reasoning content, tool calls, usage details, and provider-specific fields. A separate UI-generated Summary derives only concise facts such as response ID, model, `finish_reason`, HTTP status, token total, and elapsed time.
-
-Tool execution is not implemented in this stage. If a model returns tool calls without text, the chat shows an explanatory message instead of failing silently.
-
-#### Stub response
-
-Stub responses use the same rendering path as live responses. This makes it possible to verify HTML-like text, object or string debug payloads, suggestion buttons, source labels, and typing latency without a working API.
-
-### Sectioned debug inspector
-
-Every successful transport response can have one outer **Debug** disclosure. The global debug control still cycles between expanded, collapsed, and hidden states. Expanding the outer block reveals consistent nested disclosures:
-
-Before rendering, every transport adapter produces the same normalized contract with schema identifier `ai-agent-debug/v1`:
-
-```json
-{
-  "schema": "ai-agent-debug/v1",
-  "summary": {
-    "status": "ok",
-    "transport": "openai",
-    "model": "provider/model",
-    "response_id": "chatcmpl_123",
-    "finish_reason": "stop"
-  },
-  "request": {
-    "method": "POST",
-    "endpoint": "https://api.example/v1/chat/completions",
-    "headers": { "Authorization": "Bearer $OPENAI_API_KEY" },
-    "body": {}
-  },
-  "response": { "http_status": 200, "output_role": "assistant" },
-  "usage": {
-    "input_tokens": 12,
-    "output_tokens": 8,
-    "total_tokens": 20,
-    "cached_tokens": 4,
-    "raw": {}
-  },
-  "timing": { "elapsed_ms": 842 },
-  "trace": null,
-  "error": null,
-  "raw_response": {}
-}
-```
-
-The stable groups are:
-
-- `summary`: normalized status, transport, model, response ID, and finish reason.
-- `request`: exact method, endpoint, sanitized headers, and body selected or sent by the UI.
-- `response`: HTTP/status metadata and metadata about the extracted output.
-- `usage`: normalized input/output/total/cached counts plus the provider's untouched usage object in `raw`.
-- `timing`: elapsed UI measurement and optional provider/backend timing values.
-- `trace`: optional backend debug or tool steps.
-- `error`: normalized error value or `null`.
-- `raw_response`: complete parsed provider, backend, or Stub document.
-
-| Section | Source | Contents |
-|---|---|---|
-| **Summary** | Generated by the browser UI | Concise normalized facts: transport, method/endpoint or local mode, HTTP status, model/response ID/finish reason, elapsed time, and a token total when available. It is open by default inside an expanded Debug block. |
-| **Request** | Sent or selected by the UI | Webhook method, URL, query/body and session ID; OpenAI endpoint, sanitized headers and the exact shared-builder JSON body; or local Stub/inline JSON settings with `network: false`. |
-| **Full response** | `raw_response` | The complete parsed response object or array. It is collapsed by default and is not reconstructed from selected fields. |
-| **Backend debug** | Supplied by the backend or Stub preset | A focused view of the response's `debug` field, preserving either string or object form. The section appears only when that value is available and enabled for Stub. |
-| **Timing & usage** | UI timing plus server metadata | Elapsed browser measurement and HTTP status; for OpenAI, the exact `usage` object including any provider-specific nested token details. |
-
-The visual inspector is derived from that contract:
-
-```text
-Debug                         [copy complete package]
-  Summary (UI-generated)      [copy section]
-  Request (Sent by UI)        [copy section]
-  Full response (Server-provided / Local preset)
-  Backend debug (Server-provided / Local preset)
-  Timing & usage (UI-generated)
-```
-
-Older screenshots omitted OpenAI `choices` because the UI previously reconstructed one reduced debug object from `id`, `model`, `finish_reason`, `usage`, and `tool_calls`. The OpenAI adapter now uses three separate paths from the same parsed response:
-
-```text
-choices[0].message.content → visible assistant text
-selected response fields   → UI-generated Summary
-complete parsed data       → raw_response → Full response (complete choices[] and provider fields)
-```
-
-Webhook GET/POST maps HTTP metadata and the selected `message → text → output` field into `response`, backend `debug` into `trace`, and keeps the complete parsed JSON—including `debug`, `suggestions`, and extra fields—in `raw_response`. Inline JSON uses the same adapter with transport `webhook-inline` and a local request descriptor.
-
-The Stub adapter maps the selected filename and user message into `request`, file/output metadata into `response`, the measured/simulated delay into `timing`, optional file `debug` into `trace`, and the complete loaded `stub_json.json` document into `raw_response`. Disabling Stub debug hides the focused trace section but never alters `raw_response`.
-
-Each inner section has its own copy action. The outer copy action produces the complete normalized `ai-agent-debug/v1` object. Request credentials are sanitized: OpenAI Authorization is always shown as `Bearer $OPENAI_API_KEY`, and the real API key is never placed in the inspector or copied debug contract.
-
-### Message formatting
-
-User messages are always rendered as plain text.
-
-Assistant responses support a deliberately small sanitized HTML-like subset:
-
-| Markup | Result |
+| Путь | Назначение |
 |---|---|
-| `<b>`, `<strong>` | Bold text |
-| `<i>`, `<em>` | Italic text |
-| `<u>` | Underlined text |
-| `<small>` | Secondary/small text |
-| `<code>` | Inline code |
-| `<pre>` | Preformatted code or JSON block |
-| `<a href="https://...">` | External link opened in a new tab |
+| [`ui/`](ui/) | Главная учебная лаборатория и её документация |
+| [`OpenAI API Lab.md`](OpenAI%20API%20Lab.md) | Подробная лабораторная по Chat Completions API |
+| [`Part_1/`](Part_1/) | Structured output, output parser, session ID и память |
+| [`Part_2/`](Part_2/) | Развитие системного prompt, tools, intents и RAG-правила |
+| [`Workflows/`](Workflows/) | n8n workflows, вспомогательные узлы и тесты |
+| [`RAG/`](RAG/) | Документы учебной базы знаний |
+| [`architecture/`](architecture/) | Архитектурные материалы проекта |
+| `.build/` | Генерируемые deployment-артефакты |
 
-Line breaks (`\n`) are preserved. Links are accepted only for `http://` and `https://` URLs and receive `noopener noreferrer`. Unsupported tag names are removed. Plain responses without tags are HTML-escaped before display.
+## Безопасность UI
 
-Each assistant bubble also has a copy action. User messages can be edited, resent, or deleted; assistant messages can be copied or deleted.
+- OpenAI API key хранится в `sessionStorage` и удаляется после завершения браузерной сессии.
+- Ключ не попадает в профили, URL, preview, cURL, debug или console logs.
+- Сохранённые настройки и webhook URLs находятся в `localStorage` браузера.
+- Сообщения текущего чата существуют только в DOM и сбрасываются при перезагрузке.
+- Прямой вызов API из браузера требует корректной настройки CORS у провайдера.
 
-### Storage and security
+Используйте учебные или ограниченные ключи и не публикуйте секреты в workflow, примерах и commit history.
 
-| Data | Storage |
-|---|---|
-| Visible chat messages | Current page DOM only; lost on reload |
-| OpenAI API key | `sessionStorage`; removed when the browser session ends |
-| Webhook URL, method, recents, UI preferences | `localStorage` |
-| OpenAI settings and named profiles | `localStorage`, without API keys |
-| Stub settings | `localStorage` |
+## Лицензия
 
-The API key is never included in profiles, request previews, copied JSON, copied cURL, debug output, URLs, or console logs. Direct browser calls still require the API server to permit the page origin and `Authorization` header through CORS.
+Бесплатно для некоммерческого использования. Для коммерческого использования требуется платная лицензия.
 
-## License
-
-Free for non-commercial use · Commercial use requires a paid license  
-See [LICENSE](LICENSE) · Contact: gkorobkov@gmail.com
-
-
-Of all the providers shown in the screenshots, here are the ones that offer **free access with limits**:
-
----
-
-## LLM GPT Models
-
-### ✅ Free providers (available in the list)
-
-**🟠 Groq Chat Model**
-- Model: `llama-3.3-70b-versatile`
-- Free API key, no credit card required
-- Limits: tokens per minute/day (see [console.groq.com/docs/rate-limits](https://console.groq.com/docs/rate-limits))
-- ✅ Supports tool calling, JSON, fast
-
-**🔵 OpenRouter Chat Model**
-- Free models via `openrouter/free` or `openai/gpt-oss-20b:free`
-- Limits: ~20 req/min, 200 req/day on free models
-- ✅ Already integrated in the course project
-
-**🔴 Google Gemini Chat Model**
-- Model: `gemini-2.5-flash-lite-preview-09-2025` via Google AI Studio
-- Free tier available
-- ✅ OpenAI-compatible endpoint, suitable for most educational tasks
-
----
-
-### ❌ Other providers in the list — paid only
-
-| Provider | Status |
-|---|---|
-| Anthropic Chat Model | Paid only |
-| Azure OpenAI Chat Model | Paid only |
-| AWS Bedrock Chat Model | Paid only |
-| Cohere Chat Model | Paid only (trial available) |
-| DeepSeek Chat Model | ~Free chat, but API is paid |
-| Google Vertex Chat Model | Paid (not to be confused with Gemini AI Studio) |
-| Mistral Cloud Chat Model | Experiment plan — free, but prompts are used for training |
-| OpenAI Chat Model | Paid only |
-| xAI Grok Chat Model | Paid only |
-| Lemonade / Ollama | Local run, free, but requires your own hardware |
-
----
-
-**Recommendation for the course workflow:** use **Groq** as the primary free provider (no daily request limit, only token rate limit), **OpenRouter** as fallback, and **Google Gemini** via AI Studio when a large context window is needed.
+См. [`LICENSE`](LICENSE). Контакт: gkorobkov@gmail.com.

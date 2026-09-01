@@ -285,6 +285,36 @@ const CFG_SHOW_CHECK_BTN = false;
   .api-eye { position: absolute; right: 5px; top: 4px; width: 32px; height: 30px; border: 0; background: transparent; color: var(--text-muted); cursor: pointer; }
   .api-eye svg { width: 17px; height: 17px; }
   .api-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; grid-column: 3; }
+  .api-grid.lab-parameters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tool-builder { grid-column: 1 / -1; margin: 1px 0 8px; border: 1px solid rgba(0,200,255,.22); border-left: 2px solid var(--accent2); border-radius: var(--radius-sm); background: color-mix(in srgb, var(--surface2) 66%, transparent); overflow: hidden; }
+  .tool-builder > summary { display: flex; align-items: center; gap: 9px; min-height: 40px; padding: 8px 11px; cursor: pointer; color: var(--text); font: 600 10px var(--font-ui); list-style: none; }
+  .tool-builder > summary::-webkit-details-marker { display: none; }
+  .tool-builder > summary::before { content: '+'; color: var(--accent2); font: 700 15px var(--font-mono); }
+  .tool-builder[open] > summary::before { content: '−'; }
+  .tool-builder-summary { flex: 1; min-width: 0; }
+  .tool-builder-summary small { display: block; margin-top: 2px; color: var(--text-muted); font: 8px/1.4 var(--font-mono); }
+  .tool-builder-body { padding: 10px 11px 11px; border-top: 1px solid rgba(136,152,184,.16); }
+  .tool-builder-body.tools-off .tool-options, .tool-builder-body.tools-off .tool-definitions, .tool-builder-body.tools-off .tool-add { opacity: .48; }
+  .tool-state { margin-bottom: 9px; color: var(--text-muted); font: 9px/1.4 var(--font-mono); }
+  .tool-state.active { color: var(--accent2); }
+  .tool-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; align-items: end; }
+  .tool-options .api-field, .tool-definition .api-field { margin: 0; }
+  .tool-definitions { display: grid; gap: 8px; margin-top: 10px; counter-reset: tool-card; }
+  .tool-definition { display: grid; grid-template-columns: .75fr 1.25fr auto; gap: 8px; padding: 9px; border: 1px solid var(--border); background: var(--bg); border-radius: var(--radius-sm); }
+  .tool-definition::before { counter-increment: tool-card; content: 'FUNCTION ' counter(tool-card, decimal-leading-zero); grid-column: 1 / -1; color: var(--accent2); font: 700 8px var(--font-mono); letter-spacing: .12em; }
+  .tool-definition-schema { grid-column: 1 / -1; }
+  .tool-definition-schema .api-textarea { min-height: 78px; }
+  .tool-remove { align-self: end; min-width: 34px; height: 34px; }
+  .tool-add { margin-top: 9px; }
+  .tool-results { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(136,152,184,.18); }
+  .tool-result-row { display: grid; grid-template-columns: minmax(130px,.55fr) 1.45fr; gap: 8px; margin-top: 8px; }
+  .tool-result-row code { overflow-wrap: anywhere; color: var(--accent2); font: 9px/1.4 var(--font-mono); }
+  .tool-arguments { min-width: 0; padding: 7px 8px; border: 1px solid var(--border); background: var(--surface); border-radius: 3px; }
+  .tool-arguments strong { display: block; margin-bottom: 5px; color: var(--accent2); font: 8px var(--font-mono); text-transform: uppercase; letter-spacing: .08em; }
+  .tool-arguments pre { margin: 0; overflow: auto; color: var(--text); font: 9px/1.45 var(--font-mono); white-space: pre-wrap; overflow-wrap: anywhere; }
+  .tool-arguments details { margin-top: 6px; color: var(--text-muted); font: 8px var(--font-mono); }
+  .tool-call-cta { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding: 8px 10px; border: 1px solid rgba(0,200,255,.4); border-radius: var(--radius-sm); background: rgba(0,200,255,.08); color: var(--accent2); font: 600 10px var(--font-mono); cursor: pointer; }
+  .tool-call-cta:hover, .tool-call-cta:focus-visible { border-color: var(--accent2); background: rgba(0,200,255,.14); outline: 2px solid rgba(0,200,255,.16); outline-offset: 2px; }
   .api-toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 7px 0 10px; color: var(--text); font-size: 11px; grid-column: 3; }
   .api-toggle-row > span { min-width: 0; padding-right: 8px; }
   .api-toggle-row strong { display: block; font-size: 10px; font-weight: 600; }
@@ -1060,6 +1090,7 @@ const CFG_SHOW_CHECK_BTN = false;
     #openai-settings > .api-field:nth-of-type(4), .api-note, .api-validation, .api-actions { grid-column: 1 / -1; }
     #openai-settings > .api-field:nth-of-type(4) { grid-row: auto; }
     .api-grid, .api-toggle-row { grid-column: auto; }
+    .tool-builder { grid-column: 1 / -1; }
     .api-settings-head { position: sticky; top: 0; z-index: 2; background: var(--panel-bg); }
     .webhook-panel-copy, .webhook-panel-actions { grid-column: 1 / -1; }
     .demo-controls { grid-template-columns: 1fr 1fr; }
@@ -1104,6 +1135,8 @@ const CFG_SHOW_CHECK_BTN = false;
     #transport-toggle .compact-select-trigger { min-width: 66px; padding-inline: 6px; }
     #transport-select-value { max-width: 48px; overflow: hidden; text-overflow: ellipsis; }
     .transport-settings-panel { padding-inline: 10px; }
+    .api-grid.lab-parameters, .tool-options, .tool-definition, .tool-result-row { grid-template-columns: 1fr; }
+    .tool-definition-schema { grid-column: auto; }
     .transport-settings-panel.open, .transport-settings-panel.open.preview-expanded { max-height: calc(100dvh - 140px); }
     .api-actions { position: sticky; bottom: -10px; margin: 6px -10px -10px; padding: 9px 10px max(10px, env(safe-area-inset-bottom)); background: var(--panel-bg); border-top: 1px solid var(--border); }
     .api-actions .cfg-btn { min-height: 46px; flex: 1; font-size: 11px; }
@@ -1640,10 +1673,26 @@ const CFG_SHOW_CHECK_BTN = false;
   <label class="api-field"><span data-i18n="openaiApiKey">API key · kept only for this browser session</span><div class="api-secret-wrap"><input class="api-input" id="openai-api-key" type="password" autocomplete="new-password" spellcheck="false" data-1p-ignore data-lpignore="true" data-bwignore="true"><button class="api-eye" id="openai-eye-btn" type="button" onclick="toggleApiKeyVisibility()" data-i18n-title="openaiShowKey" data-i18n-aria-label="openaiShowKey" title="Show key" aria-label="Show key"><svg id="openai-eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></label>
   <label class="api-field"><span data-i18n="openaiModel">Model</span><input class="api-input" id="openai-model" type="text" value="qwen3.8-27b" autocomplete="off" spellcheck="false" data-1p-ignore data-lpignore="true"></label>
   <label class="api-field"><span data-i18n="openaiSystem">System prompt</span><textarea class="api-textarea" id="openai-system-prompt" autocomplete="off" spellcheck="true" data-1p-ignore data-lpignore="true"></textarea></label>
-  <div class="api-grid">
+  <div class="api-grid lab-parameters">
     <label class="api-field"><span data-i18n="openaiTemperature">Temperature (0–2)</span><input class="api-input" id="openai-temperature" type="number" min="0" max="2" step="0.1" value="0.7"></label>
-    <label class="api-field"><span data-i18n="openaiMaxTokens">Max tokens</span><input class="api-input" id="openai-max-tokens" type="number" min="1" step="1" value="500"></label>
+    <label class="api-field"><span data-i18n="openaiTopP">Top p (0–1)</span><input class="api-input" id="openai-top-p" type="number" min="0" max="1" step="0.1" value="1"></label>
+    <label class="api-field"><span data-i18n="openaiMaxCompletionTokens">Max completion tokens</span><input class="api-input" id="openai-max-completion-tokens" type="number" min="1" step="1" value="500"></label>
+    <label class="api-field"><span data-i18n="openaiN">Responses · n (1–128)</span><input class="api-input" id="openai-n" type="number" min="1" max="128" step="1" value="1"></label>
   </div>
+  <details class="tool-builder" id="openai-tool-builder">
+    <summary><span class="tool-builder-summary"><span data-i18n="openaiTools">Tools / function calling</span><small data-i18n="openaiToolsHint">Define functions; students provide returned values manually.</small></span><label class="switch" onclick="event.stopPropagation()"><input type="checkbox" id="openai-tools-enabled" data-i18n-aria-label="openaiToolsEnable"><span class="slider"></span></label></summary>
+    <div class="tool-builder-body">
+      <div class="tool-state" id="openai-tools-state"></div>
+      <div class="tool-options">
+        <label class="api-field"><span data-i18n="openaiToolChoice">Tool choice</span><select class="api-input" id="openai-tool-choice"><option value="auto">auto</option><option value="none">none</option><option value="required">required</option><option value="function">function</option></select></label>
+        <label class="api-field"><span data-i18n="openaiForcedTool">Forced function name</span><input class="api-input" id="openai-forced-tool" type="text" value="geocode_city" maxlength="64" autocomplete="off" spellcheck="false"></label>
+        <div class="api-toggle-row"><span><strong data-i18n="openaiParallelTools">Parallel tool calls</strong><small data-i18n="openaiParallelToolsHint">Allow several calls in one response</small></span><label class="switch"><input type="checkbox" id="openai-parallel-tools" checked><span class="slider"></span></label></div>
+      </div>
+      <div class="tool-definitions" id="openai-tool-definitions"></div>
+      <button class="cfg-btn tool-add" type="button" onclick="addOpenAITool()" data-i18n="openaiAddTool">+ Add function</button>
+      <div class="tool-results" id="openai-tool-results" hidden></div>
+    </div>
+  </details>
   <section class="client-behavior" aria-labelledby="client-history-label">
     <div class="client-behavior-head"><div class="client-behavior-title"><svg class="client-behavior-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="15" rx="2"/><path d="M3 8h18M7 6h.01M10 6h.01"/></svg><div><span class="client-behavior-kicker" data-i18n="clientLogicKicker">UI logic · not an OpenAI API parameter</span><label class="client-behavior-label" id="client-history-label" for="openai-context" data-i18n="openaiContext">Send previous OpenAI messages so the model remembers the conversation</label></div></div><label class="switch"><input type="checkbox" id="openai-context" aria-labelledby="client-history-label" checked><span class="slider"></span></label></div>
     <p class="client-behavior-core" data-i18n="clientHistoryCore">Previous messages come from OpenAI turns currently visible in this page’s chat. This browser UI adds them to messages[]; this is not a separate OpenAI API parameter.</p>
@@ -1940,7 +1989,31 @@ const i18n = {
     openaiModel:        'Model',
     openaiSystem:       'System prompt',
     openaiTemperature:  'Temperature (0–2)',
-    openaiMaxTokens:    'Max tokens',
+    openaiTopP:         'Top p (0–1)',
+    openaiMaxCompletionTokens:'Max completion tokens',
+    openaiN:            'Responses · n (1–128)',
+    openaiTools:        'Tools / function calling',
+    openaiToolsHint:    'Define functions; students provide returned values manually.',
+    openaiToolsEnable:  'Enable tools',
+    openaiToolsOff:     'Disabled · tools are omitted from the request.',
+    openaiToolsOn:      'Enabled · tool configuration is included in the request.',
+    openaiToolChoice:   'Tool choice',
+    openaiForcedTool:   'Forced function name',
+    openaiParallelTools:'Parallel tool calls',
+    openaiParallelToolsHint:'Allow several calls in one response',
+    openaiToolName:     'Function name',
+    openaiToolDescription:'Description',
+    openaiToolParameters:'Parameters · JSON Schema',
+    openaiToolStrict:   'Strict schema',
+    openaiAddTool:      '+ Add function',
+    openaiRemoveTool:   'Remove function',
+    openaiToolResults:  'Tool calls returned · enter mock results',
+    openaiToolResult:   'Result content',
+    openaiContinueTools:'Continue with tool results',
+    openaiToolCallsCta: '{count} tool call(s) require manual results · Enter results',
+    openaiParsedArguments:'Parsed arguments',
+    openaiRawArguments: 'Raw argument string',
+    openaiInvalidArguments:'Raw arguments · invalid JSON',
     openaiApiSection:   'OpenAI API request',
     clientLogicKicker:  'UI logic · not an OpenAI API parameter',
     openaiContext:      'Send previous OpenAI messages so the model remembers the conversation',
@@ -1987,7 +2060,13 @@ const i18n = {
     openaiMissingKey:   'Enter an API key.',
     openaiMissingModel: 'Enter a model name.',
     openaiInvalidTemperature:'Temperature must be between 0 and 2.',
-    openaiInvalidMaxTokens:'Max tokens must be a whole number greater than 0.',
+    openaiInvalidTopP:  'Top p must be between 0 and 1.',
+    openaiInvalidMaxTokens:'Max completion tokens must be a whole number greater than 0.',
+    openaiInvalidN:     'n must be a whole number from 1 to 128.',
+    openaiInvalidToolName:'Function names must use 1–64 letters, numbers, underscores, or hyphens.',
+    openaiDuplicateToolName:'Function names must be unique.',
+    openaiInvalidToolSchema:'Each function needs a valid JSON object schema.',
+    openaiMissingToolResults:'Enter a result for every tool call.',
     toastNoOpenAI:      'Open OpenAI API settings and add a valid URL, key and model',
     openaiToolsUnsupported: 'The model requested a tool call. Tool execution will be added in a later stage.',
     openaiWelcomeSub:  'Configure OpenAI API, then send a message',
@@ -2110,7 +2189,31 @@ const i18n = {
     openaiModel:        'Модель',
     openaiSystem:       'Системный промпт',
     openaiTemperature:  'Температура (0–2)',
-    openaiMaxTokens:    'Максимум токенов',
+    openaiTopP:         'Top p (0–1)',
+    openaiMaxCompletionTokens:'Максимум completion-токенов',
+    openaiN:            'Варианты ответа · n (1–128)',
+    openaiTools:        'Tools / function calling',
+    openaiToolsHint:    'Опишите функции; результаты студент вводит вручную.',
+    openaiToolsEnable:  'Включить tools',
+    openaiToolsOff:     'Выключено · tools не попадают в запрос.',
+    openaiToolsOn:      'Включено · конфигурация tools попадает в запрос.',
+    openaiToolChoice:   'Выбор tool',
+    openaiForcedTool:   'Имя принудительной функции',
+    openaiParallelTools:'Параллельные tool calls',
+    openaiParallelToolsHint:'Разрешить несколько вызовов в одном ответе',
+    openaiToolName:     'Имя функции',
+    openaiToolDescription:'Описание',
+    openaiToolParameters:'Параметры · JSON Schema',
+    openaiToolStrict:   'Строгая схема',
+    openaiAddTool:      '+ Добавить функцию',
+    openaiRemoveTool:   'Удалить функцию',
+    openaiToolResults:  'Модель вернула tool calls · введите тестовые результаты',
+    openaiToolResult:   'Результат',
+    openaiContinueTools:'Продолжить с tool results',
+    openaiToolCallsCta: 'Tool calls: {count} · нужны ручные результаты',
+    openaiParsedArguments:'Разобранные аргументы',
+    openaiRawArguments: 'Исходная строка аргументов',
+    openaiInvalidArguments:'Исходные аргументы · невалидный JSON',
     openaiApiSection:   'Запрос OpenAI API',
     clientLogicKicker:  'Логика UI · не параметр OpenAI API',
     openaiContext:      'Отправлять предыдущие сообщения OpenAI, чтобы модель помнила диалог',
@@ -2157,7 +2260,13 @@ const i18n = {
     openaiMissingKey:   'Введите API-ключ.',
     openaiMissingModel: 'Введите название модели.',
     openaiInvalidTemperature:'Температура должна быть от 0 до 2.',
-    openaiInvalidMaxTokens:'Максимум токенов должен быть целым числом больше 0.',
+    openaiInvalidTopP:  'Top p должен быть от 0 до 1.',
+    openaiInvalidMaxTokens:'Максимум completion-токенов должен быть целым числом больше 0.',
+    openaiInvalidN:     'n должен быть целым числом от 1 до 128.',
+    openaiInvalidToolName:'Имена функций: 1–64 буквы, цифры, дефисы или подчёркивания.',
+    openaiDuplicateToolName:'Имена функций не должны повторяться.',
+    openaiInvalidToolSchema:'Для каждой функции нужна корректная JSON-схема-объект.',
+    openaiMissingToolResults:'Введите результат для каждого tool call.',
     toastNoOpenAI:      'Откройте настройки OpenAI API и заполните URL, ключ и модель',
     openaiToolsUnsupported: 'Модель запросила вызов инструмента. Выполнение tools появится на следующем этапе.',
     openaiWelcomeSub:  'Настройте OpenAI API и отправьте сообщение',
@@ -2377,15 +2486,39 @@ let sessionId = localStorage.getItem('n8n_session') || generateSessionId();
 let webhookUrl = localStorage.getItem('n8n_webhook') || '';
 let httpMethod = localStorage.getItem('n8n_method') || 'post';
 let transportMode = localStorage.getItem('ai_transport') || 'webhook';
+const CFG_OPENAI_EMPTY_TOOL = { name: '', description: '', parameters: '{\n  "type": "object",\n  "properties": {},\n  "required": [],\n  "additionalProperties": false\n}', strict: false };
+const CFG_OPENAI_LEGACY_TOOL = { name: 'get_weather', description: 'Get the weather for a location', parameters: '{\n  "type": "object",\n  "properties": {}\n}', strict: false };
+function getOpenAIStarterTools() {
+  return [
+    { name: 'geocode_city', description: lang === 'ru' ? 'Найти город по названию и вернуть нормализованные город, страну, широту и долготу. Используйте перед запросом погоды или когда нужны координаты.' : 'Find a city by name and return the normalized city, country, latitude, and longitude. Use before weather or whenever coordinates are required.', parameters: JSON.stringify({ type: 'object', properties: { name: { type: 'string', description: lang === 'ru' ? 'Название города, который нужно найти.' : 'Name of the city to find.' } }, required: ['name'], additionalProperties: false }, null, 2), strict: true },
+    { name: 'get_current_weather', description: lang === 'ru' ? 'Вернуть текущую погоду по координатам: температуру, скорость ветра, код погоды и местное время наблюдения.' : 'Return current weather for coordinates, including temperature, wind speed, weather code, and local observation time.', parameters: JSON.stringify({ type: 'object', properties: { latitude: { type: 'number', description: lang === 'ru' ? 'Широта города в десятичных градусах.' : 'City latitude in decimal degrees.' }, longitude: { type: 'number', description: lang === 'ru' ? 'Долгота города в десятичных градусах.' : 'City longitude in decimal degrees.' } }, required: ['latitude', 'longitude'], additionalProperties: false }, null, 2), strict: true }
+  ];
+}
+function isLegacyOpenAITool(tool) {
+  if (!tool || tool.name !== CFG_OPENAI_LEGACY_TOOL.name || tool.description !== CFG_OPENAI_LEGACY_TOOL.description || Boolean(tool.strict)) return false;
+  try { const schema = JSON.parse(tool.parameters); return schema?.type === 'object' && schema.properties && !Object.keys(schema.properties).length && Object.keys(schema).every(key => ['type', 'properties'].includes(key)); }
+  catch (_) { return false; }
+}
+const CFG_OPENAI_DEFAULTS = { baseUrl: 'https://api.neuraldeep.ru/v1', model: 'qwen3.8-27b', systemPrompt: '', temperature: 0.7, topP: 1, maxCompletionTokens: 500, n: 1, includeContext: true, toolsEnabled: false, toolChoice: 'auto', forcedTool: 'geocode_city', parallelToolCalls: true, tools: null };
+function normalizeOpenAIConfig(value = {}) {
+  const merged = { ...CFG_OPENAI_DEFAULTS, ...value };
+  if (value.maxCompletionTokens == null && value.maxTokens != null) merged.maxCompletionTokens = value.maxTokens;
+  delete merged.maxTokens;
+  if (!Object.prototype.hasOwnProperty.call(value, 'tools') || !Array.isArray(value.tools)) merged.tools = getOpenAIStarterTools();
+  else if (value.tools.length === 1 && isLegacyOpenAITool(value.tools[0])) merged.tools = getOpenAIStarterTools();
+  else merged.tools = value.tools.map(tool => ({ ...CFG_OPENAI_EMPTY_TOOL, ...tool }));
+  if (merged.forcedTool === 'get_weather' && merged.tools.some(tool => tool.name === 'geocode_city')) merged.forcedTool = 'geocode_city';
+  return merged;
+}
 let openAIConfig = (() => {
-  try { return { baseUrl: 'https://api.neuraldeep.ru/v1', model: 'qwen3.8-27b', systemPrompt: '', temperature: 0.7, maxTokens: 500, includeContext: true, ...JSON.parse(localStorage.getItem('ai_openai_config') || '{}') }; }
-  catch (_) { return { baseUrl: 'https://api.neuraldeep.ru/v1', model: 'qwen3.8-27b', systemPrompt: '', temperature: 0.7, maxTokens: 500, includeContext: true }; }
+  try { return normalizeOpenAIConfig(JSON.parse(localStorage.getItem('ai_openai_config') || '{}')); }
+  catch (_) { return normalizeOpenAIConfig(); }
 })();
 let openAIApiKey = sessionStorage.getItem('ai_openai_key') || '';
 let openAIContextStart = 0;
 let openAIConversationId = sessionStorage.getItem('ai_openai_conversation') || ('openai_' + Date.now().toString(36));
 sessionStorage.setItem('ai_openai_conversation', openAIConversationId);
-let openAIProfiles = (() => { try { const value = JSON.parse(localStorage.getItem('ai_openai_profiles') || '[]'); return Array.isArray(value) ? value.slice(0, 15) : []; } catch (_) { return []; } })();
+let openAIProfiles = (() => { try { const value = JSON.parse(localStorage.getItem('ai_openai_profiles') || '[]'); return Array.isArray(value) ? value.slice(0, 15).map(profile => ({ ...profile, ...normalizeOpenAIConfig(profile), id: profile.id, name: profile.name })) : []; } catch (_) { return []; } })();
 let openAISettingsPinned = false;
 let webhookSettingsPinned = false;
 let demoSettingsPinned = false;
@@ -2669,7 +2802,7 @@ function saveDemoSettings() {
   updateTransportUI();
   setAutosaveStatus('demo-autosave-status', '');
 }
-function openOpenAISettings() {
+function openOpenAISettings(focusBase = true) {
   closeWebhookSettings(true);
   closeDemoSettings(true);
   document.getElementById('openai-base-url').value = openAIConfig.baseUrl;
@@ -2677,8 +2810,15 @@ function openOpenAISettings() {
   document.getElementById('openai-model').value = openAIConfig.model;
   document.getElementById('openai-system-prompt').value = openAIConfig.systemPrompt;
   document.getElementById('openai-temperature').value = openAIConfig.temperature;
-  document.getElementById('openai-max-tokens').value = openAIConfig.maxTokens;
+  document.getElementById('openai-top-p').value = openAIConfig.topP;
+  document.getElementById('openai-max-completion-tokens').value = openAIConfig.maxCompletionTokens;
+  document.getElementById('openai-n').value = openAIConfig.n;
   document.getElementById('openai-context').checked = openAIConfig.includeContext;
+  document.getElementById('openai-tools-enabled').checked = openAIConfig.toolsEnabled;
+  document.getElementById('openai-tool-choice').value = openAIConfig.toolChoice;
+  document.getElementById('openai-forced-tool').value = openAIConfig.forcedTool;
+  document.getElementById('openai-parallel-tools').checked = openAIConfig.parallelToolCalls;
+  renderOpenAITools(openAIConfig.tools);
   renderOpenAIProfiles();
   const panel = document.getElementById('openai-settings');
   panel.classList.add('open');
@@ -2686,7 +2826,7 @@ function openOpenAISettings() {
   document.getElementById('mode-settings-btn').setAttribute('aria-expanded', 'true');
   updateOpenAIRequestPreview();
   updateComposerDestination();
-  setTimeout(() => document.getElementById('openai-base-url').focus(), 80);
+  if (focusBase) setTimeout(() => document.getElementById('openai-base-url').focus(), 80);
 }
 function closeOpenAISettings(force = false) {
   if (openAISettingsPinned && !force) return;
@@ -2725,16 +2865,73 @@ function toggleApiKeyVisibility() {
     : '<svg id="openai-eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
 }
 function readOpenAIForm() {
+  const numberValue = (id, fallback) => {
+    const value = document.getElementById(id).value;
+    return value === '' ? fallback : Number(value);
+  };
   return {
     baseUrl: document.getElementById('openai-base-url').value.trim().replace(/\/+$/, ''),
     apiKey: document.getElementById('openai-api-key').value.trim(),
     model: document.getElementById('openai-model').value.trim(),
     systemPrompt: document.getElementById('openai-system-prompt').value.trim(),
-    temperature: Math.min(2, Math.max(0, Number(document.getElementById('openai-temperature').value) || 0)),
-    maxTokens: Math.max(1, Number(document.getElementById('openai-max-tokens').value) || 500),
-    includeContext: document.getElementById('openai-context').checked
+    temperature: numberValue('openai-temperature', 0),
+    topP: numberValue('openai-top-p', 1),
+    maxCompletionTokens: numberValue('openai-max-completion-tokens', 500),
+    n: numberValue('openai-n', 1),
+    includeContext: document.getElementById('openai-context').checked,
+    toolsEnabled: document.getElementById('openai-tools-enabled').checked,
+    toolChoice: document.getElementById('openai-tool-choice').value,
+    forcedTool: document.getElementById('openai-forced-tool').value.trim(),
+    parallelToolCalls: document.getElementById('openai-parallel-tools').checked,
+    tools: [...document.querySelectorAll('.tool-definition')].map(row => ({
+      name: row.querySelector('[data-tool-field="name"]').value.trim(),
+      description: row.querySelector('[data-tool-field="description"]').value.trim(),
+      parameters: row.querySelector('[data-tool-field="parameters"]').value.trim(),
+      strict: row.querySelector('[data-tool-field="strict"]').checked
+    }))
   };
 }
+function renderOpenAITools(tools = []) {
+  const container = document.getElementById('openai-tool-definitions');
+  container.innerHTML = '';
+  tools.forEach(tool => {
+    const row = document.createElement('section');
+    row.className = 'tool-definition';
+    row.innerHTML = `<label class="api-field"><span>${t('openaiToolName')}</span><input class="api-input" data-tool-field="name" maxlength="64" autocomplete="off" spellcheck="false"></label><label class="api-field"><span>${t('openaiToolDescription')}</span><input class="api-input" data-tool-field="description" autocomplete="off"></label><button class="cfg-btn tool-remove" type="button" title="${t('openaiRemoveTool')}" aria-label="${t('openaiRemoveTool')}">×</button><label class="api-field tool-definition-schema"><span>${t('openaiToolParameters')}</span><textarea class="api-textarea" data-tool-field="parameters" autocomplete="off" spellcheck="false"></textarea></label><div class="api-toggle-row"><span><strong>${t('openaiToolStrict')}</strong></span><label class="switch"><input type="checkbox" data-tool-field="strict"><span class="slider"></span></label></div>`;
+    row.querySelector('[data-tool-field="name"]').value = tool.name || '';
+    row.querySelector('[data-tool-field="description"]').value = tool.description || '';
+    row.querySelector('[data-tool-field="parameters"]').value = tool.parameters || CFG_OPENAI_EMPTY_TOOL.parameters;
+    row.querySelector('[data-tool-field="strict"]').checked = Boolean(tool.strict);
+    row.querySelector('.tool-remove').onclick = () => { row.remove(); onOpenAIToolDraftChange(); commitOpenAISettings(); };
+    row.querySelectorAll('input, textarea').forEach(field => {
+      field.addEventListener('input', onOpenAIToolDraftChange);
+      field.addEventListener('change', onOpenAIToolDraftChange);
+      field.addEventListener('blur', commitOpenAISettings);
+    });
+    container.appendChild(row);
+  });
+  syncOpenAIToolControls();
+}
+function syncOpenAIToolControls() {
+  const enabled = document.getElementById('openai-tools-enabled').checked;
+  const choice = document.getElementById('openai-tool-choice').value;
+  const body = document.querySelector('.tool-builder-body');
+  const state = document.getElementById('openai-tools-state');
+  body.classList.toggle('tools-off', !enabled);
+  body.setAttribute('aria-disabled', String(!enabled));
+  state.textContent = t(enabled ? 'openaiToolsOn' : 'openaiToolsOff');
+  state.classList.toggle('active', enabled);
+  document.querySelectorAll('.tool-options select, .tool-options input, .tool-definitions input, .tool-definitions textarea, .tool-definitions button, .tool-add').forEach(field => { field.disabled = !enabled; });
+  document.getElementById('openai-forced-tool').disabled = !enabled || choice !== 'function';
+}
+function addOpenAITool() {
+  const tools = readOpenAIForm().tools;
+  tools.push({ ...CFG_OPENAI_EMPTY_TOOL });
+  renderOpenAITools(tools);
+  onOpenAIToolDraftChange();
+  document.querySelector('.tool-definition:last-child [data-tool-field="name"]')?.focus();
+}
+function onOpenAIToolDraftChange() { updateOpenAIRequestPreview(); validateOpenAIDraft(); }
 function setAutosaveStatus(id, message, type = 'saved') {
   const el = document.getElementById(id);
   if (!el) return;
@@ -2745,13 +2942,23 @@ function validateOpenAIDraft() {
   const baseUrl = document.getElementById('openai-base-url').value.trim();
   const model = document.getElementById('openai-model').value.trim();
   const temperature = document.getElementById('openai-temperature').value;
-  const maxTokens = document.getElementById('openai-max-tokens').value;
+  const topP = document.getElementById('openai-top-p').value;
+  const maxTokens = document.getElementById('openai-max-completion-tokens').value;
+  const n = document.getElementById('openai-n').value;
   let error = '';
   try { const url = new URL(baseUrl); if (!/^https?:$/.test(url.protocol)) throw new Error(); }
   catch (_) { error = t('openaiInvalidUrl'); }
   if (!error && !model) error = t('openaiMissingModel');
   if (!error && (temperature === '' || Number(temperature) < 0 || Number(temperature) > 2)) error = t('openaiInvalidTemperature');
+  if (!error && (topP === '' || Number(topP) < 0 || Number(topP) > 1)) error = t('openaiInvalidTopP');
   if (!error && (maxTokens === '' || !Number.isInteger(Number(maxTokens)) || Number(maxTokens) < 1)) error = t('openaiInvalidMaxTokens');
+  if (!error && (n === '' || !Number.isInteger(Number(n)) || Number(n) < 1 || Number(n) > 128)) error = t('openaiInvalidN');
+  if (!error && document.getElementById('openai-tools-enabled').checked) {
+    const cfg = readOpenAIForm();
+    if (!cfg.tools.length || cfg.tools.some(tool => !/^[A-Za-z0-9_-]{1,64}$/.test(tool.name)) || (cfg.toolChoice === 'function' && (!/^[A-Za-z0-9_-]{1,64}$/.test(cfg.forcedTool) || !cfg.tools.some(tool => tool.name === cfg.forcedTool)))) error = t('openaiInvalidToolName');
+    if (!error && new Set(cfg.tools.map(tool => tool.name)).size !== cfg.tools.length) error = t('openaiDuplicateToolName');
+    if (!error) try { if (cfg.tools.some(tool => { const schema = JSON.parse(tool.parameters); return !schema || Array.isArray(schema) || typeof schema !== 'object' || schema.type !== 'object' || !schema.properties || Array.isArray(schema.properties) || typeof schema.properties !== 'object'; })) error = t('openaiInvalidToolSchema'); } catch (_) { error = t('openaiInvalidToolSchema'); }
+  }
   setAutosaveStatus('openai-autosave-status', error, error ? 'error' : 'saved');
   return !error;
 }
@@ -2765,7 +2972,9 @@ function commitOpenAISettings() {
   openAIApiKey = cfg.apiKey;
   sessionStorage.setItem('ai_openai_key', openAIApiKey);
   document.getElementById('openai-temperature').value = cfg.temperature;
-  document.getElementById('openai-max-tokens').value = cfg.maxTokens;
+  document.getElementById('openai-top-p').value = cfg.topP;
+  document.getElementById('openai-max-completion-tokens').value = cfg.maxCompletionTokens;
+  document.getElementById('openai-n').value = cfg.n;
   delete cfg.apiKey;
   if (error) {
     setAutosaveStatus('openai-autosave-status', error, 'error');
@@ -2866,7 +3075,7 @@ function loadOpenAIProfile(id) {
   const profile = openAIProfiles.find(item => item.id === id);
   syncOpenAIProfileActions();
   if (!profile) { cancelOpenAIProfileNameEdit(); return; }
-  openAIConfig = { baseUrl: profile.baseUrl, model: profile.model, systemPrompt: profile.systemPrompt, temperature: profile.temperature, maxTokens: profile.maxTokens, includeContext: profile.includeContext };
+  openAIConfig = normalizeOpenAIConfig(profile);
   localStorage.setItem('ai_openai_config', JSON.stringify(openAIConfig));
   openAIConversationId = profile.id;
   sessionStorage.setItem('ai_openai_conversation', openAIConversationId);
@@ -2874,8 +3083,15 @@ function loadOpenAIProfile(id) {
   document.getElementById('openai-model').value = openAIConfig.model;
   document.getElementById('openai-system-prompt').value = openAIConfig.systemPrompt;
   document.getElementById('openai-temperature').value = openAIConfig.temperature;
-  document.getElementById('openai-max-tokens').value = openAIConfig.maxTokens;
+  document.getElementById('openai-top-p').value = openAIConfig.topP;
+  document.getElementById('openai-max-completion-tokens').value = openAIConfig.maxCompletionTokens;
+  document.getElementById('openai-n').value = openAIConfig.n;
   document.getElementById('openai-context').checked = openAIConfig.includeContext;
+  document.getElementById('openai-tools-enabled').checked = openAIConfig.toolsEnabled;
+  document.getElementById('openai-tool-choice').value = openAIConfig.toolChoice;
+  document.getElementById('openai-forced-tool').value = openAIConfig.forcedTool;
+  document.getElementById('openai-parallel-tools').checked = openAIConfig.parallelToolCalls;
+  renderOpenAITools(openAIConfig.tools);
   updateTransportUI(); updateOpenAIRequestPreview();
   setAutosaveStatus('openai-autosave-status', '');
 }
@@ -2898,10 +3114,20 @@ function buildOpenAIRequest(config, context, currentText) {
   if (config.systemPrompt) messages.push({ role: 'system', content: config.systemPrompt });
   messages.push(...context);
   if (currentText) messages.push({ role: 'user', content: currentText });
-  return { model: config.model, messages, temperature: config.temperature, max_tokens: config.maxTokens };
+  const body = { model: config.model, messages, temperature: config.temperature, top_p: config.topP, max_completion_tokens: config.maxCompletionTokens, n: config.n };
+  if (config.toolsEnabled) {
+    body.tools = config.tools.map(tool => { let parameters = {}; try { parameters = JSON.parse(tool.parameters); } catch (_) {} return { type: 'function', function: { name: tool.name, description: tool.description, parameters, strict: Boolean(tool.strict) } }; });
+    body.tool_choice = config.toolChoice === 'function' ? { type: 'function', function: { name: config.forcedTool } } : config.toolChoice;
+    body.parallel_tool_calls = Boolean(config.parallelToolCalls);
+  }
+  return body;
 }
 function getOpenAIRequestPreviewData() {
   const config = readOpenAIForm();
+  if (pendingOpenAIToolTurn) {
+    const toolMessages = [...document.querySelectorAll('#openai-tool-results [data-tool-call-id]')].map(input => ({ role: 'tool', tool_call_id: input.dataset.toolCallId, content: input.value.trim() }));
+    if (toolMessages.length) return { endpoint: getOpenAIEndpoint(config.baseUrl), body: { ...pendingOpenAIToolTurn.payload, messages: [...pendingOpenAIToolTurn.payload.messages, pendingOpenAIToolTurn.assistantMessage, ...toolMessages] }, currentText: 'tool-results' };
+  }
   const currentText = document.getElementById('msg-input').value.trim();
   const context = getOpenAIContext(currentText, config.includeContext);
   return { endpoint: getOpenAIEndpoint(config.baseUrl), body: buildOpenAIRequest(config, context, currentText), currentText };
@@ -3853,14 +4079,139 @@ async function sendDemoMessage(text) {
 
 function getOpenAIContext(currentText, includeContext = openAIConfig.includeContext) {
   if (!includeContext) return [];
-  const context = [...document.querySelectorAll('#messages .msg-row')].slice(openAIContextStart).filter(row => row.dataset.transport === 'openai' && row.dataset.openaiConversation === openAIConversationId).map(row => {
+  const context = [...document.querySelectorAll('#messages .msg-row')].slice(openAIContextStart).filter(row => row.dataset.transport === 'openai' && row.dataset.openaiConversation === openAIConversationId).flatMap(row => {
+    if (row.dataset.openaiMessages) try { return JSON.parse(row.dataset.openaiMessages); } catch (_) {}
+    if (row.dataset.openaiMessage) try { return [JSON.parse(row.dataset.openaiMessage)]; } catch (_) {}
     const bubble = row.querySelector('.bubble');
-    if (!bubble || bubble.classList.contains('error')) return null;
-    return { role: row.classList.contains('user') ? 'user' : 'assistant', content: bubble.innerText.trim() };
+    if (!bubble || bubble.classList.contains('error')) return [];
+    return [{ role: row.classList.contains('user') ? 'user' : 'assistant', content: bubble.innerText.trim() }];
   }).filter(Boolean);
   const last = context[context.length - 1];
   if (last?.role === 'user' && last.content === currentText) context.pop();
   return context;
+}
+let pendingOpenAIToolTurn = null;
+function showOpenAIToolResults(toolCalls, payload, assistantMessage, chatRow) {
+  pendingOpenAIToolTurn = { toolCalls, payload, assistantMessage };
+  const panel = document.getElementById('openai-tool-results');
+  panel.hidden = false;
+  panel.innerHTML = `<strong>${t('openaiToolResults')}</strong>`;
+  toolCalls.forEach(call => {
+    const row = document.createElement('label');
+    row.className = 'tool-result-row';
+    const meta = document.createElement('div');
+    meta.className = 'tool-arguments';
+    const rawArguments = call.function?.arguments || '';
+    const heading = document.createElement('strong');
+    const formatted = document.createElement('pre');
+    try {
+      formatted.textContent = JSON.stringify(JSON.parse(rawArguments || '{}'), null, 2);
+      heading.textContent = `${call.function?.name || 'function'} · ${t('openaiParsedArguments')}`;
+      const raw = document.createElement('details');
+      const rawSummary = document.createElement('summary');
+      rawSummary.textContent = t('openaiRawArguments');
+      const rawCode = document.createElement('pre');
+      rawCode.textContent = rawArguments;
+      raw.append(rawSummary, rawCode);
+      meta.append(heading, formatted, raw);
+    } catch (_) {
+      heading.textContent = `${call.function?.name || 'function'} · ${t('openaiInvalidArguments')}`;
+      formatted.textContent = rawArguments;
+      meta.append(heading, formatted);
+    }
+    const id = document.createElement('code');
+    id.textContent = call.id;
+    meta.appendChild(id);
+    const input = document.createElement('textarea');
+    input.className = 'api-textarea';
+    input.dataset.toolCallId = call.id;
+    input.placeholder = t('openaiToolResult');
+    input.addEventListener('input', updateOpenAIRequestPreview);
+    row.append(meta, input);
+    panel.appendChild(row);
+  });
+  const button = document.createElement('button');
+  button.className = 'cfg-btn primary tool-add';
+  button.type = 'button';
+  button.textContent = t('openaiContinueTools');
+  button.onclick = continueOpenAIWithToolResults;
+  panel.appendChild(button);
+  document.getElementById('openai-tool-builder').open = true;
+  if (chatRow) {
+    const cta = document.createElement('button');
+    cta.className = 'tool-call-cta';
+    cta.type = 'button';
+    cta.textContent = t('openaiToolCallsCta').replace('{count}', toolCalls.length);
+    cta.onclick = focusOpenAIToolResults;
+    chatRow.querySelector('.bubble')?.appendChild(cta);
+  }
+}
+function focusOpenAIToolResults() {
+  const panel = document.getElementById('openai-settings');
+  openOpenAISettings(false);
+  document.getElementById('openai-tool-builder').open = true;
+  let positioned = false;
+  const positionResult = () => {
+    if (positioned) return;
+    const first = document.querySelector('#openai-tool-results [data-tool-call-id]');
+    if (!first) return;
+    positioned = true;
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const panelRect = panel.getBoundingClientRect();
+      const fieldRect = first.getBoundingClientRect();
+      const stickyHeight = panel.querySelector('.api-settings-head')?.getBoundingClientRect().height || 0;
+      const target = Math.max(0, panel.scrollTop + fieldRect.top - panelRect.top - stickyHeight - 14);
+      if (matchMedia('(max-width: 400px)').matches) panel.scrollTop = target;
+      else panel.scrollTo({ top: target, behavior: 'smooth' });
+      first.focus({ preventScroll: true });
+    }));
+  };
+  const onTransitionEnd = event => {
+    if (event.target === panel && event.propertyName === 'max-height') {
+      panel.removeEventListener('transitionend', onTransitionEnd);
+      positionResult();
+    }
+  };
+  panel.addEventListener('transitionend', onTransitionEnd);
+  setTimeout(() => {
+    panel.removeEventListener('transitionend', onTransitionEnd);
+    positionResult();
+  }, 380);
+}
+async function continueOpenAIWithToolResults() {
+  if (!pendingOpenAIToolTurn || isThinking) return;
+  const inputs = [...document.querySelectorAll('#openai-tool-results [data-tool-call-id]')];
+  if (inputs.some(input => !input.value.trim())) return setAutosaveStatus('openai-autosave-status', t('openaiMissingToolResults'), 'error');
+  if (!validateOpenAISettings()) return;
+  const requestConfig = { ...openAIConfig };
+  const toolMessages = inputs.map(input => ({ role: 'tool', tool_call_id: input.dataset.toolCallId, content: input.value.trim() }));
+  const payload = { ...pendingOpenAIToolTurn.payload, messages: [...pendingOpenAIToolTurn.payload.messages, pendingOpenAIToolTurn.assistantMessage, ...toolMessages] };
+  const panel = document.getElementById('openai-tool-results');
+  const summary = inputs.map(input => `${input.dataset.toolCallId}: ${input.value.trim()}`).join('\n');
+  const toolRow = appendMessage('user', summary, 'Tool results · manual');
+  toolRow.dataset.openaiMessages = JSON.stringify(toolMessages);
+  isThinking = true; document.getElementById('send-btn').disabled = true; showTyping();
+  const abortCtrl = new AbortController();
+  const timeoutId = setTimeout(() => abortCtrl.abort(), CFG_REQUEST_TIMEOUT_MS);
+  const started = performance.now();
+  try {
+    const res = await fetch(getOpenAIEndpoint(requestConfig.baseUrl), { method: 'POST', headers: { 'Authorization': 'Bearer ' + openAIApiKey, 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: abortCtrl.signal });
+    clearTimeout(timeoutId);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.error?.message || `HTTP ${res.status}: ${res.statusText}`);
+    hideTyping();
+    const choice = data?.choices?.[0];
+    const calls = choice?.message?.tool_calls || [];
+    const reply = choice?.message?.content || (calls.length ? calls.map(call => `${call.function?.name || 'function'} · ${call.id}`).join('\n') : t('errEmptyMsg'));
+    const elapsed = Math.round(performance.now() - started);
+    const row = appendMessage('agent', reply, `OpenAI · ${requestConfig.model} · ${elapsed} ms`);
+    row.dataset.openaiMessage = JSON.stringify(choice.message);
+    appendDebug(row, adaptOpenAIDebug(data, { endpoint: getOpenAIEndpoint(requestConfig.baseUrl), payload, status: res.status, statusText: res.statusText, elapsed }));
+    if (calls.length) showOpenAIToolResults(calls, payload, choice.message, row); else { pendingOpenAIToolTurn = null; panel.hidden = true; panel.innerHTML = ''; }
+  } catch (err) {
+    clearTimeout(timeoutId); hideTyping();
+    appendError(err.name === 'AbortError' ? t('errTimeoutMsg') : err.message, err.name === 'AbortError' ? 'errTimeout' : 'errNetwork');
+  } finally { isThinking = false; document.getElementById('send-btn').disabled = false; }
 }
 
 async function sendOpenAIMessage(text) {
@@ -3870,6 +4221,10 @@ async function sendOpenAIMessage(text) {
     openOpenAISettings();
     return;
   }
+  pendingOpenAIToolTurn = null;
+  const toolResultsPanel = document.getElementById('openai-tool-results');
+  toolResultsPanel.hidden = true;
+  toolResultsPanel.innerHTML = '';
   const requestConfig = { ...openAIConfig };
   const payload = buildOpenAIRequest(requestConfig, getOpenAIContext(text), text);
   const input = document.getElementById('msg-input');
@@ -3898,14 +4253,16 @@ async function sendOpenAIMessage(text) {
     hideTyping();
     const choice = data?.choices?.[0];
     const toolCalls = choice?.message?.tool_calls;
-    const reply = choice?.message?.content || (toolCalls?.length ? t('openaiToolsUnsupported') : '');
+    const reply = choice?.message?.content || (toolCalls?.length ? toolCalls.map(call => `${call.function?.name || 'function'} · ${call.id}`).join('\n') : '');
     if (!reply) { appendError(t('errEmptyMsg'), 'errEmpty'); return; }
     const elapsed = Math.round(performance.now() - started);
     const row = appendMessage('agent', reply, `OpenAI · ${requestConfig.model} · ${elapsed} ms`);
+    row.dataset.openaiMessage = JSON.stringify(choice.message);
     appendDebug(row, adaptOpenAIDebug(data, {
       endpoint: getOpenAIEndpoint(requestConfig.baseUrl), payload,
       status: res.status, statusText: res.statusText, elapsed
     }));
+    if (toolCalls?.length) showOpenAIToolResults(toolCalls, payload, choice.message, row);
     document.getElementById('openai-status-dot').className = 'status-dot online';
     document.getElementById('connection-summary-dot').className = 'status-dot online';
   } catch (err) {
@@ -4130,20 +4487,23 @@ function sendSuggestion(text) {
   sendMessage();
 }
 
+renderOpenAITools(openAIConfig.tools);
 const inputEl = document.getElementById('msg-input');
 inputEl.addEventListener('keydown', e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();} });
 inputEl.addEventListener('input', () => { resizeTextarea(inputEl); updateOpenAIRequestPreview(); });
-['openai-base-url','openai-model','openai-system-prompt','openai-temperature','openai-max-tokens','openai-context'].forEach(id => {
+['openai-base-url','openai-model','openai-system-prompt','openai-temperature','openai-top-p','openai-max-completion-tokens','openai-n','openai-context','openai-tools-enabled','openai-tool-choice','openai-forced-tool','openai-parallel-tools'].forEach(id => {
   const field = document.getElementById(id);
   field.addEventListener('input', () => { updateOpenAIRequestPreview(); updateComposerDestination(); validateOpenAIDraft(); });
   field.addEventListener('change', () => { updateOpenAIRequestPreview(); updateComposerDestination(); validateOpenAIDraft(); });
 });
-['openai-base-url','openai-api-key','openai-model','openai-system-prompt','openai-temperature','openai-max-tokens'].forEach(id => {
+['openai-base-url','openai-api-key','openai-model','openai-system-prompt','openai-temperature','openai-top-p','openai-max-completion-tokens','openai-n','openai-forced-tool'].forEach(id => {
   const field = document.getElementById(id);
   field.addEventListener('blur', commitOpenAISettings);
   if (field.tagName !== 'TEXTAREA') field.addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); field.blur(); } });
 });
 document.getElementById('openai-context').addEventListener('change', commitOpenAISettings);
+['openai-tools-enabled','openai-tool-choice'].forEach(id => document.getElementById(id).addEventListener('change', syncOpenAIToolControls));
+['openai-tools-enabled','openai-tool-choice','openai-parallel-tools'].forEach(id => document.getElementById(id).addEventListener('change', commitOpenAISettings));
 ['demo-preset','demo-delay','demo-debug','demo-suggestions'].forEach(id => document.getElementById(id).addEventListener('change', saveDemoSettings));
 const openAIPreviewDetails = document.getElementById('openai-request-preview');
 openAIPreviewDetails.addEventListener('toggle', () => {

@@ -2,7 +2,10 @@
 .claude/
 .zencoder/
 .zenflow/
+.serena/
 .build/
+.codex-tmp/
+Workflows/
 config.copy.json
 config.copy.remote.json
 api_key_limit.js
