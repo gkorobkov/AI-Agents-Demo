@@ -38,7 +38,10 @@ if "%QUIET%"=="0" echo Build root: %ROOT%
 if not exist "%UI_DST%" mkdir "%UI_DST%"
 
 if "%NO_INCREMENT%"=="1" (
-    if "%QUIET%"=="0" echo [SKIP] Version increment disabled (--no-increment)
+    if "%QUIET%"=="0" (
+        echo [SKIP] Version increment disabled
+        echo [SKIP] Option: --no-increment
+    )
     set "APP_VER="
     for /f "delims=" %%v in ('powershell -NoProfile -Command "$c=[IO.File]::ReadAllText('%UI_SRC%'); if ($c -match 'APP_VERSION = ''((?:\d+\.){0,3}\d+)''') { $Matches[1] } else { throw 'APP_VERSION must be 1 to 4 dot-separated numeric parts' }"') do set "APP_VER=%%v"
 ) else (

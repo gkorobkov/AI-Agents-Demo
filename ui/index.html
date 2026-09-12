@@ -40,8 +40,8 @@ const CFG_OPENAI_PRESETS = [{
   baseUrl: 'https://ai-agents-demo.gkorobkov.ru/api/neuraldeep', model: 'qwen3.6-unlim',
   systemPrompt: 'Ты ИИ-агент в WEB чате. Помогай искать информацию про города России: погоду и интересные факты.',
   temperature: 0.7, topP: 1, maxCompletionTokens: 10000, n: 1,
-  includeContext: false, toolsEnabled: true, toolChoice: 'auto',
-  forcedTool: 'geocode_city', parallelToolCalls: true, parseLegacyReplyHtml: true,
+  includeContext: false, toolsEnabled: false, toolChoice: 'auto',
+  forcedTool: '', parallelToolCalls: false, parseLegacyReplyHtml: true,
   tools: null // null uses the starter tools; [] disables predefined tools.
 }];
 </script>
@@ -728,6 +728,26 @@ const CFG_OPENAI_PRESETS = [{
     word-break: break-word;
     transition: background 0.3s, border-color 0.3s;
   }
+  .bubble > *:first-child { margin-top: 0; }
+  .bubble > *:last-child { margin-bottom: 0; }
+  .bubble h1, .bubble h2, .bubble h3, .bubble h4, .bubble h5, .bubble h6,
+  .bubble p, .bubble ul, .bubble ol, .bubble li, .bubble pre, .bubble code {
+    margin-top: 0;
+  }
+  .bubble h1, .bubble h2, .bubble h3, .bubble h4, .bubble h5, .bubble h6 {
+    margin-bottom: 10px;
+    line-height: 1.35;
+    color: var(--text);
+    font-weight: 600;
+  }
+  .bubble p {
+    margin-bottom: 10px;
+  }
+  .bubble ul, .bubble ol {
+    margin-bottom: 10px;
+    padding-left: 1.35em;
+  }
+  .bubble li + li { margin-top: 4px; }
   .msg-row.agent .bubble {
     background: var(--agent-bubble);
     border: 1px solid var(--border);
@@ -2721,9 +2741,9 @@ function syncOpenAIKeyAccess() {
   document.getElementById('openai-model').readOnly = shared;
   document.getElementById('openai-model').setAttribute('aria-readonly', String(shared));
 }
-let openAISettingsPinned = false;
-let webhookSettingsPinned = false;
-let demoSettingsPinned = false;
+let openAISettingsPinned = true;
+let webhookSettingsPinned = true;
+let demoSettingsPinned = true;
 let demoRunToken = 0;
 let demoIsRunning = false;
 let demoConfig = (() => {
@@ -4088,28 +4108,46 @@ function renderAgentText(raw) {
     return clean.replace(/\n/g, '<br>');
   }
 
-  const escaped = withHtml.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const markdownish = escaped
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/(^|\s)\*(.+?)\*(?=\s|$)/g, '$1<em>$2</em>')
-    .replace(/(^|\n)\s*[-*•]\s+(.+)/g, '$1<li>$2</li>')
-    .replace(/\n/g, '<br>');
-
-  const lines = markdownish.split('<br>');
+  const escaped = withHtml.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const lines = escaped.split(/\n/);
   const normalized = [];
   let inList = false;
-  for (const line of lines) {
-    if (line.startsWith('<li>')) {
-      if (!inList) { normalized.push('<ul>'); inList = true; }
-      normalized.push(line);
-    } else {
-      if (inList) { normalized.push('</ul>'); inList = false; }
-      normalized.push(line);
-    }
-  }
-  if (inList) normalized.push('</ul>');
+  let listType = '';
 
-  return `<span class="plain">${normalized.join('')}</span>`;
+  for (const line of lines) {
+    const ordered = line.match(/^\s*(\d+)\.\s+(.*)$/);
+    const unordered = line.match(/^\s*[-*•]\s+(.*)$/);
+    const listContent = ordered ? ordered[2] : unordered ? unordered[1] : null;
+
+    if (listContent) {
+      const nextType = ordered ? 'ol' : 'ul';
+      if (!inList || listType !== nextType) {
+        if (inList && listType) normalized.push(`</${listType}>`);
+        normalized.push(`<${nextType}>`);
+        inList = true;
+        listType = nextType;
+      }
+      const itemHtml = listContent
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>');
+      normalized.push(`<li>${itemHtml}</li>`);
+      continue;
+    }
+
+    if (inList && listType) {
+      normalized.push(`</${listType}>`);
+      inList = false;
+      listType = '';
+    }
+
+    const blockHtml = line
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>');
+    normalized.push(blockHtml || '<br>');
+  }
+
+  if (inList && listType) normalized.push(`</${listType}>`);
+  return `<span class="plain">${normalized.join('<br>')}</span>`;
 }
 
 // ── MESSAGES ──
@@ -4196,8 +4234,10 @@ function addOpenAIResponseView(row, rawReply, parsed) {
   const toggle = control.querySelector('input');
   toggle.checked = openAIParseLegacyReplyHtml;
   function render() {
-    if (toggle.checked && parsed) bubble.innerHTML = renderAgentText(parsed.reply_html || parsed.text || rawReply);
-    else {
+    if (toggle.checked) {
+      const rendered = parsed ? parsed.reply_html || parsed.text || rawReply : rawReply;
+      bubble.innerHTML = renderAgentText(rendered);
+    } else {
       const plain = document.createElement('span');
       plain.className = 'plain';
       plain.textContent = rawReply;
