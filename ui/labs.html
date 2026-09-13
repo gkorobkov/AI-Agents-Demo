@@ -22,6 +22,7 @@
     @media(max-width:640px) { .header-inner { padding:10px 16px; gap:8px; } .brand { font-size:14px; } .brand span { display:none; } .actions { gap:5px; } .actions .button, .actions button { font-size:12px; padding:8px; } .layout { padding-inline:16px; } h1 { font-size:39px; } h2 { font-size:25px; } h3 { font-size:20px; } .lead { font-size:16px; } .experiment-head { gap:10px; } }
     @media(max-width:400px) { h1 { font-size:34px; } .brand { max-width:58px; line-height:1.2; } .header-inner { padding-inline:12px; } pre { padding:12px; font-size:12px; } }
   </style>
+<script src="app-content.js"></script>
 </head>
 <body>
   <header><div class="header-inner"><a class="brand" href="index.html"><span>AI</span>Agent Chat</a><div class="actions"><a class="button" href="documentation.html">Документация</a><button id="theme" type="button" aria-label="Переключить на светлую тему">Светлая тема</button></div></div></header>
@@ -30,10 +31,10 @@
     <main>
       <p class="eyebrow">Практикум · OpenAI-compatible API</p><h1>Лабораторные <br>работы</h1><p class="lead">Лаба №1 — Chat Completions. Измените параметр, отправьте запрос и найдите результат в JSON. Так вы поймёте, чем действительно управляет API.</p>
       <div class="route"><span>Параметр запроса</span><span aria-hidden="true">→</span><span>Ответ модели</span><span aria-hidden="true">→</span><span>Наблюдение и вывод</span></div>
-      <div class="intro-actions"><a class="button primary" href="index.html" target="_blank" rel="noopener">Открыть чат для практики ↗</a></div>
+      <div class="intro-actions"><a class="button primary" href="index.html">Открыть чат для практики →</a></div>
       <div class="note"><p><strong>12 экспериментов, один принцип:</strong> меняйте только один независимый параметр за раз. Задания 1–7 и 12 выполняются в чате; для 8–11 нужен API-клиент преподавателя — этих полей пока нет в форме сайта.</p></div>
       <section id="prepare"><p class="eyebrow">Перед первым запросом</p><h2>Подготовьте рабочее место</h2>
-        <ol><li>Откройте чат в соседней вкладке и примите соглашение. Выберите <strong>OpenAI API</strong> в хедере, затем нажмите шестерёнку настроек режима.</li><li>Выберите настроенный преподавателем профиль и нажмите <strong>Clone</strong>, чтобы проводить опыты в копии. Используйте предоставленные URL и модель.</li><li>Очистите <strong>«Системный промпт»</strong>, выключите <strong>«Отправлять предыдущие сообщения в OpenAI API»</strong> и <strong>Tools / function calling</strong>. Очистите чат.</li><li>Задайте параметры ниже. Включите режим <strong>«Дебаг раскрыт»</strong> кнопкой жука в хедере или в настройках.</li></ol>
+        <ol><li>Перейдите в чат по ссылке в хедере и примите соглашение. Выберите <strong>OpenAI API</strong> в хедере, затем нажмите шестерёнку настроек режима.</li><li>Выберите настроенный преподавателем профиль и нажмите <strong>Clone</strong>, чтобы проводить опыты в копии. Используйте предоставленные URL и модель.</li><li>Очистите <strong>«Системный промпт»</strong>, выключите <strong>«Отправлять предыдущие сообщения в OpenAI API»</strong> и <strong>Tools / function calling</strong>. Очистите чат.</li><li>Задайте параметры ниже. Включите режим <strong>«Дебаг раскрыт»</strong> кнопкой жука в хедере или в настройках.</li></ol>
         <div class="baseline"><strong>Контрольные настройки</strong><br><code>temperature: 0.7 · top_p: 1 · n: 1 · max_completion_tokens: 512</code></div>
         <p>Перед отправкой введите текст и проверьте <strong>«Предпросмотр запроса» → «Тело JSON»</strong>. После отправки раскройте <strong>Debug → «Запрос» / «Полный ответ»</strong>. Сохраняйте фактические JSON каждой попытки.</p>
         <p class="observe">Поля <code>choices</code> и <code>usage</code> ищите в полном ответе провайдера. Время выполнения и другие служебные данные UI — отдельные измерения интерфейса. Предпросмотр показывает запрос, но не является JSON-редактором.</p>
@@ -91,7 +92,7 @@ response JSON:
 Ошибка или отсутствующие поля (если есть):
 
 Вывод: что изменилось и чем это подтверждается?</pre></div><p class="status" id="copy-status" role="status" aria-live="polite"></p><details><summary>Дополнительно — по заданию преподавателя</summary><p>Streaming, cache, prediction, audio, moderation и web search изучаются отдельно с подходящим клиентом и моделью. Для каждого выберите один параметр и заранее определите наблюдаемое поле или метрику.</p></details></section>
-      <footer>По материалам OpenAI API Lab.md · Лабораторная работа №1<br><a href="documentation.html">Как работают запросы</a> · <a href="index.html" target="_blank" rel="noopener">Продолжить в чате ↗</a></footer>
+      <footer>По материалам OpenAI API Lab.md · Лабораторная работа №1<br><a href="documentation.html">Как работают запросы</a> · <a href="index.html">Продолжить в чате →</a></footer>
     </main>
   </div>
   <script>

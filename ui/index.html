@@ -1703,6 +1703,7 @@ const CFG_OPENAI_PRESETS = [{
   }
 
 </style>
+<link rel="stylesheet" href="app-navigation.css">
 </head>
 <body>
 
@@ -1715,6 +1716,11 @@ const CFG_OPENAI_PRESETS = [{
     </svg>
   </button>
   <span class="header-title" id="app-title">AI Agent</span>
+  <span class="app-nav-divider" aria-hidden="true"></span>
+  <a class="app-nav-link" href="?page=labs" data-app-page="labs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v7l-6 9a1 1 0 0 0 1 2h14a1 1 0 0 0 1-2l-6-9V3M8 15h8"/></svg><span data-i18n="navLabs">Лабы</span></a>
+  <span class="app-nav-divider" aria-hidden="true"></span>
+  <a class="app-nav-link" href="?page=chat" data-app-page="chat" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H4l-2 2V11.5a9.5 9.5 0 0 1 19 0Z"/><path d="M7 10h10M7 14h6"/></svg><span data-i18n="navChat">Чат</span></a>
+  <a class="app-nav-link" href="?page=documentation" data-app-page="documentation" hidden><span data-i18n="drawerDocsSection">Документация</span></a>
   <div class="compact-select" id="transport-toggle" data-value="webhook">
     <button class="compact-select-trigger" id="transport-select-trigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="transport-select-menu" data-i18n-title="transportTitle" title="Message transport">
       <span id="transport-select-value">Webhook</span>
@@ -1986,7 +1992,7 @@ const CFG_OPENAI_PRESETS = [{
       <span data-i18n="drawerDocs">How requests work</span>
       <span class="drawer-link-arrow">›</span>
     </a>
-    <a href="labs.html" class="drawer-link" target="_blank" rel="noopener noreferrer">
+    <a href="labs.html" class="drawer-link">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v7l-6 9a1 1 0 0 0 1 2h14a1 1 0 0 0 1-2l-6-9V3M8 15h8"/></svg>
       <span data-i18n="drawerLabs">Laboratory exercises</span>
       <span class="drawer-link-arrow" aria-hidden="true">↗</span>
@@ -2115,6 +2121,8 @@ function copyText(text) {
 // ── I18N ──
 const i18n = {
   en: {
+    navLabs: 'Labs',
+    navChat: 'Chat',
     btnNewSession:      'New Session',
     btnNewSessionTitle: 'Start a new session (new conversation ID)',
     btnClear:           'Clear',
@@ -2293,7 +2301,7 @@ const i18n = {
     welcomeTitle:       'AI Agent',
     welcomeLabTitle:    'What makes AI answer differently?',
     welcomeLabText:     'Change one setting and see the result. Explore context, creativity and function calls with step-by-step exercises right in this chat.',
-    welcomeLabAction:   'Start the lab ↗',
+    welcomeLabAction:   'Start the lab →',
     welcomeSub:         'Paste Webhook URL to start',
     inputPlaceholder:   'Message… (Enter to send, Shift+Enter for newline)',
     composerTarget:     'Next message will be sent via {name}: {detail}',
@@ -2334,6 +2342,8 @@ const i18n = {
     chatClearedSub:     'Start a new conversation',
   },
   ru: {
+    navLabs: 'Лабы',
+    navChat: 'Чат',
     btnNewSession:      'Новая сессия',
     btnNewSessionTitle: 'Начать новую сессию (новый ID разговора)',
     btnClear:           'Очистить',
@@ -2512,7 +2522,7 @@ const i18n = {
     welcomeTitle:       'AI Agent',
     welcomeLabTitle:    'Почему ИИ отвечает по-разному?',
     welcomeLabText:     'Измени одну настройку — и посмотри на результат. Исследуй память диалога, креативность и вызовы функций по пошаговым заданиям прямо в этом чате.',
-    welcomeLabAction:   'Начать лабораторную ↗',
+    welcomeLabAction:   'Начать лабораторную →',
     welcomeSub:         'Вставь Webhook URL и начинай',
     inputPlaceholder:   'Сообщение… (Enter — отправить, Shift+Enter — перенос)',
     composerTarget:     'Следующее сообщение будет отправлено через {name}: {detail}',
@@ -2604,7 +2614,7 @@ function addWelcomeLab(welcome) {
   if (!welcome || welcome.querySelector('.welcome-lab')) return;
   const card = document.createElement('div');
   card.className = 'welcome-lab';
-  card.innerHTML = `<strong data-i18n="welcomeLabTitle">${t('welcomeLabTitle')}</strong><p data-i18n="welcomeLabText">${t('welcomeLabText')}</p><a href="labs.html" target="_blank" rel="noopener noreferrer" data-i18n="welcomeLabAction">${t('welcomeLabAction')}</a>`;
+  card.innerHTML = `<strong data-i18n="welcomeLabTitle">${t('welcomeLabTitle')}</strong><p data-i18n="welcomeLabText">${t('welcomeLabText')}</p><a href="labs.html" data-i18n="welcomeLabAction">${t('welcomeLabAction')}</a>`;
   welcome.appendChild(card);
 }
 
@@ -5550,5 +5560,6 @@ function acceptConsent() {
   }
 })();
 </script>
+<script src="app-navigation.js"></script>
 </body>
 </html>

@@ -1,0 +1,33 @@
+/* One persistent header and chat; reading pages occupy the content area. */
+.app-nav-divider { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; }
+.app-nav-link { display: inline-flex; align-items: center; gap: 6px; color: var(--text-muted); text-decoration: none; font: 400 12px var(--font-ui); white-space: nowrap; flex-shrink: 0; min-height: 32px; }
+.app-nav-link[hidden] { display: none; }
+.app-nav-link svg { width: 17px; height: 17px; }
+.app-nav-link[aria-current="page"] { color: var(--text); font-weight: 700; }
+.app-nav-link:hover { color: var(--accent2); }
+.app-nav-link:focus-visible { outline: 2px solid var(--accent2); outline-offset: 3px; border-radius: 3px; }
+#app-content { flex: 1 1 auto; width: 100%; min-height: 0; border: 0; background: var(--bg); }
+#app-content[hidden] { display: none; }
+body[data-app-page]:not([data-app-page="chat"]) #messages,
+body[data-app-page]:not([data-app-page="chat"]) #input-area,
+body[data-app-page]:not([data-app-page="chat"]) #btn-clear { display: none; }
+body[data-settings-open] #app-content { width: calc(100% - var(--dock-left, 0px) - var(--dock-right, 0px)); margin-left: var(--dock-left, 0px); margin-right: var(--dock-right, 0px); margin-top: var(--dock-top, 0px); margin-bottom: var(--dock-bottom, 0px); }
+@media (max-width: 1000px) {
+  header { flex-wrap: wrap; height: auto; min-height: 78px; padding: 7px 10px 24px; gap: 6px; }
+  header .header-title { display: inline; font-size: 12px; }
+  #connection-summary { display: flex; position: absolute; left: 10px; right: 10px; bottom: 5px; width: auto; }
+  #mobile-connection-summary { display: none; }
+  #transport-toggle .compact-select-trigger { min-width: 90px; }
+  #btn-debug-toggle, #mode-settings-btn { display: inline-flex; }
+  #theme-btn, #lang-btn { display: inline-flex; }
+}
+@media (max-width: 640px) {
+  header { min-height: 110px; }
+  .app-nav-link { font-size: 12px; }
+  #transport-toggle { margin-left: 0; }
+  header #transport-toggle { flex-basis: calc(100% - 180px); }
+  #transport-toggle .compact-select-trigger { width: fit-content; }
+  #btn-debug-toggle { margin-left: auto; }
+  #theme-btn, #lang-btn { width: 30px; height: 30px; }
+  .app-nav-link[data-app-page="documentation"] { font-size: 10px; }
+}
