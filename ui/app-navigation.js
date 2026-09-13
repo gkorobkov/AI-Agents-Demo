@@ -22,8 +22,8 @@
       if (link === document.body) return;
       if (link.dataset.appPage === page) link.setAttribute('aria-current', 'page');
       else link.removeAttribute('aria-current');
-      if (link.dataset.appPage === 'documentation') link.hidden = page !== 'documentation';
     });
+    document.getElementById('app-nav-documentation').hidden = page !== 'documentation';
     frame.hidden = page === 'chat';
     if (!frame.hidden) {
       frame.title = page === 'labs' ? 'Лабораторные работы' : 'Документация';

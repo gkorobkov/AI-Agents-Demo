@@ -2,6 +2,9 @@
 .app-nav-divider { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; }
 .app-nav-link { display: inline-flex; align-items: center; gap: 6px; color: var(--text-muted); text-decoration: none; font: 400 12px var(--font-ui); white-space: nowrap; flex-shrink: 0; min-height: 32px; }
 .app-nav-link[hidden] { display: none; }
+.app-nav-subpage { display: inline-flex; align-items: center; gap: 6px; min-width: 0; color: var(--text-muted); font: 12px var(--font-ui); }
+.app-nav-subpage[hidden] { display: none; }
+.app-nav-subpage [aria-current] { color: var(--text); font-weight: 700; }
 .app-nav-link svg { width: 17px; height: 17px; }
 .app-nav-link[aria-current="page"] { color: var(--text); font-weight: 700; }
 .app-nav-link:hover { color: var(--accent2); }
@@ -29,5 +32,5 @@ body[data-settings-open] #app-content { width: calc(100% - var(--dock-left, 0px)
   #transport-toggle .compact-select-trigger { width: fit-content; }
   #btn-debug-toggle { margin-left: auto; }
   #theme-btn, #lang-btn { width: 30px; height: 30px; }
-  .app-nav-link[data-app-page="documentation"] { font-size: 10px; }
+  .app-nav-subpage { font-size: 10px; }
 }
