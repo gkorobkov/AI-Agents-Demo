@@ -1003,6 +1003,14 @@ const CFG_OPENAI_PRESETS = [{
   }
   .welcome-transport::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 7px currentColor; }
   .welcome-detail { display: block; margin: 11px auto 0; max-width: 440px; color: var(--text-muted); font: 10px/1.55 var(--font-mono); opacity: .75; }
+  .welcome-lab { margin-top: 22px; padding: 18px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+  .welcome-lab strong { display: block; color: var(--text); font-size: 16px; line-height: 1.4; }
+  .welcome .welcome-lab p { margin: 8px 0 14px; font: 12px/1.65 var(--font-ui); }
+  .welcome-lab a { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 9px 16px; border: 1px solid var(--accent2); border-radius: var(--radius-sm); background: var(--accent-dim); color: var(--accent2); font: 600 12px/1.5 var(--font-ui); text-decoration: none; pointer-events: auto; }
+  .welcome-lab a:hover { color: var(--text); border-color: var(--accent); }
+  .welcome-lab a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+  #messages.has-chat .welcome-lab { display: none; }
+  @media (max-height: 760px) { #messages .welcome { position: relative; top: auto; left: auto; transform: none; margin: auto; flex-shrink: 0; } }
   body[data-transport="openai"] .welcome { padding: 30px 28px 34px; background: linear-gradient(100deg, transparent, rgba(0,200,255,.035), transparent); }
   body[data-transport="openai"] .welcome-dialog-icon { filter: drop-shadow(0 0 18px rgba(0,200,255,.42)); }
   body[data-transport="openai"] .welcome-transport { color: var(--accent2); border-color: rgba(0,200,255,.34); background: rgba(0,200,255,.07); }
@@ -1978,6 +1986,11 @@ const CFG_OPENAI_PRESETS = [{
       <span data-i18n="drawerDocs">How requests work</span>
       <span class="drawer-link-arrow">›</span>
     </a>
+    <a href="labs.html" class="drawer-link" target="_blank" rel="noopener noreferrer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v7l-6 9a1 1 0 0 0 1 2h14a1 1 0 0 0 1-2l-6-9V3M8 15h8"/></svg>
+      <span data-i18n="drawerLabs">Laboratory exercises</span>
+      <span class="drawer-link-arrow" aria-hidden="true">↗</span>
+    </a>
   </div>
 
   <div class="drawer-section">
@@ -2151,6 +2164,7 @@ const i18n = {
     drawerLegal:        'Legal',
     drawerDocsSection:  'Documentation',
     drawerDocs:         'How requests work',
+    drawerLabs:         'Laboratory exercises',
     drawerPrivacy:      'Privacy Policy',
     drawerTerms:        'Terms of Use',
     drawerLicense:      'License',
@@ -2277,6 +2291,9 @@ const i18n = {
     webhookWelcomeDetail: 'Works with n8n, Make, Activepieces and custom endpoints · message + sessionId',
     openaiWelcomeDetail:  'OpenAI-compatible /chat/completions · one chat, configurable model and context',
     welcomeTitle:       'AI Agent',
+    welcomeLabTitle:    'What makes AI answer differently?',
+    welcomeLabText:     'Change one setting and see the result. Explore context, creativity and function calls with step-by-step exercises right in this chat.',
+    welcomeLabAction:   'Start the lab ↗',
     welcomeSub:         'Paste Webhook URL to start',
     inputPlaceholder:   'Message… (Enter to send, Shift+Enter for newline)',
     composerTarget:     'Next message will be sent via {name}: {detail}',
@@ -2366,6 +2383,7 @@ const i18n = {
     drawerLegal:        'Правовая информация',
     drawerDocsSection:  'Документация',
     drawerDocs:         'Как работают запросы',
+    drawerLabs:         'Лабораторные работы',
     drawerPrivacy:      'Политика конфиденциальности',
     drawerTerms:        'Условия использования',
     drawerLicense:      'Лицензия',
@@ -2492,6 +2510,9 @@ const i18n = {
     webhookWelcomeDetail: 'Работает с n8n, Make, Activepieces и своими endpoint · message + sessionId',
     openaiWelcomeDetail:  'OpenAI-совместимый /chat/completions · единый чат, модель и контекст под вашим контролем',
     welcomeTitle:       'AI Agent',
+    welcomeLabTitle:    'Почему ИИ отвечает по-разному?',
+    welcomeLabText:     'Измени одну настройку — и посмотри на результат. Исследуй память диалога, креативность и вызовы функций по пошаговым заданиям прямо в этом чате.',
+    welcomeLabAction:   'Начать лабораторную ↗',
     welcomeSub:         'Вставь Webhook URL и начинай',
     inputPlaceholder:   'Сообщение… (Enter — отправить, Shift+Enter — перенос)',
     composerTarget:     'Следующее сообщение будет отправлено через {name}: {detail}',
@@ -2579,6 +2600,14 @@ function applyLang(l, silent) {
 
 function toggleLang() { applyLang(lang === 'ru' ? 'en' : 'ru'); }
 
+function addWelcomeLab(welcome) {
+  if (!welcome || welcome.querySelector('.welcome-lab')) return;
+  const card = document.createElement('div');
+  card.className = 'welcome-lab';
+  card.innerHTML = `<strong data-i18n="welcomeLabTitle">${t('welcomeLabTitle')}</strong><p data-i18n="welcomeLabText">${t('welcomeLabText')}</p><a href="labs.html" target="_blank" rel="noopener noreferrer" data-i18n="welcomeLabAction">${t('welcomeLabAction')}</a>`;
+  welcome.appendChild(card);
+}
+
 // ── THEME ──
 let theme = localStorage.getItem('n8n_theme') || 'dark';
 
@@ -2601,6 +2630,7 @@ function applyTheme(newTheme, silent) {
 
 // ── INIT ──
 applyLang(lang, true);
+addWelcomeLab(document.getElementById('welcome-msg'));
 applyTheme(theme, true);
 document.getElementById('app-title').innerHTML = `AI Agent <span class="header-version">v${APP_VERSION}</span>`;
 document.getElementById('about-version').textContent = `v${APP_VERSION}`;
@@ -5163,6 +5193,7 @@ function clearChat(anchor) {
     <p>${t(transportMode === 'demo' ? 'demoWelcomeSub' : transportMode === 'openai' ? 'openaiWelcomeSub' : 'welcomeSub')}</p>
     <span class="welcome-detail" id="welcome-detail">${t(transportMode === 'demo' ? 'demoWelcomeDetail' : transportMode === 'openai' ? 'openaiWelcomeDetail' : 'webhookWelcomeDetail')}</span>`;
   messagesEl.appendChild(w);
+  addWelcomeLab(w);
   showSuggestions(INITIAL_SUGGESTIONS);
   toast(t('toastCleared'));
 }
