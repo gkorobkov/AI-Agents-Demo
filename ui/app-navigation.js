@@ -37,6 +37,7 @@
     if (push) history.pushState({ page }, '', url);
     document.title = page === 'chat' ? 'AI Agent Chat' : frame.title + ' — AI Agent';
     syncSettingsDock();
+    document.dispatchEvent(new Event('app:pagechange'));
   };
   document.addEventListener('click', event => {
     const link = event.target.closest('a');

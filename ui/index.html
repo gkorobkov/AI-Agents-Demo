@@ -5,7 +5,7 @@
 // ╔══════════════════════════════════════════════════════════╗
 // ║ ── VERSION ──  (grep: APP_VERSION for build increment)   ║
 // ╚══════════════════════════════════════════════════════════╝
-const APP_VERSION = '1.0';
+const APP_VERSION = '1.1';
 
 // ╔══════════════════════════════════════════════════════════╗
 // ║                   CONFIGURABLE DEFAULTS                  ║
@@ -1704,6 +1704,8 @@ const CFG_OPENAI_PRESETS = [{
 
 </style>
 <link rel="stylesheet" href="app-navigation.css">
+<!-- Yandex.Metrika 112561962: consent-aware loader -->
+<script src="metrika.js" defer></script>
 </head>
 <body>
 
@@ -2323,7 +2325,7 @@ const i18n = {
     consentText:        'By using this application you agree to our',
     consentPrivacy:     'Privacy Policy',
     consentTerms:       'Terms of Use',
-    consentCookie:      'and the use of localStorage to store your preferences.',
+    consentCookie:      'and the use of localStorage for preferences and Yandex Metrica cookies for site analytics and Session Replay. Chat content and connection settings are masked in recordings.',
     consentBtn:         'Accept & Continue',
     btnEdit:            'Edit',
     btnResend:          'Resend',
@@ -2544,7 +2546,7 @@ const i18n = {
     consentText:        'Используя это приложение, вы соглашаетесь с',
     consentPrivacy:     'Политикой конфиденциальности',
     consentTerms:       'Условиями использования',
-    consentCookie:      'и использованием localStorage для хранения данных.',
+    consentCookie:      'и использованием localStorage для настроек, а также cookie Яндекс Метрики для статистики и Вебвизора. Содержимое чата и настройки подключения скрыты в записях.',
     consentBtn:         'Принять и продолжить',
     btnEdit:            'Редактировать',
     btnResend:          'Отправить снова',
@@ -3344,7 +3346,7 @@ function attachToolHttpRunner(row, input, call, turn) {
 }
 function getToolResultsPanel() {
   let panel = document.getElementById('openai-tool-results');
-  if (!panel) { panel = document.createElement('div'); panel.id = 'openai-tool-results'; panel.className = 'tool-results'; panel.hidden = true; document.body.appendChild(panel); }
+  if (!panel) { panel = document.createElement('div'); panel.id = 'openai-tool-results'; panel.className = 'tool-results ym-hide-content'; panel.hidden = true; document.body.appendChild(panel); }
   return panel;
 }
 function resetOpenAIToolTurn() {
@@ -5547,6 +5549,7 @@ function acceptConsent() {
   document.getElementById('consent-banner').classList.add('hidden');
   document.getElementById('consent-overlay').classList.add('hidden');
   setControlsLocked(false);
+  document.dispatchEvent(new Event('app:consent'));
 }
 
 (function initConsent() {
