@@ -10,6 +10,7 @@
     if (frame.contentDocument) frame.contentDocument.documentElement.dataset.theme = document.documentElement.dataset.theme;
   };
   frame.addEventListener('load', syncFrameTheme);
+  frame.addEventListener('load', () => window.appMetrika?.bindClicks(frame.contentDocument, document.body.dataset.appPage));
   new MutationObserver(syncFrameTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   window.navigateApp = (requestedPage, hash = '', push = true) => {
     const page = Object.hasOwn(pages, requestedPage) ? requestedPage : 'chat';

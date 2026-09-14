@@ -43,7 +43,60 @@
     window.ym(CFG_METRIKA_ID, 'hit', url, { title: document.title, referer: previousUrl || safeUrl(document.referrer) });
     previousUrl = url;
   }
-  window.appMetrika = { trackPage };
+  const boundDocuments = new WeakSet();
+  const buttonNames = {
+    'send-btn': 'Отправить сообщение', 'burger-btn': 'Открыть меню',
+    'mode-settings-btn': 'Настройки подключения', 'btn-debug-toggle': 'Переключить Debug',
+    'theme-btn': 'Сменить тему', 'lang-btn': 'Сменить язык', 'btn-clear': 'Очистить чат',
+    'btn-new-session': 'Новая сессия', 'transport-select-trigger': 'Выбрать режим подключения',
+    'transport-btn-openai': 'Режим OpenAI API', 'transport-btn-webhook': 'Режим Webhook',
+    'transport-btn-demo': 'Режим Stub', 'theme': 'Сменить тему', 'lang': 'Сменить язык'
+  };
+  function describeControl(el) {
+    const type = el.matches('a') ? 'Ссылка' : el.matches('summary') ? 'Раскрыть раздел' : 'Кнопка';
+    if (buttonNames[el.id]) return { element: el.id, label: buttonNames[el.id], type };
+    const key = el.dataset.i18n || el.dataset.i18nTitle || el.dataset.i18nAriaLabel;
+    if (key && typeof i18n !== 'undefined' && i18n.ru[key]) return { element: key, label: i18n.ru[key], type };
+    if (el.dataset.appPage) return { element: 'nav_' + el.dataset.appPage, label: { labs: 'Лабы', chat: 'Чат', documentation: 'Документация' }[el.dataset.appPage] || 'Навигация', type };
+    if (el.hasAttribute('data-copy')) return { element: 'copy_example', label: 'Копировать пример или шаблон', type };
+    if (el.dataset.debugMode) return { element: 'debug_' + el.dataset.debugMode, label: 'Debug: ' + el.dataset.debugMode, type };
+    if (el.matches('a')) {
+      const url = new URL(el.getAttribute('href'), el.ownerDocument.location.href);
+      const file = url.pathname.split('/').pop().replace(/\.html$/, '');
+      const names = { index: 'В чат', '': 'В чат', labs: 'Лабораторные работы', documentation: 'Документация', 'privacy-policy': 'Политика конфиденциальности', terms: 'Условия использования' };
+      if (url.origin === location.origin && names[file]) {
+        const anchor = /^#(lab\d+|prepare|experiments|report|start|routes|contract|neuraldeep|setup|help)$/.test(url.hash) ? url.hash : '';
+        return { element: 'link_' + (file || 'index') + anchor, label: names[file] + (anchor ? ' · ' + anchor.slice(1) : ''), type };
+      }
+      if (url.hostname === 'github.com' && ['/gkorobkov', '/gkorobkov/AI-Agents-Demo'].includes(url.pathname)) return { element: 'github' + url.pathname, label: url.pathname.endsWith('AI-Agents-Demo') ? 'GitHub: проект' : 'GitHub: автор', type };
+      return { element: 'other_link', label: 'Другая ссылка', type };
+    }
+    // Only control identifiers, never user-generated text, hrefs or form values.
+    const action = (el.getAttribute('onclick') || '').match(/^\s*([A-Za-z][A-Za-z0-9_]*)\s*\(/)?.[1];
+    const component = ['dbg-copy', 'bubble-copy-btn', 'panel-collapse', 'api-pin', 'profile-pencil', 'suggestion-chip'].find(name => el.classList.contains(name));
+    const names = { 'dbg-copy': 'Копировать Debug', 'bubble-copy-btn': 'Копировать ответ', 'panel-collapse': 'Свернуть настройки', 'api-pin': 'Закрепить настройки', 'profile-pencil': 'Переименовать профиль', 'suggestion-chip': 'Выбрать подсказку' };
+    return { element: action || component || (type === 'Раскрыть раздел' ? 'expand_section' : 'other_button'), label: names[component] || action || type, type };
+  }
+  function bindClicks(doc, source) {
+    if (!doc || boundDocuments.has(doc)) return;
+    boundDocuments.add(doc);
+    doc.addEventListener('click', event => {
+      const el = event.target.closest?.('button, a[href], summary, input[type="button"], input[type="submit"], [role="button"]');
+      if (!el || el.disabled || el.getAttribute('aria-disabled') === 'true' || !consented()) return;
+      trackPage();
+      if (!initialized) return;
+      const section = el.closest('[id]')?.id;
+      const lab = el.closest('article.experiment')?.id;
+      const area = doc === document ? (el.closest('header') ? 'Хедер' : el.closest('#drawer') ? 'Меню' : el.closest('.transport-settings-panel') ? 'Настройки' : 'Контент') : 'Учебная страница';
+      window.ym(CFG_METRIKA_ID, 'reachGoal', 'ui_click', {
+        page: source || document.body.dataset.appPage || location.pathname.split('/').pop(),
+        area, ...describeControl(el),
+        section: /^lab\d+$/.test(lab || '') ? lab : /^lab\d+$/.test(section || '') ? section : 'general'
+      });
+    }, true);
+  }
+  window.appMetrika = { trackPage, bindClicks };
+  bindClicks(document);
   document.addEventListener('app:pagechange', trackPage);
   document.addEventListener('app:consent', trackPage);
   window.addEventListener('storage', event => {
