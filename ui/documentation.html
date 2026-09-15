@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Документация — AI Agent Chat</title>
+<title>Документация — AI Agents Lab</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Sora:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
@@ -65,7 +65,7 @@ const normalized = { message: text };</pre></div><div class="note"><p data-t="ta
 
 <section class="section" id="help"><p class="eyebrow" data-t="diagnostics">Диагностика</p><h2 data-t="helpTitle">Если что-то не работает</h2><details><summary>404 · n8n Test / Production</summary><p data-t="h404">Test webhook должен быть запущен в режиме ожидания. Production URL доступен только у активированного workflow. Проверьте часть /webhook-test/ или /webhook/.</p></details><details><summary>Invalid JSON</summary><p data-t="hJson">Убедитесь, что ответ — корректный JSON, Content-Type равен application/json, а строки заключены в двойные кавычки.</p></details><details><summary data-t="hEmptyTitle">Пустой ответ</summary><p data-t="hEmpty">Верните непустое поле message, text или output. Проверьте выражение в узле Respond to Webhook.</p></details><details><summary>CORS</summary><p data-t="hCors">Браузер блокирует прямой запрос, если сервер не разрешил origin страницы. Настройте CORS у провайдера или используйте Python backend.</p></details><details><summary>401 · API key</summary><p data-t="h401">Проверьте ключ и заголовок Authorization: Bearer …. Никогда не добавляйте ключ в URL.</p></details><details><summary>429 · Rate / concurrency</summary><p data-t="h429">Тариф допускает 30 запросов в минуту и 3 одновременных потока. Подождите завершения запросов и повторите позже.</p></details><details><summary>Timeout</summary><p data-t="hTimeout">Запрос выполнялся слишком долго. Проверьте логи выбранного маршрута и попробуйте более короткий запрос.</p></details>
 <div class="note security" style="margin-top:30px"><h3 data-t="security">Безопасность прежде всего</h3><p data-t="securityText">Не помещайте API-ключ в URL, сообщения или скриншоты. В прямом режиме ключ доступен браузеру; для команды и production используйте backend. По вашему тарифу NeuralDeep хранит историю логов 30 дней.</p><p style="margin-top:10px"><a href="https://neuraldeep.ru/docs" target="_blank" rel="noopener" data-t="official">Официальная документация NeuralDeep ↗</a></p></div></section>
-<footer class="footer"><span>AI Agent Chat · API field guide</span><a href="index.html" data-t="footerBack">← Вернуться в чат</a></footer>
+<footer class="footer"><span>AI Agents Lab · API field guide</span><a href="index.html" data-t="footerBack">← Вернуться в чат</a></footer>
 </main></div>
 <script>
 const copyLabel={ru:['КОПИРОВАТЬ','СКОПИРОВАНО'],en:['COPY','COPIED']};
@@ -76,7 +76,7 @@ const routeText={ru:{n8n:'Текущий путь. n8n принимает еди
 tx.ru.diagramInput='Всегда одинаковый вход';tx.ru.diagramMessage='Сообщение пользователя';tx.ru.diagramOutput='Всегда одинаковый выход';tx.ru.diagramAnswer='Ответ в чате';
 tx.en.diagramInput='Same input every time';tx.en.diagramMessage='User message';tx.en.diagramOutput='Same output every time';tx.en.diagramAnswer='Answer in chat';
 let lang=localStorage.getItem('n8n_lang')|| (navigator.language.startsWith('ru')?'ru':'en');let activeRoute='n8n';
-function applyLang(l){lang=l;localStorage.setItem('n8n_lang',l);document.documentElement.lang=l;document.querySelectorAll('[data-t]').forEach(el=>{const v=tx[l][el.dataset.t];if(v)el.textContent=v});document.getElementById('lang').textContent=l==='ru'?'EN':'RU';document.title=(l==='ru'?'Документация':'Documentation')+' — AI Agent Chat';renderRoute();document.querySelectorAll('[data-copy]').forEach(b=>b.textContent=copyLabel[l][0])}
+function applyLang(l){lang=l;localStorage.setItem('n8n_lang',l);document.documentElement.lang=l;document.querySelectorAll('[data-t]').forEach(el=>{const v=tx[l][el.dataset.t];if(v)el.textContent=v});document.getElementById('lang').textContent=l==='ru'?'EN':'RU';document.title=(l==='ru'?'Документация':'Documentation')+' — AI Agents Lab';renderRoute();document.querySelectorAll('[data-copy]').forEach(b=>b.textContent=copyLabel[l][0])}
 function renderRoute(){const names={n8n:'n8n webhook',direct:'Direct LLM API',python:'Python backend'};document.getElementById('route-panel').innerHTML='<small>'+(lang==='ru'?'Выбранный маршрут':'Selected route')+'</small><h3>'+names[activeRoute]+'</h3><p>'+routeText[lang][activeRoute]+'</p>'}
 document.getElementById('lang').onclick=()=>applyLang(lang==='ru'?'en':'ru');document.querySelectorAll('.mode').forEach(b=>b.onclick=()=>{activeRoute=b.dataset.route;document.querySelectorAll('.mode').forEach(x=>{const on=x===b;x.classList.toggle('active',on);x.setAttribute('aria-selected',on)});renderRoute()});
 let theme=localStorage.getItem('n8n_theme')||'dark';function applyTheme(v){theme=v;document.documentElement.dataset.theme=v;localStorage.setItem('n8n_theme',v)}document.getElementById('theme').onclick=()=>applyTheme(theme==='dark'?'light':'dark');

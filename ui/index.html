@@ -47,7 +47,7 @@ const CFG_OPENAI_PRESETS = [{
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Agent Chat</title>
+<title>AI Agents Lab</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2312151d'/%3E%3Cpath d='M32 12v7' stroke='%234fffb0' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='32' cy='10' r='3' fill='%2300c8ff'/%3E%3Crect x='15' y='20' width='34' height='29' rx='10' fill='%231a1e2c' stroke='%234fffb0' stroke-width='3'/%3E%3Ccircle cx='26' cy='33' r='2.8' fill='%2300c8ff'/%3E%3Ccircle cx='38' cy='33' r='2.8' fill='%2300c8ff'/%3E%3Cpath d='M25 42h14' stroke='%23edf2ff' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M39 38h16a5 5 0 0 1 5 5v5a5 5 0 0 1-5 5h-5l-6 5v-5h-5a5 5 0 0 1-5-5v-5a5 5 0 0 1 5-5z' fill='%2312151d' stroke='%23edf2ff' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M43 45h10M43 50h6' stroke='%234fffb0' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Sora:wght@300;400;600&display=swap" rel="stylesheet">
@@ -1662,7 +1662,7 @@ const CFG_OPENAI_PRESETS = [{
       <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/>
     </svg>
   </button>
-  <span class="header-title" id="app-title">AI Agent</span>
+  <span class="header-title" id="app-title">AI Agents Lab</span>
   <span class="app-nav-divider" aria-hidden="true"></span>
   <a class="app-nav-link" href="?page=labs" data-app-page="labs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v7l-6 9a1 1 0 0 0 1 2h14a1 1 0 0 0 1-2l-6-9V3M8 15h8"/></svg><span data-i18n="navLabs">Лабы</span></a>
   <span class="app-nav-subpage" id="app-nav-documentation" hidden><span aria-hidden="true">›</span><span aria-current="page" data-i18n="drawerDocsSection">Documentation</span></span>
@@ -1954,7 +1954,7 @@ const CFG_OPENAI_PRESETS = [{
     </p>
     <div class="about-links">
       <a href="https://github.com/gkorobkov/AI-Agents-Demo" class="drawer-link" target="_blank" rel="noopener noreferrer">
-        <span class="about-link-copy"><strong data-i18n="aboutProjectTitle">Under the hood · GitHub</strong><small data-i18n="aboutProjectDesc">Explore the source code and build your own version of AI Agents Demo.</small></span>
+        <span class="about-link-copy"><strong data-i18n="aboutProjectTitle">Under the hood · GitHub</strong><small data-i18n="aboutProjectDesc">Explore the source code and build your own version of AI Agents Lab.</small></span>
         <span class="drawer-link-arrow" aria-hidden="true">↗</span>
       </a>
       <a href="https://github.com/gkorobkov" class="drawer-link" target="_blank" rel="noopener noreferrer">
@@ -2019,7 +2019,7 @@ const CFG_OPENAI_PRESETS = [{
       <path d="M43 45h10M43 50h6" stroke="#4fffb0" stroke-width="2.5" stroke-linecap="round"/>
     </svg>
     <div class="welcome-transport" id="welcome-transport">Webhook transport</div>
-    <h2 data-i18n="welcomeTitle">AI Agent</h2>
+    <h2 data-i18n="welcomeTitle">AI Agents Lab</h2>
     <p data-i18n="welcomeSub">Вставь Webhook URL и начинай</p>
     <span class="welcome-detail" id="welcome-detail"></span>
   </div>
@@ -2042,7 +2042,7 @@ const CFG_OPENAI_PRESETS = [{
 <div id="consent-overlay"></div>
 <div id="consent-banner">
   <div id="consent-icon">🤖</div>
-  <div id="consent-title">AI Agent Chat</div>
+  <div id="consent-title">AI Agents Lab</div>
   <div id="consent-text"></div>
   <button id="consent-btn" onclick="acceptConsent()"></button>
 </div>
@@ -2111,7 +2111,7 @@ const i18n = {
     debugNoNetwork:     'No network request',
     drawerAbout:        'About',
     aboutProjectTitle:  'Under the hood · GitHub',
-    aboutProjectDesc:   'Explore the source code and build your own version of AI Agents Demo.',
+    aboutProjectDesc:   'Explore the source code and build your own version of AI Agents Lab.',
     aboutAuthorTitle:   'More from the author',
     aboutAuthorDesc:    'Visit gkorobkov on GitHub. Your next idea might start here.',
     drawerAboutDesc:    'Web interface for AI agents built on n8n workflows. Connect any webhook — chat instantly.',
@@ -2239,12 +2239,12 @@ const i18n = {
     openaiToolsUnsupported: 'The model requested a tool call. Tool execution will be added in a later stage.',
     openaiWelcomeSub:  'Configure OpenAI API, then send a message',
     webhookWelcomeTitle: 'Webhook Agent',
-    openaiWelcomeTitle:  'OpenAI API Lab',
+    openaiWelcomeTitle:  'AI Agents Lab',
     webhookTransport:  'Webhook transport',
     openaiTransport:   'Direct model transport',
     webhookWelcomeDetail: 'Works with n8n, Make, Activepieces and custom endpoints · message + sessionId',
     openaiWelcomeDetail:  'OpenAI-compatible /chat/completions · one chat, configurable model and context',
-    welcomeTitle:       'AI Agent',
+    welcomeTitle:       'AI Agents Lab',
     welcomeLabTitle:    'What makes AI answer differently?',
     welcomeLabText:     'Change one setting and see the result. Explore context, creativity and function calls with step-by-step exercises right in this chat.',
     welcomeLabAction:   'Start the lab →',
@@ -2332,7 +2332,7 @@ const i18n = {
     debugNoNetwork:     'Без сетевого запроса',
     drawerAbout:        'О приложении',
     aboutProjectTitle:  'Загляни под капот · GitHub',
-    aboutProjectDesc:   'Посмотри исходный код AI Agents Demo и создай свою версию.',
+    aboutProjectDesc:   'Посмотри исходный код проекта «Лаборатория ИИ Агентов» и создай свою версию.',
     aboutAuthorTitle:   'Другие проекты автора',
     aboutAuthorDesc:    'Загляни к gkorobkov на GitHub — возможно, здесь начнётся твоя следующая идея.',
     drawerAboutDesc:    'Веб-интерфейс для AI-агентов на базе n8n. Подключи любой webhook — начни чат мгновенно.',
@@ -2460,12 +2460,12 @@ const i18n = {
     openaiToolsUnsupported: 'Модель запросила вызов инструмента. Выполнение tools появится на следующем этапе.',
     openaiWelcomeSub:  'Настройте OpenAI API и отправьте сообщение',
     webhookWelcomeTitle: 'Webhook-агент',
-    openaiWelcomeTitle:  'Лаборатория OpenAI API',
+    openaiWelcomeTitle:  'Лаборатория ИИ Агентов',
     webhookTransport:  'Webhook-транспорт',
     openaiTransport:   'Прямой вызов модели',
     webhookWelcomeDetail: 'Работает с n8n, Make, Activepieces и своими endpoint · message + sessionId',
     openaiWelcomeDetail:  'OpenAI-совместимый /chat/completions · единый чат, модель и контекст под вашим контролем',
-    welcomeTitle:       'AI Agent',
+    welcomeTitle:       'Лаборатория ИИ Агентов',
     welcomeLabTitle:    'Почему ИИ отвечает по-разному?',
     welcomeLabText:     'Измени одну настройку — и посмотри на результат. Исследуй память диалога, креативность и вызовы функций по пошаговым заданиям прямо в этом чате.',
     welcomeLabAction:   'Начать лабораторную →',
@@ -2588,7 +2588,7 @@ function applyTheme(newTheme, silent) {
 applyLang(lang, true);
 addWelcomeLab(document.getElementById('welcome-msg'));
 applyTheme(theme, true);
-document.getElementById('app-title').innerHTML = `AI Agent <span class="header-version">v${APP_VERSION}</span>`;
+document.getElementById('app-title').innerHTML = `AI Agents Lab <span class="header-version">v${APP_VERSION}</span>`;
 document.getElementById('about-version').textContent = `v${APP_VERSION}`;
 
 // ── SETTINGS ──
