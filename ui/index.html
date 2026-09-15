@@ -36,7 +36,7 @@ const CFG_TRANSPORT_DEFAULT = 'openai';
 // Public presets contain configuration only. Credentials exist exclusively on the server.
 const CFG_OPENAI_PRESETS = [{
   id: 'preset_neuraldeep', name: 'neuraldeep', serverProfile: 'neuraldeep',
-  baseUrl: 'https://ai-agents-demo.gkorobkov.ru/api/neuraldeep', model: 'qwen3.6-unlim',
+  baseUrl: 'https://ai-agents-lab.gkorobkov.ru/api/neuraldeep', model: 'qwen3.6-unlim',
   systemPrompt: 'Ты — ИИ-агент для чата. Отвечай только в понятном Markdown/HTML-совместимом стиле, как в Telegram: короткие абзацы, ясные заголовки, списки и факты. Используй H2 для заголовков, короткие списки через "-" или "1.". Выделяй важное жирным **текстом**. Не используй JSON, таблицы и длинные блоки кода. Не пиши служебные комментарии и не повторяй шаблоны. Отвечай на русском языке, если не попросили иначе. Делай ответ компактным, читабельным и красиво оформленным для чата.',
   temperature: 0.7, topP: 1, maxCompletionTokens: 10000, n: 1,
   includeContext: false, toolsEnabled: false, toolChoice: 'auto',
@@ -110,7 +110,7 @@ const CFG_OPENAI_PRESETS = [{
   /* ── HEADER ── */
   header {
     padding: 0 14px;
-    height: 46px;
+    height: 34px;
     background: var(--surface);
     border-bottom: 1px solid var(--border);
     display: flex;
@@ -123,7 +123,7 @@ const CFG_OPENAI_PRESETS = [{
   }
 
   .logo-ring {
-    width: 26px; height: 26px;
+    width: 22px; height: 22px;
     border-radius: 50%;
     border: 1.5px solid var(--accent);
     background: transparent;
@@ -198,7 +198,7 @@ const CFG_OPENAI_PRESETS = [{
 
   #openai-settings-overlay { display: none; }
   .transport-settings-panel {
-    position: fixed; z-index: 9; top: 46px; left: 0; width: 100%; max-height: 0; overflow: hidden;
+    position: fixed; z-index: 9; top: 30px; left: 0; width: 100%; max-height: 0; overflow: hidden;
     padding: 0 max(24px, calc((100vw - 1180px) / 2)); background: var(--panel-bg);
     border-bottom: 0 solid var(--border); box-shadow: 0 18px 35px transparent;
     display: grid; grid-template-columns: 1.15fr 1.15fr .8fr; grid-auto-rows: max-content; align-content: start; gap: 0 14px;
@@ -1275,8 +1275,6 @@ const CFG_OPENAI_PRESETS = [{
   }
 
   @media (hover: none), (pointer: coarse) {
-    #transport-select-trigger, #mode-settings-btn { height: 32px; }
-    #mode-settings-btn { width: 32px; }
     .transport-option-row { grid-template-columns: 42px minmax(0, 1fr); }
     .transport-option-gear { min-height: 42px; font-size: 14px; }
   }
@@ -1661,9 +1659,7 @@ const CFG_OPENAI_PRESETS = [{
 <header>
   <button class="logo-ring" id="burger-btn" onclick="toggleDrawer()" title="Menu">
     <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
-      <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-      <path d="M2 17l10 5 10-5"/>
-      <path d="M2 12l10 5 10-5"/>
+      <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/>
     </svg>
   </button>
   <span class="header-title" id="app-title">AI Agent</span>

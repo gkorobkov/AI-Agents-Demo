@@ -47,7 +47,7 @@
     localStorage.setItem('ai_panel_side', side); refreshLabels();
   });
   sideButton.id = 'panel-side-btn'; sideButton.className = 'icon-btn';
-  document.querySelector('[data-app-page="labs"]').before(sideButton);
+  document.getElementById('btn-debug-toggle').before(sideButton);
   const separator = document.createElement('div');
   separator.id = 'workspace-separator'; separator.tabIndex = 0;
   separator.setAttribute('role', 'separator');
