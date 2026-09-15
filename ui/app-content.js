@@ -9,11 +9,6 @@
   const style = document.createElement('style');
   style.textContent = '.app-embedded body > header { display:none!important } .app-embedded nav.toc, .app-embedded .layout > nav { top:24px }';
   document.head.appendChild(style);
-  document.addEventListener('pointerdown', () => {
-    parent.closeOpenAISettings();
-    parent.closeWebhookSettings();
-    parent.closeDemoSettings();
-  });
   document.addEventListener('click', event => {
     const link = event.target.closest('a');
     if (!link || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;

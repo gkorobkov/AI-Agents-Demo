@@ -5,7 +5,7 @@
 // ╔══════════════════════════════════════════════════════════╗
 // ║ ── VERSION ──  (grep: APP_VERSION for build increment)   ║
 // ╚══════════════════════════════════════════════════════════╝
-const APP_VERSION = '1.1';
+const APP_VERSION = '1.2';
 
 // ╔══════════════════════════════════════════════════════════╗
 // ║                   CONFIGURABLE DEFAULTS                  ║
@@ -32,7 +32,6 @@ const CFG_SHOW_CHECK_BTN = false;
 // Transport order and defaults for users without saved preferences.
 const CFG_TRANSPORT_ORDER = ['demo', 'openai', 'webhook'];
 const CFG_TRANSPORT_DEFAULT = 'openai';
-const CFG_SETTINGS_DOCK_DEFAULT = 'left';
 
 // Public presets contain configuration only. Credentials exist exclusively on the server.
 const CFG_OPENAI_PRESETS = [{
@@ -312,11 +311,6 @@ const CFG_OPENAI_PRESETS = [{
   .lab-parameters .api-field > span { font-size: 9px; margin-bottom: 4px; }
   .lab-parameters .api-input { height: 30px; padding: 5px 9px; }
   button, summary, label { -webkit-user-select: text; user-select: text; }
-  .settings-resizer { position: fixed; z-index: 10; left: 0; right: 0; height: 10px; cursor: ns-resize; touch-action: none; border: 0; background: transparent; }
-  .settings-resizer::after { content: ''; position: absolute; top: 4px; left: 0; right: 0; height: 2px; background: var(--border); }
-  .settings-resizer:hover::after, .settings-resizer:focus-visible::after { background: var(--accent2); }
-  .settings-resizer[data-vertical="true"]::after { top: 0; bottom: 0; left: 4px; right: auto; width: 2px; height: auto; }
-  .settings-resizer[hidden] { display: none; }
   .debug-field-name { color: #89b6cb; font-weight: 400; }
   .debug-field-value { color: #b8e7b3; font-weight: 400; }
   .json-key { color: #89b6cb; }
@@ -722,6 +716,7 @@ const CFG_OPENAI_PRESETS = [{
     display: flex; align-items: center; justify-content: center;
     font-size: 13px; flex-shrink: 0; margin-top: 2px;
   }
+  .avatar svg { width: 100%; height: 100%; }
   .avatar.agent { background:var(--surface2); border:1px solid var(--border); }
   .msg-row[data-request-debug="true"] > .avatar { visibility: hidden; }
   .debug-code-icon { flex-shrink: 0; color: var(--accent2); font-family: var(--font-mono); }
@@ -993,7 +988,6 @@ const CFG_OPENAI_PRESETS = [{
     margin: 0 auto 12px;
     filter: drop-shadow(0 0 12px rgba(79,255,176,0.28));
   }
-  .welcome-icon { font-size:38px; margin-bottom:12px; }
   .welcome h2 { font-size:16px; font-weight:600; margin-bottom:4px; }
   .welcome p { font-size:12px; color:var(--text-muted); font-family:var(--font-mono); }
   .welcome-transport {
@@ -1003,13 +997,12 @@ const CFG_OPENAI_PRESETS = [{
   }
   .welcome-transport::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 7px currentColor; }
   .welcome-detail { display: block; margin: 11px auto 0; max-width: 440px; color: var(--text-muted); font: 10px/1.55 var(--font-mono); opacity: .75; }
-  .welcome-lab { margin-top: 22px; padding: 18px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+  .welcome-lab { margin-bottom: 22px; padding: 18px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
   .welcome-lab strong { display: block; color: var(--text); font-size: 16px; line-height: 1.4; }
   .welcome .welcome-lab p { margin: 8px 0 14px; font: 12px/1.65 var(--font-ui); }
   .welcome-lab a { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 9px 16px; border: 1px solid var(--accent2); border-radius: var(--radius-sm); background: var(--accent-dim); color: var(--accent2); font: 600 12px/1.5 var(--font-ui); text-decoration: none; pointer-events: auto; }
   .welcome-lab a:hover { color: var(--text); border-color: var(--accent); }
   .welcome-lab a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
-  #messages.has-chat .welcome-lab { display: none; }
   @media (max-height: 760px) { #messages .welcome { position: relative; top: auto; left: auto; transform: none; margin: auto; flex-shrink: 0; } }
   body[data-transport="openai"] .welcome { padding: 30px 28px 34px; background: linear-gradient(100deg, transparent, rgba(0,200,255,.035), transparent); }
   body[data-transport="openai"] .welcome-dialog-icon { filter: drop-shadow(0 0 18px rgba(0,200,255,.42)); }
@@ -1642,52 +1635,8 @@ const CFG_OPENAI_PRESETS = [{
   .wh-del-btn:hover    { border-color: var(--error); color: var(--error); }
   .wh-del-btn:hover { color: var(--error); }
 
-  body[data-settings-side="top"] .transport-settings-panel.open, body[data-settings-side="bottom"] .transport-settings-panel.open { max-height: min(520px, 55dvh); }
-  /* Settings docking: reserve the opposite side for the conversation. */
-  body[data-settings-open] #messages .welcome { position: static; transform: none; width: 100%; padding: 12px 8px; flex-shrink: 0; }
-  body[data-settings-open] #messages .welcome-icon { display: none; }
-  body[data-settings-open] #messages .suggestions-row { padding-right: 0; }
-  .settings-panel-controls { display: flex; align-items: center; justify-content: flex-start; gap: 7px; flex: 0 0 auto; }
-  .settings-panel-controls button { touch-action: manipulation; }
-  .api-settings-head { justify-content: flex-start; gap: 7px; }
-  .settings-panel-controls .api-pin { width: 30px; height: 30px; padding: 0; justify-content: center; }
-  .settings-panel-controls .api-pin span { display: none; }
-  .settings-dock { display: inline-flex; flex: 0 0 auto; gap: 2px; padding: 2px; border: 1px solid var(--border); border-radius: 5px; }
-  .settings-dock button { display: grid; place-items: center; width: 26px; height: 26px; padding: 0; border: 0; border-radius: 3px; background: transparent; color: var(--text-muted); cursor: pointer; }
-  .settings-dock button svg { width: 17px; height: 17px; }
-  .settings-dock button:hover, .settings-dock button:focus-visible { color: var(--text); background: var(--surface2); outline: 1px solid var(--accent2); }
-  .settings-dock button[aria-pressed="true"] { color: var(--accent2); background: var(--surface2); }
-  body[data-settings-open] #messages { min-height: 0; margin-top: var(--dock-top, 0px); margin-bottom: var(--dock-bottom, 0px); }
-  body[data-settings-open] #messages, body[data-settings-open] #input-area { margin-left: var(--dock-left, 0px); margin-right: var(--dock-right, 0px); min-width: 0; }
-  body[data-settings-open="bottom"] #input-area { margin-bottom: var(--dock-height, 0px); }
-  body[data-settings-side="bottom"] .transport-settings-panel { top: auto; bottom: 0; border-top: 1px solid var(--border); }
-  body[data-settings-side="left"] .transport-settings-panel, body[data-settings-side="right"] .transport-settings-panel { width: var(--dock-width); padding-inline: 12px; height: calc(100dvh - var(--dock-header)); max-height: calc(100dvh - var(--dock-header)) !important; grid-template-columns: minmax(0, 1fr); }
-  body[data-settings-side="right"] .transport-settings-panel { left: auto; right: 0; }
-  body[data-settings-side="left"] .transport-settings-panel > *, body[data-settings-side="right"] .transport-settings-panel > * { grid-column: 1 / -1 !important; grid-row: auto !important; min-width: 0; }
-  body[data-settings-side="left"] .api-settings-head, body[data-settings-side="right"] .api-settings-head { flex-wrap: wrap; gap: 7px; }
-  body[data-settings-side="left"] .openai-inline-title, body[data-settings-side="right"] .openai-inline-title { flex: 1 1 100%; max-width: none; }
-  body[data-settings-side="left"] .profile-combo, body[data-settings-side="right"] .profile-combo { flex: 1 1 150px; min-width: 90px; }
-  body[data-settings-side="left"] .tool-http-mapping, body[data-settings-side="right"] .tool-http-mapping { grid-template-columns: minmax(0, 1fr); }
-  @media (max-width: 640px) {
-    .api-settings-head { flex-wrap: wrap; gap: 6px; }
-    .openai-toolbar .openai-inline-title { flex-basis: 100%; }
-    body[data-settings-open="left"] #input-area, body[data-settings-open="right"] #input-area { flex-wrap: wrap; padding: 6px; gap: 4px; }
-    body[data-settings-open="left"] .composer-destination, body[data-settings-open="right"] .composer-destination { display: none; }
-    body[data-settings-open="left"] #msg-input, body[data-settings-open="right"] #msg-input { width: 100%; flex-basis: 100%; }
-    body[data-settings-open="left"] #messages, body[data-settings-open="right"] #messages { padding: 8px; }
-    body[data-settings-open="left"] .msg-row, body[data-settings-open="right"] .msg-row { flex-wrap: wrap; }
-    body[data-settings-open="left"] .bubble, body[data-settings-open="right"] .bubble { max-width: 100%; min-width: 0; overflow-wrap: anywhere; }
-    body[data-settings-side="left"] .api-grid, body[data-settings-side="right"] .api-grid,
-    body[data-settings-side="left"] .tool-options, body[data-settings-side="right"] .tool-options,
-    body[data-settings-side="left"] .tool-definition, body[data-settings-side="right"] .tool-definition,
-    body[data-settings-side="left"] .demo-controls, body[data-settings-side="right"] .demo-controls { grid-template-columns: minmax(0, 1fr); }
-    body[data-settings-side="left"] .api-head-actions, body[data-settings-side="right"] .api-head-actions { flex-wrap: wrap; }
-  }
-
   #connection-summary-text { flex: 0 1 auto; }
   #btn-debug-toggle { margin-left: auto; }
-  .settings-panel-controls { flex: 1 0 100%; width: 100%; justify-content: space-between; }
-  .settings-panel-leading { display: flex; align-items: center; gap: 7px; }
   .api-settings-head { flex-wrap: wrap; }
   #webhook-settings #btn-new-session { display: inline-flex; align-items: center; gap: 8px; width: fit-content; height: auto; padding: 7px 10px; opacity: 1; }
   #webhook-settings #btn-new-session svg { flex-shrink: 0; }
@@ -2073,7 +2022,6 @@ const CFG_OPENAI_PRESETS = [{
       <path d="M39 38h16a5 5 0 0 1 5 5v5a5 5 0 0 1-5 5h-5l-6 5v-5h-5a5 5 0 0 1-5-5v-5a5 5 0 0 1 5-5z" fill="#12151d" stroke="#edf2ff" stroke-width="3" stroke-linejoin="round"/>
       <path d="M43 45h10M43 50h6" stroke="#4fffb0" stroke-width="2.5" stroke-linecap="round"/>
     </svg>
-    <div class="welcome-icon">🤖</div>
     <div class="welcome-transport" id="welcome-transport">Webhook transport</div>
     <h2 data-i18n="welcomeTitle">AI Agent</h2>
     <p data-i18n="welcomeSub">Вставь Webhook URL и начинай</p>
@@ -2617,7 +2565,7 @@ function addWelcomeLab(welcome) {
   const card = document.createElement('div');
   card.className = 'welcome-lab';
   card.innerHTML = `<strong data-i18n="welcomeLabTitle">${t('welcomeLabTitle')}</strong><p data-i18n="welcomeLabText">${t('welcomeLabText')}</p><a href="labs.html" data-i18n="welcomeLabAction">${t('welcomeLabAction')}</a>`;
-  welcome.appendChild(card);
+  welcome.prepend(card);
 }
 
 // ── THEME ──
@@ -2755,10 +2703,7 @@ function closeDrawer() {
 }
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
-  if (document.getElementById('openai-settings').classList.contains('open')) closeOpenAISettings(true);
-  else if (document.getElementById('webhook-settings').classList.contains('open')) closeWebhookSettings(true);
-  else if (document.getElementById('demo-settings').classList.contains('open')) closeDemoSettings(true);
-  else if (drawerOpen) closeDrawer();
+  if (drawerOpen) closeDrawer();
 });
 
 // ── SESSION ──
@@ -2890,13 +2835,16 @@ function setTransport(mode, openSettings = false) {
   cancelDemoRequest();
   const panels = [document.getElementById('openai-settings'), document.getElementById('webhook-settings'), document.getElementById('demo-settings')];
   panels.forEach(panel => { panel.style.transition = 'none'; });
-  closeOpenAISettings(true);
-  closeWebhookSettings(true);
-  closeDemoSettings(true);
+  if (!window.appWorkspace) {
+    closeOpenAISettings(true);
+    closeWebhookSettings(true);
+    closeDemoSettings(true);
+  }
   panels.forEach(panel => { void panel.offsetHeight; panel.style.transition = ''; });
   transportMode = CFG_TRANSPORT_ORDER.includes(mode) ? mode : CFG_TRANSPORT_DEFAULT;
   localStorage.setItem('ai_transport', transportMode);
   updateTransportUI();
+  window.appWorkspace?.refreshSettings();
   if (transportMode === 'demo') loadStubFile(demoConfig.filename);
   closeCompactSelects();
   if (openSettings) {
@@ -2962,7 +2910,7 @@ function updateTransportUI() {
   const gear = document.getElementById('mode-settings-btn');
   gear.setAttribute('aria-controls', transportMode + '-settings');
   gear.setAttribute('aria-expanded', String(document.getElementById(transportMode + '-settings').classList.contains('open')));
-  const welcomeSub = document.querySelector('#welcome-msg p');
+  const welcomeSub = document.querySelector('#welcome-msg > p');
   if (welcomeSub) welcomeSub.textContent = transportMode === 'demo' ? t('demoWelcomeSub') : transportMode === 'openai' ? t('openaiWelcomeSub') : t('welcomeSub');
   const welcomeTitle = document.querySelector('#welcome-msg h2');
   if (welcomeTitle) welcomeTitle.textContent = transportMode === 'demo' ? t('demoWelcomeTitle') : transportMode === 'openai' ? t('openaiWelcomeTitle') : t('webhookWelcomeTitle');
@@ -3007,6 +2955,7 @@ function openActiveConnection() {
   openWebhookSettings();
 }
 function openWebhookSettings() {
+  if (window.appWorkspace && !window.appWorkspace.preparing) return window.appWorkspace.openSettings('webhook');
   closeOpenAISettings(true);
   closeDemoSettings(true);
   const panel = document.getElementById('webhook-settings');
@@ -3016,6 +2965,10 @@ function openWebhookSettings() {
   setTimeout(() => document.getElementById('webhook-url').focus(), 80);
 }
 function closeWebhookSettings(force = false) {
+  if (window.appWorkspace && !window.appWorkspace.preparing) {
+    if (force) window.appWorkspace.closeSettings();
+    return;
+  }
   if (webhookSettingsPinned && !force) return;
   const panel = document.getElementById('webhook-settings');
   panel.classList.remove('open');
@@ -3077,6 +3030,7 @@ async function loadStubFile(filename = demoConfig.filename) {
   return request;
 }
 function openDemoSettings() {
+  if (window.appWorkspace && !window.appWorkspace.preparing) return window.appWorkspace.openSettings('demo');
   closeOpenAISettings(true);
   closeWebhookSettings(true);
   document.getElementById('demo-preset').value = demoConfig.filename;
@@ -3093,6 +3047,10 @@ function openDemoSettings() {
   setTimeout(() => document.getElementById('demo-preset').focus(), 80);
 }
 function closeDemoSettings(force = false) {
+  if (window.appWorkspace && !window.appWorkspace.preparing) {
+    if (force) window.appWorkspace.closeSettings();
+    return;
+  }
   if (demoSettingsPinned && !force) return;
   const panel = document.getElementById('demo-settings');
   panel.classList.remove('open');
@@ -3140,6 +3098,7 @@ function saveDemoSettings() {
   setAutosaveStatus('demo-autosave-status', '');
 }
 function openOpenAISettings(focusBase = true) {
+  if (window.appWorkspace && !window.appWorkspace.preparing) return window.appWorkspace.openSettings('openai');
   closeWebhookSettings(true);
   closeDemoSettings(true);
   document.getElementById('openai-base-url').value = openAIConfig.baseUrl;
@@ -3166,6 +3125,10 @@ function openOpenAISettings(focusBase = true) {
   if (focusBase) setTimeout(() => document.getElementById('openai-base-url').focus(), 80);
 }
 function closeOpenAISettings(force = false) {
+  if (window.appWorkspace && !window.appWorkspace.preparing) {
+    if (force) window.appWorkspace.closeSettings();
+    return;
+  }
   if (openAISettingsPinned && !force) return;
   const panel = document.getElementById('openai-settings');
   panel.classList.remove('open');
@@ -3661,16 +3624,6 @@ function validateOpenAISettings() {
 function saveOpenAISettings() {
   commitOpenAISettings();
 }
-
-document.addEventListener('pointerdown', e => {
-  if (e.target.closest('#mode-settings-btn, .transport-settings-btn, .settings-resizer')) return;
-  const openAI = document.getElementById('openai-settings');
-  const webhook = document.getElementById('webhook-settings');
-  const demo = document.getElementById('demo-settings');
-  if (openAI.classList.contains('open') && !openAISettingsPinned && !openAI.contains(e.target)) closeOpenAISettings();
-  if (webhook.classList.contains('open') && !webhookSettingsPinned && !webhook.contains(e.target)) closeWebhookSettings();
-  if (demo.classList.contains('open') && !demoSettingsPinned && !demo.contains(e.target)) closeDemoSettings();
-});
 
 // Override webhookUrl from ?webhookurl= query param, then strip it from the address bar
 (function() {
@@ -4338,6 +4291,12 @@ function makeMsgMeta(role, text, row, bubble) {
   return meta;
 }
 
+function createAgentIcon() {
+  const icon = document.querySelector('.welcome-dialog-icon').cloneNode(true);
+  icon.removeAttribute('class');
+  return icon;
+}
+
 function appendMessage(role, text, provenance = '') {
   messagesEl.classList.add('has-chat');
   const row = document.createElement('div');
@@ -4348,7 +4307,8 @@ function appendMessage(role, text, provenance = '') {
   if (provenance) row.dataset.provenance = provenance;
   const avatar = document.createElement('div');
   avatar.className = `avatar ${role}`;
-  avatar.textContent = role === 'user' ? '👤' : '🤖';
+  if (role === 'user') avatar.textContent = '👤';
+  else avatar.appendChild(createAgentIcon());
   const wrap = document.createElement('div');
   wrap.className = 'bubble-wrap';
   const bubble = document.createElement('div');
@@ -4786,7 +4746,7 @@ function showTyping() {
   const row = document.createElement('div');
   row.className = 'msg-row agent'; row.id = 'typing-indicator';
   const av = document.createElement('div');
-  av.className = 'avatar agent'; av.textContent = '🤖';
+  av.className = 'avatar agent'; av.appendChild(createAgentIcon());
   const b = document.createElement('div');
   b.className = 'bubble typing-bubble';
   b.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
@@ -4916,7 +4876,7 @@ function showOpenAIToolResults(toolCalls, payload, assistantMessage, chatRow, co
   }
 }
 function focusOpenAIToolResults() {
-  closeOpenAISettings(true);
+  window.appWorkspace?.open('chat');
   const first = document.querySelector('#openai-tool-results [data-tool-call-id]');
   first?.scrollIntoView({ block: 'center', behavior: 'smooth' });
   first?.focus({ preventScroll: true });
@@ -5199,7 +5159,6 @@ function clearChat(anchor) {
       <path d="M39 38h16a5 5 0 0 1 5 5v5a5 5 0 0 1-5 5h-5l-6 5v-5h-5a5 5 0 0 1-5-5v-5a5 5 0 0 1 5-5z" fill="#12151d" stroke="#edf2ff" stroke-width="3" stroke-linejoin="round"/>
       <path d="M43 45h10M43 50h6" stroke="#4fffb0" stroke-width="2.5" stroke-linecap="round"/>
     </svg>
-    <div class="welcome-icon">🤖</div>
     <div class="welcome-transport" id="welcome-transport">${t(transportMode === 'demo' ? 'demoTransport' : transportMode === 'openai' ? 'openaiTransport' : 'webhookTransport')}</div>
     <h2>${t(transportMode === 'demo' ? 'demoWelcomeTitle' : transportMode === 'openai' ? 'openaiWelcomeTitle' : 'webhookWelcomeTitle')}</h2>
     <p>${t(transportMode === 'demo' ? 'demoWelcomeSub' : transportMode === 'openai' ? 'openaiWelcomeSub' : 'welcomeSub')}</p>
@@ -5246,140 +5205,7 @@ document.getElementById('openai-settings').addEventListener('input', event => {
   if (event.target.id !== 'openai-profile-name') scheduleOpenAIAutosave();
 });
 window.addEventListener('pagehide', () => { if (openAIAutosaveTimer) commitOpenAISettings(); });
-// Dock selection is shared by all transport settings panels.
-const settingsDockSides = ['left', 'top', 'right', 'bottom'];
-let settingsDockSide = localStorage.getItem('ai_settings_dock') || CFG_SETTINGS_DOCK_DEFAULT;
-let settingsDockWidth = null;
-if (!settingsDockSides.includes(settingsDockSide)) settingsDockSide = CFG_SETTINGS_DOCK_DEFAULT;
-function updateSettingsDockLabels() {
-  const labels = lang === 'ru' ? ['\u041f\u0430\u043d\u0435\u043b\u044c \u0441\u043b\u0435\u0432\u0430', '\u041f\u0430\u043d\u0435\u043b\u044c \u0441\u0432\u0435\u0440\u0445\u0443', '\u041f\u0430\u043d\u0435\u043b\u044c \u0441\u043f\u0440\u0430\u0432\u0430', '\u041f\u0430\u043d\u0435\u043b\u044c \u0441\u043d\u0438\u0437\u0443'] : ['Settings left', 'Settings top', 'Settings right', 'Settings bottom'];
-  document.querySelectorAll('.settings-dock').forEach(group => {
-    group.setAttribute('aria-label', lang === 'ru' ? '\u0420\u0430\u0441\u043f\u043e\u043b\u043e\u0436\u0435\u043d\u0438\u0435 \u043d\u0430\u0441\u0442\u0440\u043e\u0435\u043a' : 'Settings position');
-    group.querySelectorAll('button').forEach((button, index) => {
-      button.title = labels[index];
-      button.setAttribute('aria-label', labels[index]);
-      button.setAttribute('aria-pressed', String(settingsDockSide === settingsDockSides[index]));
-    });
-  });
-}
-function setSettingsDock(side) {
-  settingsDockSide = side;
-  localStorage.setItem('ai_settings_dock', side);
-  document.querySelectorAll('.transport-settings-panel').forEach(panel => { panel.style.height = ''; panel.style.maxHeight = ''; });
-  updateSettingsDockLabels();
-  syncSettingsDock();
-  syncSettingsResizer();
-}
-function syncSettingsDock() {
-  const body = document.body;
-  body.dataset.settingsSide = settingsDockSide;
-  const headerHeight = document.querySelector('header').getBoundingClientRect().height;
-  body.style.setProperty('--dock-header', headerHeight + 'px');
-  body.style.setProperty('--dock-width', Math.min(window.innerWidth - 100, settingsDockWidth ?? (window.innerWidth <= 640 ? Math.round(window.innerWidth * .65) : Math.min(600, Math.round(window.innerWidth * .46)))) + 'px');
-  const panel = document.querySelector('.transport-settings-panel.open');
-  ['top', 'bottom', 'left', 'right'].forEach(side => body.style.setProperty('--dock-' + side, '0px'));
-  if (!panel) { delete body.dataset.settingsOpen; return; }
-  body.dataset.settingsOpen = settingsDockSide;
-  const rect = panel.getBoundingClientRect();
-  body.style.setProperty('--dock-height', rect.height + 'px');
-  if (settingsDockSide !== 'bottom') body.style.setProperty('--dock-' + settingsDockSide, (settingsDockSide === 'top' ? rect.height : rect.width) + 'px');
-}
-document.querySelectorAll('.api-pin').forEach(pin => {
-  const group = document.createElement('div'); group.className = 'settings-dock'; group.setAttribute('role', 'group');
-  settingsDockSides.forEach((side, index) => {
-    const button = document.createElement('button'); button.type = 'button';
-    const rect = ['x="3" y="3" width="4" height="14"', 'x="3" y="3" width="14" height="4"', 'x="13" y="3" width="4" height="14"', 'x="3" y="13" width="14" height="4"'][index];
-    button.innerHTML = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="2" y="2" width="16" height="16" rx="1"/><rect ' + rect + ' fill="currentColor" stroke="none"/></svg>';
-    button.onclick = () => setSettingsDock(side); group.appendChild(button);
-  });
-  const head = pin.closest('.api-settings-head');
-  const controls = document.createElement('div');
-  controls.className = 'settings-panel-controls';
-  const leading = document.createElement('div'); leading.className = 'settings-panel-leading';
-  leading.append(head.querySelector('.panel-collapse'), pin);
-  controls.append(leading, group);
-  head.prepend(controls);
-});
-updateSettingsDockLabels();
-document.querySelectorAll('.transport-settings-panel').forEach(panel => {
-  new ResizeObserver(syncSettingsDock).observe(panel);
-  new MutationObserver(syncSettingsDock).observe(panel, { attributes: true, attributeFilter: ['class'] });
-});
-window.addEventListener('resize', syncSettingsDock);
-syncSettingsDock();
-
-// The resize handle stays outside the scroll container and follows the inner dock edge.
-const settingsResizer = document.createElement('div');
-settingsResizer.className = 'settings-resizer';
-settingsResizer.tabIndex = 0;
-settingsResizer.setAttribute('role', 'separator');
-document.body.appendChild(settingsResizer);
-function syncSettingsResizer() {
-  const panel = document.querySelector('.transport-settings-panel.open');
-  settingsResizer.hidden = !panel;
-  if (!panel) return;
-  const rect = panel.getBoundingClientRect();
-  const vertical = ['left', 'right'].includes(settingsDockSide);
-  Object.assign(settingsResizer.style, {
-    left: (vertical ? (settingsDockSide === 'left' ? rect.right : rect.left) - 5 : rect.left) + 'px',
-    top: (vertical ? rect.top : (settingsDockSide === 'top' ? rect.bottom : rect.top) - 5) + 'px',
-    right: 'auto', width: (vertical ? 10 : rect.width) + 'px',
-    height: (vertical ? rect.height : 10) + 'px', cursor: vertical ? 'ew-resize' : 'ns-resize'
-  });
-  settingsResizer.dataset.vertical = String(vertical);
-  settingsResizer.setAttribute('aria-orientation', vertical ? 'vertical' : 'horizontal');
-  settingsResizer.setAttribute('aria-label', lang === 'ru' ? 'Изменить размер панели настроек' : 'Resize settings panel');
-  settingsResizer.setAttribute('aria-valuenow', String(Math.round(vertical ? rect.width : rect.height)));
-}
-function resizeSettingsPanel(size) {
-  const panel = document.querySelector('.transport-settings-panel.open');
-  if (!panel) return;
-  if (['left', 'right'].includes(settingsDockSide)) {
-    settingsDockWidth = Math.min(window.innerWidth - 100, Math.max(220, size));
-  } else {
-    const maximum = Math.max(100, window.innerHeight - document.querySelector('header').getBoundingClientRect().height - 100);
-    size = Math.min(maximum, Math.max(100, size));
-    panel.style.height = size + 'px';
-    panel.style.maxHeight = size + 'px';
-  }
-  syncSettingsDock();
-  syncSettingsResizer();
-}
-let settingsResizeStart = null;
-settingsResizer.addEventListener('pointerdown', event => {
-  if (event.button !== 0) return;
-  const panel = document.querySelector('.transport-settings-panel.open');
-  if (!panel) return;
-  event.preventDefault();
-  const vertical = ['left', 'right'].includes(settingsDockSide);
-  settingsResizeStart = { coordinate: vertical ? event.clientX : event.clientY, size: vertical ? panel.getBoundingClientRect().width : panel.getBoundingClientRect().height, vertical };
-  settingsResizer.setPointerCapture(event.pointerId);
-});
-settingsResizer.addEventListener('pointermove', event => {
-  if (!settingsResizeStart) return;
-  const delta = (settingsResizeStart.vertical ? event.clientX : event.clientY) - settingsResizeStart.coordinate;
-  resizeSettingsPanel(settingsResizeStart.size + delta * (['right', 'bottom'].includes(settingsDockSide) ? -1 : 1));
-});
-settingsResizer.addEventListener('lostpointercapture', () => { settingsResizeStart = null; });
-settingsResizer.addEventListener('pointerup', event => { settingsResizeStart = null; settingsResizer.releasePointerCapture(event.pointerId); });
-settingsResizer.addEventListener('keydown', event => {
-  const vertical = ['left', 'right'].includes(settingsDockSide);
-  const keys = vertical ? ['ArrowLeft', 'ArrowRight'] : ['ArrowUp', 'ArrowDown'];
-  if (!keys.includes(event.key)) return;
-  event.preventDefault();
-  const direction = (event.key === keys[1] ? 1 : -1) * (['right', 'bottom'].includes(settingsDockSide) ? -1 : 1);
-  resizeSettingsPanel(Number(settingsResizer.getAttribute('aria-valuenow')) + direction * 20);
-});
-document.querySelectorAll('.transport-settings-panel').forEach(panel => {
-  new ResizeObserver(syncSettingsResizer).observe(panel);
-  new MutationObserver(syncSettingsResizer).observe(panel, { attributes: true, attributeFilter: ['class'] });
-});
-window.addEventListener('resize', () => {
-  const panel = document.querySelector('.transport-settings-panel.open');
-  if (panel?.style.height && ['top', 'bottom'].includes(settingsDockSide)) resizeSettingsPanel(parseFloat(panel.style.height));
-  syncSettingsResizer();
-});
-syncSettingsResizer();
+function updateSettingsDockLabels() { window.appWorkspace?.refreshLabels(); }
 const inputEl = document.getElementById('msg-input');
 inputEl.addEventListener('keydown', e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();} });
 inputEl.addEventListener('input', () => { resizeTextarea(inputEl); updateOpenAIRequestPreview(); });
