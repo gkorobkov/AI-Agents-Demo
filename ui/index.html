@@ -5,7 +5,7 @@
 // ╔══════════════════════════════════════════════════════════╗
 // ║ ── VERSION ──  (grep: APP_VERSION for build increment)   ║
 // ╚══════════════════════════════════════════════════════════╝
-const APP_VERSION = '1.2';
+const APP_VERSION = '1.3';
 
 // ╔══════════════════════════════════════════════════════════╗
 // ║                   CONFIGURABLE DEFAULTS                  ║
@@ -54,6 +54,7 @@ const CFG_OPENAI_PRESETS = [{
 
 <style>
   :root {
+    --app-header-height: 34px;
     --bg: #12151d;
     --surface: #1a1e2c;
     --surface2: #222740;
@@ -110,7 +111,7 @@ const CFG_OPENAI_PRESETS = [{
   /* ── HEADER ── */
   header {
     padding: 0 14px;
-    height: 34px;
+    height: var(--app-header-height);
     background: var(--surface);
     border-bottom: 1px solid var(--border);
     display: flex;
@@ -265,11 +266,11 @@ const CFG_OPENAI_PRESETS = [{
   #openai-settings > .api-field:nth-of-type(4) { grid-column: 1 / 3; display: flex; flex-direction: column; }
   #openai-system-prompt { flex: 1 0 auto; height: 130px; min-height: 130px; }
   .mode-control-cluster { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
-  #mode-settings-btn { width: 22px; height: 22px; color: color-mix(in srgb, var(--accent) 68%, var(--text-muted)); border-color: transparent; background: transparent; }
+  #mode-settings-btn { width: 22px; height: 22px; color: color-mix(in srgb, var(--accent) 68%, var(--text-muted)); border-color: color-mix(in srgb, currentColor 30%, transparent); background: color-mix(in srgb, currentColor 8%, transparent); }
   body[data-transport="openai"] #mode-settings-btn { color: color-mix(in srgb, var(--accent2) 68%, var(--text-muted)); }
   #mode-settings-btn:hover, #mode-settings-btn:focus-visible { color: var(--accent); border-color: rgba(79,255,176,.28); background: var(--accent-dim); outline: none; }
   #mode-settings-btn[aria-expanded="true"] { color: var(--accent); border-color: currentColor; background: var(--accent-dim); box-shadow: 0 0 12px rgba(79,255,176,.1); }
-  #mode-settings-btn svg { width: 13px; height: 13px; }
+  #mode-settings-btn svg { width: 16px; height: 16px; }
   #transport-select-menu { min-width: 178px; }
   .transport-option-row { display: grid; grid-template-columns: 30px minmax(0, 1fr); align-items: stretch; }
   .transport-option-row + .transport-option-row { border-top: 1px solid rgba(136,152,184,.12); }
@@ -1668,6 +1669,7 @@ const CFG_OPENAI_PRESETS = [{
   <span class="app-nav-subpage" id="app-nav-documentation" hidden><span aria-hidden="true">›</span><span aria-current="page" data-i18n="drawerDocsSection">Documentation</span></span>
   <span class="app-nav-divider" aria-hidden="true"></span>
   <a class="app-nav-link" href="?page=chat" data-app-page="chat" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H4l-2 2V11.5a9.5 9.5 0 0 1 19 0Z"/><path d="M7 10h10M7 14h6"/></svg><span data-i18n="navChat">Чат</span></a>
+  <span class="app-nav-divider" aria-hidden="true"></span>
   <div class="compact-select" id="transport-toggle" data-value="webhook">
     <button class="compact-select-trigger" id="transport-select-trigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="transport-select-menu" data-i18n-title="transportTitle" title="Message transport">
       <span id="transport-select-value">Webhook</span>
@@ -1680,7 +1682,7 @@ const CFG_OPENAI_PRESETS = [{
     </div>
   </div>
   <button class="icon-btn" id="mode-settings-btn" type="button" onclick="toggleActiveSettings()" aria-expanded="false" aria-controls="webhook-settings" data-i18n-title="modeSettingsTitle" data-i18n-aria-label="modeSettingsTitle" aria-label="Current mode settings" title="Current mode settings">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V21h-4v-.09A1.7 1.7 0 0 0 8.96 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3v-4h.09A1.7 1.7 0 0 0 4.6 8.96a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 8.96 4.6 1.7 1.7 0 0 0 10 3.04V3h4v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06a1.7 1.7 0 0 0-.34 1.88A1.7 1.7 0 0 0 20.96 10H21v4h-.09A1.7 1.7 0 0 0 19.4 15z"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m14 6 4 4M5 3l4 4-2 2-4-4 2-2Zm3 5 4 4m3 3 6 6-3 1-6-6M21 3l-4 1-3 3v4L3 20l1 1 9-11h4l3-3 1-4-4 4-2-2 6-2Z"/></svg>
   </button>
   <div id="connection-summary"><span id="connection-summary-text"></span><span class="status-dot" id="connection-summary-dot"></span></div>
   <div id="webhook-wrap">
@@ -1758,16 +1760,16 @@ const CFG_OPENAI_PRESETS = [{
     </svg>
   </button>
 
+  <!-- Language toggle (right) -->
+  <button class="lang-btn" id="lang-btn" onclick="toggleLang()" data-i18n-title="titleLang" title="Switch language">
+    <span id="lang-label">EN</span>
+  </button>
+
   <!-- Theme toggle (right) -->
   <button class="icon-btn" id="theme-btn" onclick="applyTheme(theme === 'dark' ? 'light' : 'dark')" data-i18n-title="titleTheme" title="Toggle theme">
     <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
     </svg>
-  </button>
-
-  <!-- Language toggle (right) -->
-  <button class="lang-btn" id="lang-btn" onclick="toggleLang()" data-i18n-title="titleLang" title="Switch language">
-    <span id="lang-label">EN</span>
   </button>
 </header>
 

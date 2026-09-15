@@ -21,10 +21,27 @@
     el.type = 'button'; el.textContent = caption; el.onclick = action;
     return el;
   };
+  const icon = paths => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
+  const panelIcons = {
+    chat: document.querySelector('[data-app-page="chat"] svg').outerHTML,
+    labs: document.querySelector('[data-app-page="labs"] svg').outerHTML,
+    settings: document.querySelector('#mode-settings-btn svg').outerHTML,
+    documentation: icon('<path d="M4 3h11l5 5v13H4zM14 3v6h6M8 13h8M8 17h6"/>')
+  };
+  const actionIcons = {
+    maximize: icon('<path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5"/>'),
+    close: icon('<path d="m6 6 12 12M18 6 6 18"/>'),
+    swap: icon('<path d="M3 8h18l-4-4M21 16H3l4 4"/>')
+  };
+  const iconButton = (markup, caption, action, className) => {
+    const el = button('', action); el.innerHTML = markup;
+    el.title = caption; el.setAttribute('aria-label', caption); el.className = className;
+    return el;
+  };
   Object.entries(definitions).forEach(([id, definition]) => {
     const panel = document.createElement('section');
     panel.className = 'workspace-panel'; panel.dataset.panel = id; panel.hidden = true;
-    const head = document.createElement('div'); head.className = 'workspace-panel-head';
+    const head = document.createElement('div'); head.className = 'workspace-panel-head'; head.tabIndex = -1;
     const content = document.createElement('div'); content.className = 'workspace-panel-content';
     panel.append(head, content); workspace.append(panel);
     panels[id] = { panel, head, content };
@@ -67,18 +84,39 @@
     Object.entries(panels).forEach(([id, { panel, head, frame }]) => {
       if (frame) frame.title = label(id);
       head.replaceChildren();
-      const title = document.createElement('strong'); title.textContent = label(id); head.append(title);
+      const title = document.createElement('strong'); title.innerHTML = panelIcons[id];
+      const caption = document.createElement('span'); caption.textContent = label(id);
+      title.append(caption); title.title = label(id); head.append(title);
       panel.setAttribute('aria-label', label(id));
       ['chat', 'settings', 'labs'].filter(candidate => !slots.includes(candidate)).forEach(candidate => {
-        const switcher = button(label(candidate), () => open(candidate, slots.indexOf(id)));
-        switcher.title = text('Открыть в этой области: ', 'Open in this area: ') + label(candidate);
+        const split = slots.filter(Boolean).length > 1;
+        const target = split ? slots.indexOf(id) : undefined;
+        const targetStart = split ? target === 0 : side === 'start';
+        const destination = mobile.matches
+          ? (targetStart ? text('сверху', 'above') : text('снизу', 'below'))
+          : (targetStart ? text('слева', 'on the left') : text('справа', 'on the right'));
+        const hint = (split ? text('Открыть в этой панели ', 'Open in this panel ') : text('Открыть в новой панели ', 'Open in a new panel ')) + destination + ': ' + label(candidate);
+        const switcher = iconButton(panelIcons[candidate], hint, () => {
+          open(candidate, target); panels[candidate].head.focus();
+        }, 'workspace-switch');
         head.append(switcher);
       });
-      if (slots.filter(Boolean).length > 1) {
-        const collapse = button('⌃', () => close(id)); collapse.className = 'workspace-collapse';
-        collapse.title = text('Свернуть: ', 'Collapse: ') + label(id);
-        collapse.setAttribute('aria-label', collapse.title); head.append(collapse);
-      }
+      const split = slots.filter(Boolean).length > 1;
+      const swap = iconButton(actionIcons.swap, text('Поменять панели местами', 'Swap panels'), () => {
+        slots.reverse(); ratio = 100 - ratio; render(); head.focus();
+      }, 'workspace-swap');
+      swap.disabled = !split;
+      const maximize = iconButton(actionIcons.maximize, text('На всю рабочую область: ', 'Fill workspace: ') + label(id), () => {
+        slots = [id, null]; render(); head.focus();
+      }, 'workspace-maximize');
+      maximize.disabled = !split;
+      const collapse = iconButton(actionIcons.close, text('Закрыть панель: ', 'Close panel: ') + label(id), () => {
+        close(id);
+        const remaining = slots.find(Boolean);
+        (remaining ? panels[remaining].head : document.querySelector('[data-app-page="chat"]')).focus();
+      }, 'workspace-collapse');
+      collapse.disabled = !split;
+      head.append(swap, maximize, collapse);
     });
     separator.setAttribute('aria-label', text('Размер областей', 'Panel sizes'));
     separator.setAttribute('aria-orientation', mobile.matches ? 'horizontal' : 'vertical');
@@ -132,8 +170,8 @@
     render();
   }
   function close(id) {
-    if (!slots.includes(id)) return;
-    slots = [slots.find(candidate => candidate && candidate !== id) || 'chat', null];
+    if (!slots.includes(id) || slots.filter(Boolean).length < 2) return;
+    slots = [slots.find(candidate => candidate && candidate !== id) || null, null];
     render();
   }
   const api = window.appWorkspace = {
